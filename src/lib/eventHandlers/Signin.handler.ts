@@ -33,4 +33,30 @@ export class SigninEventHandler {
       }
     });
   }
+
+  static async signin(signinModel: SigninModel, {onSuccess, onError}: {onSuccess?: () => Promise<void>; onError?: (error: unknown) => void} = {}) {
+    try {
+      const authStore = useAuthStore();
+      delete signinModel.errors;
+
+      const authToken = await requestSignin(signinModel);
+      await authStore.handleAuthToken(authToken);
+
+      await onSuccess?.();
+
+      Notify.create({
+        message: 'Signin successful',
+        color: 'positive',
+      });
+    } catch (error) {
+      onError?.(error);
+      // console.log(error);
+      Notify.create({
+        message: 'Signin failed',
+        color: 'negative',
+        icon: 'warning',
+        timeout: 5000,
+      });
+    }
+  }
 }

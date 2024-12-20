@@ -1,4 +1,4 @@
-# lawma_app_frontend (lawma-app-frontend)
+# Waste Pro (lawma-app-frontend)
 
 Waste Pro Project
 

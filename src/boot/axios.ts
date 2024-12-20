@@ -21,7 +21,7 @@ const authUserData = JSON.parse(
 ) as AuthUserData;
 const api = axios.create({
   baseURL: process.env.DEV
-    ? 'http://localhost:5100/'
+    ? 'http://localhost:5100/v1'
     : process.env.API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',

@@ -69,12 +69,12 @@
   </div>
 </template>
 <script setup lang="ts">
-import { Ref, inject, onBeforeUnmount, reactive, ref } from 'vue';
-import { EventBus } from 'quasar';
+import { Ref, onBeforeUnmount, reactive, ref } from 'vue';
+// import { EventBus } from 'quasar';
 import { useRouter } from 'vue-router';
 import LawmaAppBadge from 'src/components/LawmaAppBadge.vue';
 import { onMounted } from 'vue';
-import { EventNamesEnum } from 'src/lib/enums/events.enum';
+// import { EventNamesEnum } from 'src/lib/enums/events.enum';
 import { SigninEventHandler } from 'src/lib/eventHandlers/Signin.handler';
 import SigninModel from 'src/models/Signin.model';
 import { asyncComputed } from '@vueuse/core';
@@ -84,12 +84,12 @@ import { watch } from 'vue';
 
 // consts
 const router = useRouter();
-const eventBus = inject('eventBus') as EventBus;
+// const eventBus = inject('eventBus') as EventBus;
 const store = useAuthStore();
 const { token } = storeToRefs(store);
 
 // event handlers
-SigninEventHandler.handle(eventBus);
+// SigninEventHandler.handle(eventBus);
 
 // refs
 const showPassword = ref(false);
@@ -117,7 +117,16 @@ function validateField(name: string) {
 async function onSubmit() {
   //
   if (!newSigninModel.errors?.length) {
-    eventBus.emit(EventNamesEnum.SIGN_IN, newSigninModel);
+    // eventBus.emit(EventNamesEnum.SIGN_IN, newSigninModel);
+    await SigninEventHandler.signin(newSigninModel, {
+      onSuccess: async () => {
+        //
+        await router.replace('/dashboard');
+        // resetForm();
+      },
+    // navigate to dashboard
+    });
+    
   }
 }
 
@@ -149,6 +158,6 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-  eventBus.off(EventNamesEnum.SIGN_IN);
+  // eventBus.off(EventNamesEnum.SIGN_IN);
 });
 </script>
