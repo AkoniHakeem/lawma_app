@@ -17,7 +17,11 @@
               <!-- Logo section, currently commented out -->
             </div>
             <div class="billing-details">
-              <p class="date">{{ datestring }}</p>
+              <div v-if="billing.subscriberVirtualAccountDetails?.length > 0" class="flex row justify-between">
+                <p class="date">{{ datestring }}</p>
+                <p >{{ billing.subscriberVirtualAccountDetails?.[0] .account_name }} | {{ billing.subscriberVirtualAccountDetails?.[0].account_number }}</p>
+              </div>
+              <p v-else class="date">{{ datestring }}</p>
               <p class="billing-header">
                 GRS-{{ billing.propertySubscriptionId }} | {{ billing.propertyName }} of {{ billing.streetNumber }}
                 {{ billing.streetName }}

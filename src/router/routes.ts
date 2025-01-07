@@ -9,6 +9,13 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
+    path: '/index',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      { path: '', component: () => import('pages/Index2Page.vue') },
+    ],
+  },
+  {
     name: 'dashboard',
     path: '/dashboard',
     component: () => import('layouts/AuthenticatedLayout.vue'),

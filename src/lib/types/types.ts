@@ -93,6 +93,7 @@ export type BillingDetail = {
     propertyType: string;
     propertyTypeUnitPrice: number;
   }[];
+  subscriberVirtualAccountDetails: {account_name: string, account_number: string}[];
 };
 
 export type NotifierTypes = 'positive' | 'negative' | 'warning' | 'info';

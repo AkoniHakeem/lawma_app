@@ -2,10 +2,7 @@
   <dialog-card height="auto" :width="`${dialogWidth}rem`">
     <q-card-section class="q-pa-lg flex column q-gutter-sm moderate-modal-font">
       <!-- first row -->
-      <div
-        class="flex row justify-between q-mb-sm"
-        style="width: 100%; height: 12rem"
-      >
+      <div class="flex row justify-between q-mb-sm" style="width: 100%; height: 12rem">
         <!-- right side -->
         <div :style="{ width: '49.5%' }">
           <bordered-card>
@@ -16,59 +13,17 @@
             <!-- down -->
             <div>
               <p class="q-my-lg">
-                <span>Id</span
-                ><q-badge
-                  class="q-ml-sm q-pa-sm q-px-sm"
-                  :label="propertySubscription.id"
-                  rounded
-                />
+                <span>Id</span><q-badge class="q-ml-sm q-pa-sm q-px-sm" :label="propertySubscription.id" rounded />
               </p>
               <p class="q-my-lg">
                 <span>Name</span>
-                <q-badge
-                  class="q-ml-sm q-pa-sm q-px-sm"
-                  :label="propertySubscription.propertySubscriptionName"
-                  rounded
-                >
-                  <q-popup-edit
-                    v-model="propertySubscription.propertySubscriptionName"
-                    title="Edit Property Name"
-                    auto-save
-                    v-slot="scope"
-                  >
-                    <q-input
-                      v-model="scope.value"
-                      dense
-                      autofocus
-                      counter
-                      @keyup.enter="updatePropertyName(scope.value)"
-                    />
+                <q-badge class="q-ml-sm q-pa-sm q-px-sm" :label="propertySubscription.propertySubscriptionName" rounded>
+                  <q-popup-edit v-model="propertySubscription.propertySubscriptionName" title="Edit Property Name"
+                    auto-save v-slot="scope">
+                    <q-input v-model="scope.value" dense autofocus counter
+                      @keyup.enter="updatePropertyName(scope.value)" />
                   </q-popup-edit>
-                  <q-icon name="edit" class="q-ml-sm cursor-pointer text-subtitle1"/>
-                </q-badge>
-              </p>
-              <p>
-                <span>Phone</span>
-                <q-badge
-                  class="q-ml-sm q-pa-sm q-px-sm"
-                  :label="custodian.phone"
-                  rounded
-                >
-                  <q-popup-edit
-                    v-model="custodian.phone"
-                    title="Edit Phone Number"
-                    auto-save
-                    v-slot="scope"
-                  >
-                    <q-input
-                      v-model="scope.value"
-                      dense
-                      autofocus
-                      counter
-                      @keyup.enter="updatePhone(scope.value)"
-                    />
-                  </q-popup-edit>
-                  <q-icon name="edit" class="q-ml-sm cursor-pointer text-subtitle1"/>
+                  <q-icon name="edit" class="q-ml-sm cursor-pointer text-subtitle1" />
                 </q-badge>
               </p>
             </div>
@@ -86,44 +41,24 @@
               <p>
                 <span>Arrears</span>
                 <q-btn flat padding="0" @click="toggleEditModal">
-                  <q-chip
-                  class="q-ml-sm q-pa-sm q-px-sm"
-                  :label="'N' + propertySubscriptionArrearsRef"
-                  rounded
-                  color="primary"
-                  text-color="white"
-                  icon-right="edit"
-                  
-                />
+                  <q-chip class="q-ml-sm q-pa-sm q-px-sm" :label="'N' + propertySubscriptionArrearsRef" rounded
+                    color="primary" text-color="white" icon-right="edit" />
                 </q-btn>
-                
-                <q-dialog v-model="openEditModal" >
+
+                <q-dialog v-model="openEditModal">
                   <div>
-                    <edit-arrears
-                  :amount="propertySubscriptionArrearsRef"
-                  :property-subscription-id="propertySubscriptionId"
-                  @update-amount="
-                    (value) => (propertySubscriptionArrearsRef = value)
-                  "
-                />
+                    <edit-arrears :amount="propertySubscriptionArrearsRef"
+                      :property-subscription-id="propertySubscriptionId" @update-amount="(value) => (propertySubscriptionArrearsRef = value)
+                        " />
                   </div>
                 </q-dialog>
               </p>
               <p>
-                <span>Last Payment</span
-                ><q-badge
-                  class="q-ml-sm q-pa-sm q-px-sm"
-                  :label="lastPayment.amount"
-                  rounded
-                />
+                <span>Last Payment</span><q-badge class="q-ml-sm q-pa-sm q-px-sm" :label="lastPayment.amount" rounded />
               </p>
               <p>
-                <span>Date of Payment</span
-                ><q-badge
-                  class="q-ml-sm q-pa-sm q-px-sm"
-                  :label="lastPayment.createdAt"
-                  rounded
-                />
+                <span>Date of Payment</span><q-badge class="q-ml-sm q-pa-sm q-px-sm" :label="lastPayment.createdAt"
+                  rounded />
               </p>
             </div>
           </bordered-card>
@@ -140,19 +75,11 @@
           <div class="flex row justify-evenly">
             <p>
               <span>Number</span>
-              <q-badge
-                class="q-ml-sm q-pa-sm q-px-sm"
-                :label="propertyStreet.num"
-                rounded
-              />
+              <q-badge class="q-ml-sm q-pa-sm q-px-sm" :label="propertyStreet.num" rounded />
             </p>
             <p>
               <span>Name</span>
-              <q-badge
-                class="q-ml-sm q-pa-sm q-px-sm"
-                :label="propertyStreet.name"
-                rounded
-              />
+              <q-badge class="q-ml-sm q-pa-sm q-px-sm" :label="propertyStreet.name" rounded />
             </p>
           </div>
         </bordered-card>
@@ -168,27 +95,29 @@
           <div class="flex row justify-evenly q-mt-md">
             <p>
               <span>Name</span>
-              <q-badge
-                class="q-ml-sm q-pa-sm q-px-sm"
-                :label="custodian.name"
-                rounded
-              />
+              <q-badge class="q-ml-sm q-pa-sm q-px-sm" :label="custodian.name" rounded />
             </p>
             <p>
               <span>Email</span>
-              <q-badge
-                class="q-ml-sm q-pa-sm q-px-sm"
-                :label="custodian.email"
-                rounded
-              />
+              <q-badge class="q-ml-sm q-pa-sm q-px-sm" :label="custodian.email" rounded />
             </p>
             <p>
               <span>Phone</span>
-              <q-badge
-                class="q-ml-sm q-pa-sm q-px-sm"
-                :label="custodian.phone"
-                rounded
-              />
+              <q-badge class="q-ml-sm q-pa-sm q-px-sm" :label="custodian.phoneCode" rounded />
+              <q-badge class="q-ml-sm q-pa-sm q-px-sm" :label="custodian.phone" rounded>
+                <q-popup-edit v-model="custodianPhone" title="Edit Phone Number" auto-save v-slot="scope">
+                  <!-- <q-chip :label="custodian.phoneCodeId" /> -->
+                  <q-input v-model="scope.value" dense autofocus counter @keyup.enter="updatePhone(scope.value)"
+                    :rules="[val => val.length === 10 || 'Please enter a valid phone number']" />
+                </q-popup-edit>
+                <q-icon name="edit" class="q-ml-sm cursor-pointer text-subtitle1" />
+              </q-badge>
+            </p>
+            <br/>
+            <p v-if="propertySubscription.subscriberVirtualAccountDetails?.length > 0">
+              <span>Payment Account</span>
+              <q-badge class="q-ml-sm q-pa-sm q-px-sm" :label="propertySubscription.subscriberVirtualAccountDetails?.[0].account_name" rounded />
+              <q-badge class="q-ml-sm q-pa-sm q-px-sm" :label="propertySubscription.subscriberVirtualAccountDetails?.[0].account_number" rounded />
             </p>
           </div>
         </bordered-card>
@@ -201,76 +130,43 @@
             <div class="flex row justify-end" style="width: 50%">
               <span>Billing Details</span>
             </div>
-            <div
-              class="flex row justify-end q-gutter-sm q-mb-sm"
-              style="width: 50%"
-            >
-              <span v-if="!isEditing"
-                ><q-btn icon="edit" round @click="isEditing = true"
-              /></span>
-              <span v-if="isEditing"
-                ><q-btn icon="add" round @click="addRecord"
-              /></span>
-              <span v-if="isEditing"
-                ><q-btn icon="save" round @click="save"
-              /></span>
+            <div class="flex row justify-end q-gutter-sm q-mb-sm" style="width: 50%">
+              <span v-if="!isEditing"><q-btn icon="edit" round @click="isEditing = true" /></span>
+              <span v-if="isEditing"><q-btn icon="add" round @click="addRecord" /></span>
+              <span v-if="isEditing"><q-btn icon="save" round @click="save" /></span>
             </div>
           </div>
           <!-- middle -->
           <div>
             <!-- property units table -->
-            <q-table
-              bordered
-              :column="propertySubscriptionUnitsTableColumn"
-              :rows="propertySubscriptionUnitsTableRows"
-              :visible-columns="propertySubscriptionUnitsTableVisibleColumns"
-              table-header-class="text-bolder"
+            <q-table bordered :column="propertySubscriptionUnitsTableColumn" :rows="propertySubscriptionUnitsTableRows"
+              :visible-columns="propertySubscriptionUnitsTableVisibleColumns" table-header-class="text-bolder"
               :table-header-style="{
                 backgroundColor: `${$getColor('secondary')}`,
-              }"
-              :loading="isSaving"
-              :sort-method="
-                (rows) => {
-                  return rows;
-                }
-              "
-              @row-click="
-                (val) =>
+              }" :loading="isSaving" :sort-method="(rows) => {
+                return rows;
+              }
+                " @row-click="(val) =>
                   console.log(`row with the following data was clicked: `, val)
-              "
-            >
+                  ">
               <template v-slot:header="props">
                 <q-tr :props="props">
-                  <q-th
-                    v-for="col in props.cols"
-                    :key="col.name"
-                    :props="props"
-                    :style="{
-                      textAlign: 'left',
-                    }"
-                  >
+                  <q-th v-for="col in props.cols" :key="col.name" :props="props" :style="{
+                    textAlign: 'left',
+                  }">
                     {{ col.label }}
                   </q-th>
                 </q-tr>
               </template>
               <template v-slot:body="props">
                 <q-tr :props="props" @mouseenter="hovering(props.rowIndex)">
-                  <q-td
-                    v-for="(col, index) in props.cols"
-                    :key="col.name"
-                    class="text-left"
-                    :style="{
-                      postion: 'relative',
-                    }"
-                  >
+                  <q-td v-for="(col, index) in props.cols" :key="col.name" class="text-left" :style="{
+                    postion: 'relative',
+                  }">
                     <template v-if="col.name === 'propertyType'">
                       {{ props.row[col.name] }}
-                      <q-popup-edit
-                        v-model="props.row[col.name]"
-                        title="Edit the Property Type"
-                        auto-save
-                        v-slot="scope"
-                      >
+                      <q-popup-edit v-model="props.row[col.name]" title="Edit the Property Type" auto-save
+                        v-slot="scope">
                         <!-- <q-input
                           v-model="scope.value"
                           dense
@@ -279,20 +175,10 @@
                           @keyup.enter="scope.set"
                           :disable="!isEditing"
                         /> -->
-                        <q-select
-                          filled
-                          :model-value="scope.value"
-                          :options="propertyTypesOptions"
-                          use-input
-                          input-debounce="0"
-                          style="width: 250px"
-                          :disable="!isEditing"
-                          @keyup.enter="scope.set"
-                          @popup-show="fetchSelectPropertyTypeOptions"
-                          @update:model-value="
-                            (val) => updateModelValue(val, scope)
-                          "
-                        >
+                        <q-select filled :model-value="scope.value" :options="propertyTypesOptions" use-input
+                          input-debounce="0" style="width: 250px" :disable="!isEditing" @keyup.enter="scope.set"
+                          @popup-show="fetchSelectPropertyTypeOptions" @update:model-value="(val) => updateModelValue(val, scope)
+                            ">
                           <template v-slot:no-option>
                             <q-item>
                               <q-item-section class="text-grey">
@@ -304,27 +190,15 @@
                       </q-popup-edit>
                     </template>
                     <template v-else>
-                      <q-input
-                        v-model="props.row[col.name]"
-                        type="text"
-                        dense
-                        borderless
-                        :disable="!isEditing"
-                      />
-                      <span
-                        v-if="index === props.cols.length - 1"
-                        v-show="rowIndex === props.rowIndex"
-                        :style="{
-                          position: 'absolute',
-                          top: rowIndex === props.rowIndex ? '0.5rem' : '0',
-                          right: rowIndex === props.rowIndex ? '0.5rem' : '0',
-                          zIndex: rowIndex === props.rowIndex ? '1' : '0',
-                        }"
-                      >
-                        <advance-table-menu
-                          :menu-items="billingDetailsTableMenuItems"
-                          @menuItemClickHandler="() => removeRecord(rowIndex)"
-                        />
+                      <q-input v-model="props.row[col.name]" type="text" dense borderless :disable="!isEditing" />
+                      <span v-if="index === props.cols.length - 1" v-show="rowIndex === props.rowIndex" :style="{
+                        position: 'absolute',
+                        top: rowIndex === props.rowIndex ? '0.5rem' : '0',
+                        right: rowIndex === props.rowIndex ? '0.5rem' : '0',
+                        zIndex: rowIndex === props.rowIndex ? '1' : '0',
+                      }">
+                        <advance-table-menu :menu-items="billingDetailsTableMenuItems"
+                          @menuItemClickHandler="() => removeRecord(rowIndex)" />
                       </span>
                     </template>
                   </q-td>
@@ -353,8 +227,10 @@ import { useNotify } from 'src/composables/useNotify';
 import { PropertyTypeModel } from 'src/models/PropertyType.model';
 import useUiProcessHandler from 'src/composables/useUIProcessHandler';
 import { parseISO } from 'date-fns';
+import { requestApi } from 'src/lib/requests/default.request';
+import { UrlPathsEnum } from 'src/lib/enums/urlPaths.enum';
 
-
+// subscriberVirtualAccountDetails
 export interface ViewPropertyDetailsProps {
   dialogWidth?: number;
   propertySubscriptionId: string;
@@ -378,12 +254,12 @@ const billingDetailsTableMenuItems: {
   textColor?: string;
   color?: string;
 }[] = [
-  {
-    label: 'Remove Row',
-    icon: 'remove',
-    textColor: 'black',
-  },
-];
+    {
+      label: 'Remove Row',
+      icon: 'remove',
+      textColor: 'black',
+    },
+  ];
 
 const propertySubscriptionUnitsTableColumn: QTableColumn[] = [
   {
@@ -444,6 +320,7 @@ const propertySubscriptionArrearsRef = ref('');
 const openEditModal = ref(false);
 const openEditNameModal = ref(false);
 const openEditPhoneModal = ref(false);
+const custodianPhone = ref('')
 
 // computed
 const propertyTypesOptions = computed(() => {
@@ -454,29 +331,6 @@ const propertyTypesOptions = computed(() => {
     };
   });
 });
-
-// Add new functions
-function toggleEditNameModal() {
-  openEditNameModal.value = !openEditNameModal.value;
-}
-
-function toggleEditPhoneModal() {
-  openEditPhoneModal.value = !openEditPhoneModal.value;
-}
-
-async function updatePropertyName(newName: string) {
-  await useUiProcessHandler({
-    loader: $q.loading,
-    process: async () => {
-      await PropertySubscriptionHandler.updatePropertyName({
-        propertySubscriptionName: newName,
-        propertySubscriptionId: props.propertySubscriptionId,
-      });
-    },
-    loaderMessage: 'Updating property name...',
-  });
-  await fetchPropertySubscription();
-}
 
 // async function updatePhone(newPhone: string) {
 //   await useUiProcessHandler({
@@ -531,6 +385,8 @@ const custodian = computed(() => {
     email: '',
     name: '',
     phone: '',
+    phoneCode: '',
+    phoneCodeId: '',
   };
   const custodianProfile = propertySubscription.value.entitySubscriberProfile;
 
@@ -538,7 +394,9 @@ const custodian = computed(() => {
     cust = {
       email: custodianProfile.email,
       name: custodianProfile.firstName + custodianProfile.lastName,
-      phone: (custodianProfile.phoneCode?.name || '') + cust.phone || '',
+      phone: custodianProfile.phone || '',
+      phoneCode: custodianProfile.phoneCode?.name || '234',
+      phoneCodeId: custodianProfile.phoneCode?.id || '',
     };
   }
   return cust;
@@ -556,6 +414,49 @@ const propertyStreet = computed(() => {
 });
 
 // functions
+// Add new functions
+function toggleEditNameModal() {
+  openEditNameModal.value = !openEditNameModal.value;
+}
+
+function toggleEditPhoneModal() {
+  openEditPhoneModal.value = !openEditPhoneModal.value;
+}
+
+async function updatePropertyName(newName: string) {
+  await useUiProcessHandler({
+    loader: $q.loading,
+    process: async () => {
+      await PropertySubscriptionHandler.updatePropertyName({
+        propertySubscriptionName: newName,
+        propertySubscriptionId: props.propertySubscriptionId,
+      });
+    },
+    loaderMessage: 'Updating property name...',
+  });
+  await fetchPropertySubscription();
+}
+
+async function updatePhone(newPhoneValue: string) {
+  try {
+    custodianPhone.value = newPhoneValue;
+    const requestBody = {
+      ...(custodian.value.phoneCodeId ? { phoneCodeId: custodian.value.phoneCodeId } : { phoneCode: custodian.value.phoneCode, }),
+      phone: newPhoneValue,
+      propertySubscriptionId: props.propertySubscriptionId,
+    };
+    // console.log('the request body is: -->', requestBody);
+    await requestApi(UrlPathsEnum.UPDATE_PHONE, 'put', {
+      body: requestBody,
+    });
+    
+    useNotify({ type: 'positive', message: 'Phone number updated successfully' });
+  }
+  catch (err) {
+    useNotify({ type: 'negative' });
+  }
+}
+
 function updateModelValue(
   newValue: { label: string; value: string },
   popUpEditScope: { value: string }
@@ -630,25 +531,31 @@ function toggleEditModal() {
 
 // watch(propertySubscriptionArrearsRef, async (newValue) => {
 //   const valueHasChanged = newValue !== arrears.value;
-  // if (valueHasChanged) {
-  //   const valueToSend = newValue;
+// if (valueHasChanged) {
+//   const valueToSend = newValue;
 
-  //   await useUiProcessHandler({
-  //     loader: $q.loading,
-  //     process: async () => {
-  //       await BillingHandler.updateArrears({
-  //         arrears: newValue.substring(1),
-  //         propertySubscriptionId: props.propertySubscriptionId,
-  //       });
-  //     },
-  //     loaderMessage: 'Please, wait ...',
-  //   });
+//   await useUiProcessHandler({
+//     loader: $q.loading,
+//     process: async () => {
+//       await BillingHandler.updateArrears({
+//         arrears: newValue.substring(1),
+//         propertySubscriptionId: props.propertySubscriptionId,
+//       });
+//     },
+//     loaderMessage: 'Please, wait ...',
+//   });
 
-  //   await fetchPropertySubscription();
-  // }
+//   await fetchPropertySubscription();
+// }
 // });
 
 // update arrears ref
+watch(() => custodian.value.phone, async (newValue) => {
+  if (newValue) {
+    custodianPhone.value = newValue;
+  }
+});
+
 watch(propertySubscription, (newValue) => {
   if (newValue) {
     const balance =
