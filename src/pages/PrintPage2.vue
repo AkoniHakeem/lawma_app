@@ -19,7 +19,7 @@
             <div class="billing-details">
               <div v-if="billing.subscriberVirtualAccountDetails?.length > 0" class="flex row justify-between">
                 <p class="date">{{ datestring }}</p>
-                <p >{{ billing.subscriberVirtualAccountDetails?.[0] .account_name }} | {{ billing.subscriberVirtualAccountDetails?.[0].account_number }}</p>
+                <p class="account-details">{{ billing.subscriberVirtualAccountDetails?.[0] .account_name }} | {{ billing.subscriberVirtualAccountDetails?.[0].account_number }}</p>
               </div>
               <p v-else class="date">{{ datestring }}</p>
               <p class="billing-header">
@@ -157,6 +157,13 @@
     margin: 0.5rem 0;
     font-size: 0.7rem;
     line-height: 1.2;
+  }
+
+  .account-details {
+    word-break: break-all;
+    white-space: pre-line;
+    overflow-wrap: break-word;
+    max-width: 100%;
   }
   
   @media print {
