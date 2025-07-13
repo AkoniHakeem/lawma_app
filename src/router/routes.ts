@@ -4,16 +4,12 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
-    children: [
-      { path: '', component: () => import('pages/IndexPage.vue') },
-    ],
+    children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
   },
   {
     path: '/index',
     component: () => import('layouts/MainLayout.vue'),
-    children: [
-      { path: '', component: () => import('pages/Index2Page.vue') },
-    ],
+    children: [{ path: '', component: () => import('pages/Index2Page.vue') }],
   },
   {
     name: 'dashboard',
@@ -56,7 +52,38 @@ const routes: RouteRecordRaw[] = [
     children: [{ path: '', component: () => import('pages/PrintPage2.vue') }],
     props: true,
   },
-
+  {
+    path: '/sc',
+    component: () => import('layouts/ServiceClientLayout.vue'),
+    children: [
+      {
+        name: 'sc-dashboard',
+        path: 'dashboard',
+        component: () => import('pages/service-client/DashboardPage.vue'),
+      },
+      {
+        name: 'sc-billing',
+        path: 'billing',
+        component: () => import('pages/service-client/BillingPage.vue'),
+      },
+      {
+        name: 'sc-payments',
+        path: 'payments',
+        component: () => import('pages/service-client/PaymentsPage.vue'),
+      },
+      {
+        name: 'sc-notifications',
+        path: 'notifications',
+        component: () => import('pages/service-client/NotificationPage.vue'),
+      },
+      {
+        name: 'sc-profile',
+        path: 'profile',
+        component: () => import('pages/service-client/ProfilePage.vue'),
+      },
+      // Add more service client pages here as needed
+    ],
+  },
 
   // Always leave this as last one,
   // but you can also remove it

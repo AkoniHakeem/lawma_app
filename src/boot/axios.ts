@@ -16,18 +16,35 @@ declare module '@vue/runtime-core' {
 // good idea to move this instance creation inside of the
 // "export default () => {}" function below (which runs individually
 // for each client)
-const authUserData = JSON.parse(
-  (await forageGetItem(StorageNamesEnum.AUTH_USER_DATA)) as string
-) as AuthUserData;
 const api = axios.create({
   baseURL: process.env.DEV
     ? 'http://localhost:5200/v1'
     : process.env.API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${authUserData?.token}`,
   },
 });
+
+// Add request interceptor to dynamically add authorization token
+api.interceptors.request.use(
+  async (config) => {
+    try {
+      const authUserData = JSON.parse(
+        (await forageGetItem(StorageNamesEnum.AUTH_USER_DATA)) as string
+      ) as AuthUserData;
+
+      if (authUserData?.token) {
+        config.headers.Authorization = `Bearer ${authUserData.token}`;
+      }
+    } catch (error) {
+      console.warn('Failed to get auth token:', error);
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 export default boot(({ app }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api

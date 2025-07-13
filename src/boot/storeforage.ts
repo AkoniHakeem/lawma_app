@@ -31,6 +31,18 @@ const forageSetItem = async <T>(
   }
 };
 
+const forageRemoveItem = async (
+  key: string,
+  callback?: (err: unknown) => void
+) => {
+  try {
+    await storeforage.removeItem(key);
+  } catch (error) {
+    console.log('this is the error from storeforage remove: ', error);
+    callback?.(error);
+  }
+};
+
 const getStoreState = <T>(piniaStore: Pinia, storeName: string) => {
   const store = piniaStore.state.value[storeName] as T;
   return store;
@@ -58,7 +70,7 @@ export default boot(async ({ app, redirect, router }) => {
 
   // // check if user is authenticated
   router.beforeEach(async (to, from, next) => {
-    if (!['/','/auth/signin'].includes(to.path)) {
+    if (!['/', '/auth/signin'].includes(to.path)) {
       const authStore = JSON.parse(
         (await forageGetItem<AuthUserData>(
           StorageNamesEnum.AUTH_USER_DATA
@@ -76,4 +88,4 @@ export default boot(async ({ app, redirect, router }) => {
   // store.state.value
 });
 
-export { forageGetItem, forageSetItem, getStoreState };
+export { forageGetItem, forageSetItem, forageRemoveItem, getStoreState };
