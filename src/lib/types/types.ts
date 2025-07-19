@@ -59,12 +59,14 @@ export type PropertySubscriptionArray = PropertySubscription[];
 export type PaymentRecord = {
   id: string;
   amount: string;
-  paymentDate: Date;
+  paymentDate: string;
   propertySubscriptionId: string;
   payerName: string;
   year: string;
   month: string;
   propertySubscriptionName: string;
+  createdAt: string;
+  comments?: string;
 };
 
 export type TableRequestEventProps = {
@@ -93,7 +95,10 @@ export type BillingDetail = {
     propertyType: string;
     propertyTypeUnitPrice: number;
   }[];
-  subscriberVirtualAccountDetails: {account_name: string, account_number: string}[];
+  subscriberVirtualAccountDetails: {
+    account_name: string;
+    account_number: string;
+  }[];
 };
 
 export type NotifierTypes = 'positive' | 'negative' | 'warning' | 'info';

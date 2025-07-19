@@ -1,0 +1,2947 @@
+<template>
+  <q-page class="settings-management-page">
+    <div class="page-container">
+      <!-- Enhanced Header Section -->
+      <div class="page-header">
+        <div class="header-content">
+          <div class="title-section">
+            <h1 class="page-title">System Settings</h1>
+            <p class="page-subtitle">
+              Manage property types, system configurations, and administrative
+              settings
+            </p>
+          </div>
+          <div class="header-actions-section">
+            <q-btn
+              color="white"
+              text-color="primary"
+              rounded
+              no-caps
+              size="lg"
+              icon="settings"
+              @click="refreshAllData"
+              class="action-btn-enhanced"
+              :loading="refreshLoading"
+            >
+              Refresh Settings
+              <q-tooltip class="bg-primary"
+                >Refresh All Settings Data</q-tooltip
+              >
+            </q-btn>
+          </div>
+        </div>
+      </div>
+
+      <!-- Enhanced Navigation Tabs -->
+      <div class="navigation-section">
+        <q-card class="enhanced-card" flat>
+          <q-card-section class="q-pa-md">
+            <q-tabs
+              v-model="currentTab"
+              dense
+              active-color="primary"
+              active-bg-color="rgba(102, 126, 234, 0.1)"
+              indicator-color="primary"
+              align="left"
+              narrow-indicator
+              class="settings-tabs"
+            >
+              <q-tab
+                :name="NamedTabsEnum.PROPERTY_TYPES"
+                icon="home_work"
+                :label="NamedTabsEnum.PROPERTY_TYPES"
+                class="settings-tab"
+              />
+              <!-- More tabs will be added in future updates -->
+            </q-tabs>
+          </q-card-section>
+        </q-card>
+      </div>
+
+      <!-- Enhanced Tab Panels -->
+      <div class="content-area">
+        <q-tab-panels
+          v-model="currentTab"
+          animated
+          swipeable
+          transition-prev="jump-up"
+          transition-next="jump-up"
+          class="settings-panels"
+        >
+          <!-- Property Types Management -->
+          <q-tab-panel :name="NamedTabsEnum.PROPERTY_TYPES" class="q-pa-none">
+            <div class="tab-content">
+              <!-- Property Types Filter Section -->
+              <q-card class="enhanced-card" flat>
+                <q-card-section class="card-header">
+                  <div class="row items-center justify-between">
+                    <div class="header-info">
+                      <h6 class="text-h6 q-ma-none text-weight-bold">
+                        Property Types Management
+                      </h6>
+                      <p class="text-grey-6 q-ma-none text-caption">
+                        Manage property types, pricing, and configurations
+                      </p>
+                    </div>
+                    <div class="header-stats">
+                      <q-chip
+                        color="primary"
+                        text-color="white"
+                        icon="home_work"
+                        class="stats-chip"
+                      >
+                        {{ propertyTypes.length }} types
+                      </q-chip>
+                    </div>
+                  </div>
+                </q-card-section>
+
+                <q-separator />
+
+                <q-card-section>
+                  <div class="row items-center justify-between q-gutter-md">
+                    <div class="col-12 col-md-6">
+                      <q-select
+                        v-model="propertyTypeId"
+                        label="Select Property Type to Edit"
+                        filled
+                        outlined
+                        :options="propertyTypesOptions"
+                        emit-value
+                        map-options
+                        clearable
+                        dense
+                        class="filter-select"
+                        color="primary"
+                      >
+                        <template v-slot:prepend>
+                          <q-icon name="home_work" />
+                        </template>
+                      </q-select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <div class="row q-gutter-sm justify-end">
+                        <q-btn
+                          icon="add"
+                          color="primary"
+                          rounded
+                          @click="clearPropertyTypeForm"
+                          class="action-btn"
+                        >
+                          <q-tooltip class="bg-primary"
+                            >Add New Property Type</q-tooltip
+                          >
+                        </q-btn>
+                        <q-btn
+                          icon="refresh"
+                          color="secondary"
+                          rounded
+                          @click="refreshPropertyTypes"
+                          class="action-btn"
+                          :loading="propertyTypesLoading"
+                        >
+                          <q-tooltip class="bg-secondary"
+                            >Refresh Property Types</q-tooltip
+                          >
+                        </q-btn>
+                      </div>
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
+
+              <!-- Property Type Form -->
+              <q-card class="enhanced-card q-mt-md" flat>
+                <q-card-section class="card-header">
+                  <div class="row items-center">
+                    <q-icon
+                      name="edit"
+                      color="primary"
+                      size="sm"
+                      class="q-mr-sm"
+                    />
+                    <h6 class="text-h6 q-ma-none text-weight-bold">
+                      {{ propertyTypeModel.id ? 'Edit' : 'Add New' }} Property
+                      Type
+                    </h6>
+                  </div>
+                </q-card-section>
+
+                <q-separator />
+
+                <q-card-section>
+                  <q-form ref="propertyTypeForm" @submit.prevent="onSubmit">
+                    <div class="row q-gutter-lg">
+                      <div class="col-12 col-md-5">
+                        <div class="form-section">
+                          <h6 class="form-section-title">
+                            Property Information
+                          </h6>
+                          <div class="q-mb-md">
+                            <q-input
+                              v-model="propertyTypeModel.name"
+                              label="Property Type Name"
+                              filled
+                              outlined
+                              color="primary"
+                              clearable
+                              :rules="[
+                                () => $validateField(propertyTypeModel, 'name'),
+                              ]"
+                            >
+                              <template v-slot:prepend>
+                                <q-icon name="home_work" />
+                              </template>
+                            </q-input>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-12 col-md-5">
+                        <div class="form-section">
+                          <h6 class="form-section-title">
+                            Pricing Configuration
+                          </h6>
+                          <div class="q-mb-md">
+                            <q-input
+                              v-model="propertyTypeModel.unitPrice"
+                              label="Unit Price"
+                              filled
+                              outlined
+                              color="primary"
+                              type="number"
+                              prefix="₦"
+                              :rules="[
+                                () =>
+                                  $validateField(
+                                    propertyTypeModel,
+                                    'unitPrice'
+                                  ),
+                              ]"
+                            >
+                              <template v-slot:prepend>
+                                <q-icon name="payments" />
+                              </template>
+                            </q-input>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row justify-center q-mt-lg">
+                      <div class="row q-gutter-md">
+                        <q-btn
+                          :label="
+                            propertyTypeModel.id
+                              ? 'Update Property Type'
+                              : 'Create Property Type'
+                          "
+                          color="primary"
+                          rounded
+                          size="lg"
+                          :icon="propertyTypeModel.id ? 'update' : 'add'"
+                          @click="onSubmit"
+                          class="submit-btn"
+                          :loading="propertyTypeSubmitting"
+                        >
+                          <q-tooltip class="bg-primary">
+                            {{ propertyTypeModel.id ? 'Update' : 'Create' }}
+                            Property Type
+                          </q-tooltip>
+                        </q-btn>
+
+                        <q-btn
+                          v-if="propertyTypeModel.id"
+                          label="Delete Property Type"
+                          color="negative"
+                          rounded
+                          size="lg"
+                          icon="delete"
+                          @click="deletePropertyType"
+                          class="delete-btn"
+                          :loading="propertyTypeDeleting"
+                        >
+                          <q-tooltip class="bg-negative"
+                            >Delete This Property Type</q-tooltip
+                          >
+                        </q-btn>
+                      </div>
+                    </div>
+                  </q-form>
+                </q-card-section>
+              </q-card>
+
+              <!-- Property Types List -->
+              <q-card class="enhanced-card q-mt-md" flat>
+                <q-card-section class="card-header">
+                  <div class="row items-center">
+                    <q-icon
+                      name="list"
+                      color="primary"
+                      size="sm"
+                      class="q-mr-sm"
+                    />
+                    <h6 class="text-h6 q-ma-none text-weight-bold">
+                      Existing Property Types
+                    </h6>
+                  </div>
+                </q-card-section>
+
+                <q-separator />
+
+                <q-card-section class="q-pa-none">
+                  <div class="table-container">
+                    <q-table
+                      :rows="propertyTypes"
+                      :columns="propertyTypeColumns"
+                      row-key="id"
+                      class="enhanced-table property-types-table"
+                      separator="cell"
+                      flat
+                      bordered
+                      :loading="propertyTypesLoading"
+                      :pagination="{ rowsPerPage: 10 }"
+                    >
+                      <template v-slot:loading>
+                        <q-inner-loading showing color="primary" />
+                      </template>
+
+                      <template v-slot:no-data="{ message }">
+                        <div
+                          class="full-width row flex-center text-grey-6 q-gutter-sm"
+                        >
+                          <q-icon size="2em" name="home_work" />
+                          <span>{{
+                            message || 'No property types found'
+                          }}</span>
+                        </div>
+                      </template>
+
+                      <template v-slot:body-cell-name="props">
+                        <q-td :props="props" class="property-name-cell">
+                          <div class="property-info">
+                            <q-icon
+                              name="home_work"
+                              color="primary"
+                              size="sm"
+                              class="q-mr-sm"
+                            />
+                            <span class="text-weight-medium">{{
+                              props.value
+                            }}</span>
+                          </div>
+                        </q-td>
+                      </template>
+
+                      <template v-slot:body-cell-unitPrice="props">
+                        <q-td :props="props" class="price-cell">
+                          <q-chip
+                            color="green"
+                            text-color="white"
+                            icon="payments"
+                            class="price-chip"
+                          >
+                            ₦{{ formatCurrency(props.value) }}
+                          </q-chip>
+                        </q-td>
+                      </template>
+
+                      <template v-slot:body-cell-actions="props">
+                        <q-td :props="props" class="actions-cell">
+                          <div class="row q-gutter-sm">
+                            <q-btn
+                              icon="edit"
+                              color="primary"
+                              size="sm"
+                              rounded
+                              @click="editPropertyType(props.row)"
+                              class="action-btn-small"
+                            >
+                              <q-tooltip class="bg-primary">Edit</q-tooltip>
+                            </q-btn>
+                            <q-btn
+                              icon="delete"
+                              color="negative"
+                              size="sm"
+                              rounded
+                              @click="confirmDeletePropertyType(props.row)"
+                              class="action-btn-small"
+                            >
+                              <q-tooltip class="bg-negative">Delete</q-tooltip>
+                            </q-btn>
+                          </div>
+                        </q-td>
+                      </template>
+                    </q-table>
+                  </div>
+                </q-card-section>
+              </q-card>
+            </div>
+          </q-tab-panel>
+        </q-tab-panels>
+      </div>
+    </div>
+  </q-page>
+</template>
+            <div class="tab-content">
+              <!-- Application Settings -->
+              <q-card class="enhanced-card" flat>
+                <q-card-section class="card-header">
+                  <div class="row items-center justify-between">
+                    <div class="header-info">
+                      <h6 class="text-h6 q-ma-none text-weight-bold">
+                        Application Settings
+                      </h6>
+                      <p class="text-grey-6 q-ma-none text-caption">
+                        Configure general application behavior and preferences
+                      </p>
+                    </div>
+                    <q-chip
+                      color="secondary"
+                      text-color="white"
+                      icon="settings_applications"
+                      class="stats-chip"
+                    >
+                      System Config
+                    </q-chip>
+                  </div>
+                </q-card-section>
+
+                <q-separator />
+
+                <q-card-section>
+                  <div class="row q-gutter-lg">
+                    <div class="col-12 col-md-6">
+                      <div class="config-section">
+                        <h6 class="config-title">
+                          <q-icon name="settings" class="q-mr-sm" />
+                          General Settings
+                        </h6>
+
+                        <div class="config-item">
+                          <q-toggle
+                            v-model="systemConfig.maintenanceMode"
+                            label="Maintenance Mode"
+                            color="primary"
+                            class="config-toggle"
+                          />
+                          <p class="config-description">
+                            Enable to put the system in maintenance mode for
+                            updates
+                          </p>
+                        </div>
+
+                        <div class="config-item">
+                          <q-toggle
+                            v-model="systemConfig.autoBackup"
+                            label="Automatic Backup"
+                            color="primary"
+                            class="config-toggle"
+                          />
+                          <p class="config-description">
+                            Automatically backup data daily at midnight
+                          </p>
+                        </div>
+
+                        <div class="config-item">
+                          <q-toggle
+                            v-model="systemConfig.emailNotifications"
+                            label="Email Notifications"
+                            color="primary"
+                            class="config-toggle"
+                          />
+                          <p class="config-description">
+                            Send email notifications for important events
+                          </p>
+                        </div>
+
+                        <div class="config-item">
+                          <q-input
+                            v-model="systemConfig.appName"
+                            label="Application Name"
+                            filled
+                            outlined
+                            color="primary"
+                            class="config-input"
+                          >
+                            <template v-slot:prepend>
+                              <q-icon name="business" />
+                            </template>
+                          </q-input>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                      <div class="config-section">
+                        <h6 class="config-title">
+                          <q-icon name="security" class="q-mr-sm" />
+                          Security Settings
+                        </h6>
+
+                        <div class="config-item">
+                          <q-toggle
+                            v-model="systemConfig.twoFactorAuth"
+                            label="Two-Factor Authentication"
+                            color="primary"
+                            class="config-toggle"
+                          />
+                          <p class="config-description">
+                            Require 2FA for all admin users
+                          </p>
+                        </div>
+
+                        <div class="config-item">
+                          <q-toggle
+                            v-model="systemConfig.auditLogging"
+                            label="Audit Logging"
+                            color="primary"
+                            class="config-toggle"
+                          />
+                          <p class="config-description">
+                            Log all user actions for security auditing
+                          </p>
+                        </div>
+
+                        <div class="config-item">
+                          <q-input
+                            v-model="systemConfig.sessionTimeout"
+                            label="Session Timeout (minutes)"
+                            type="number"
+                            filled
+                            outlined
+                            color="primary"
+                            class="config-input"
+                            :rules="[
+                              (val) => val > 0 || 'Must be greater than 0',
+                            ]"
+                          >
+                            <template v-slot:prepend>
+                              <q-icon name="timer" />
+                            </template>
+                          </q-input>
+                        </div>
+
+                        <div class="config-item">
+                          <q-input
+                            v-model="systemConfig.maxLoginAttempts"
+                            label="Max Login Attempts"
+                            type="number"
+                            filled
+                            outlined
+                            color="primary"
+                            class="config-input"
+                            :rules="[
+                              (val) => val > 0 || 'Must be greater than 0',
+                            ]"
+                          >
+                            <template v-slot:prepend>
+                              <q-icon name="lock" />
+                            </template>
+                          </q-input>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
+
+              <!-- Payment Settings -->
+              <q-card class="enhanced-card q-mt-md" flat>
+                <q-card-section class="card-header">
+                  <div class="row items-center justify-between">
+                    <div class="header-info">
+                      <h6 class="text-h6 q-ma-none text-weight-bold">
+                        Payment Configuration
+                      </h6>
+                      <p class="text-grey-6 q-ma-none text-caption">
+                        Configure payment processing and billing settings
+                      </p>
+                    </div>
+                    <q-chip
+                      color="green"
+                      text-color="white"
+                      icon="payments"
+                      class="stats-chip"
+                    >
+                      Payment Config
+                    </q-chip>
+                  </div>
+                </q-card-section>
+
+                <q-separator />
+
+                <q-card-section>
+                  <div class="row q-gutter-lg">
+                    <div class="col-12 col-md-6">
+                      <div class="config-section">
+                        <h6 class="config-title">
+                          <q-icon name="payment" class="q-mr-sm" />
+                          Billing Settings
+                        </h6>
+
+                        <div class="config-item">
+                          <q-input
+                            v-model="systemConfig.defaultCurrency"
+                            label="Default Currency"
+                            filled
+                            outlined
+                            color="primary"
+                            class="config-input"
+                          >
+                            <template v-slot:prepend>
+                              <q-icon name="currency_exchange" />
+                            </template>
+                          </q-input>
+                        </div>
+
+                        <div class="config-item">
+                          <q-input
+                            v-model="systemConfig.lateFeePercentage"
+                            label="Late Fee Percentage"
+                            type="number"
+                            suffix="%"
+                            filled
+                            outlined
+                            color="primary"
+                            class="config-input"
+                          >
+                            <template v-slot:prepend>
+                              <q-icon name="percent" />
+                            </template>
+                          </q-input>
+                        </div>
+
+                        <div class="config-item">
+                          <q-input
+                            v-model="systemConfig.gracePeriodDays"
+                            label="Grace Period (days)"
+                            type="number"
+                            filled
+                            outlined
+                            color="primary"
+                            class="config-input"
+                          >
+                            <template v-slot:prepend>
+                              <q-icon name="schedule" />
+                            </template>
+                          </q-input>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                      <div class="config-section">
+                        <h6 class="config-title">
+                          <q-icon name="receipt" class="q-mr-sm" />
+                          Invoice Settings
+                        </h6>
+
+                        <div class="config-item">
+                          <q-toggle
+                            v-model="systemConfig.autoGenerateInvoices"
+                            label="Auto-Generate Invoices"
+                            color="primary"
+                            class="config-toggle"
+                          />
+                          <p class="config-description">
+                            Automatically generate monthly invoices
+                          </p>
+                        </div>
+
+                        <div class="config-item">
+                          <q-input
+                            v-model="systemConfig.invoicePrefix"
+                            label="Invoice Number Prefix"
+                            filled
+                            outlined
+                            color="primary"
+                            class="config-input"
+                          >
+                            <template v-slot:prepend>
+                              <q-icon name="tag" />
+                            </template>
+                          </q-input>
+                        </div>
+
+                        <div class="config-item">
+                          <q-select
+                            v-model="systemConfig.invoiceTemplate"
+                            label="Invoice Template"
+                            filled
+                            outlined
+                            color="primary"
+                            :options="invoiceTemplateOptions"
+                            class="config-input"
+                          >
+                            <template v-slot:prepend>
+                              <q-icon name="description" />
+                            </template>
+                          </q-select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
+
+              <!-- Action Buttons -->
+              <q-card class="enhanced-card q-mt-md" flat>
+                <q-card-section>
+                  <div class="row justify-center q-gutter-md">
+                    <q-btn
+                      label="Save Configuration"
+                      color="primary"
+                      rounded
+                      size="lg"
+                      icon="save"
+                      @click="saveSystemConfig"
+                      class="submit-btn"
+                      :loading="configSaving"
+                    >
+                      <q-tooltip class="bg-primary"
+                        >Save System Configuration</q-tooltip
+                      >
+                    </q-btn>
+
+                    <q-btn
+                      label="Reset to Defaults"
+                      color="secondary"
+                      rounded
+                      size="lg"
+                      icon="restore"
+                      @click="resetToDefaults"
+                      class="submit-btn"
+                      outline
+                    >
+                      <q-tooltip class="bg-secondary"
+                        >Reset to Default Values</q-tooltip
+                      >
+                    </q-btn>
+
+                    <q-btn
+                      label="Export Config"
+                      color="info"
+                      rounded
+                      size="lg"
+                      icon="download"
+                      @click="exportConfig"
+                      class="submit-btn"
+                      outline
+                    >
+                      <q-tooltip class="bg-info"
+                        >Export Configuration</q-tooltip
+                      >
+                    </q-btn>
+                  </div>
+                </q-card-section>
+              </q-card>
+            </div>
+          </q-tab-panel>
+
+          <!-- User Management -->
+          <q-tab-panel :name="NamedTabsEnum.USER_MANAGEMENT" class="q-pa-none">
+            <div class="tab-content">
+              <!-- User Statistics -->
+              <q-card class="enhanced-card" flat>
+                <q-card-section class="card-header">
+                  <div class="row items-center justify-between">
+                    <div class="header-info">
+                      <h6 class="text-h6 q-ma-none text-weight-bold">
+                        User Management
+                      </h6>
+                      <p class="text-grey-6 q-ma-none text-caption">
+                        Manage user accounts, roles, and permissions
+                      </p>
+                    </div>
+                    <div class="header-stats">
+                      <q-chip
+                        color="primary"
+                        text-color="white"
+                        icon="people"
+                        class="stats-chip"
+                      >
+                        {{ userStats.totalUsers }} users
+                      </q-chip>
+                      <q-chip
+                        color="green"
+                        text-color="white"
+                        icon="verified_user"
+                        class="stats-chip"
+                      >
+                        {{ userStats.activeUsers }} active
+                      </q-chip>
+                    </div>
+                  </div>
+                </q-card-section>
+
+                <q-separator />
+
+                <q-card-section>
+                  <div class="row q-gutter-lg">
+                    <div class="col-12 col-md-3">
+                      <div class="stat-card">
+                        <q-icon
+                          name="admin_panel_settings"
+                          size="2em"
+                          color="primary"
+                        />
+                        <h6 class="stat-number">{{ userStats.adminUsers }}</h6>
+                        <p class="stat-label">Admin Users</p>
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-3">
+                      <div class="stat-card">
+                        <q-icon name="person" size="2em" color="secondary" />
+                        <h6 class="stat-number">
+                          {{ userStats.standardUsers }}
+                        </h6>
+                        <p class="stat-label">Standard Users</p>
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-3">
+                      <div class="stat-card">
+                        <q-icon name="person_off" size="2em" color="negative" />
+                        <h6 class="stat-number">
+                          {{ userStats.inactiveUsers }}
+                        </h6>
+                        <p class="stat-label">Inactive Users</p>
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-3">
+                      <div class="stat-card">
+                        <q-icon name="schedule" size="2em" color="warning" />
+                        <h6 class="stat-number">
+                          {{ userStats.pendingUsers }}
+                        </h6>
+                        <p class="stat-label">Pending Approval</p>
+                      </div>
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
+
+              <!-- User Actions -->
+              <q-card class="enhanced-card q-mt-md" flat>
+                <q-card-section class="card-header">
+                  <div class="row items-center justify-between">
+                    <div class="header-info">
+                      <h6 class="text-h6 q-ma-none text-weight-bold">
+                        User Actions
+                      </h6>
+                      <p class="text-grey-6 q-ma-none text-caption">
+                        Quick actions for user management
+                      </p>
+                    </div>
+                  </div>
+                </q-card-section>
+
+                <q-separator />
+
+                <q-card-section>
+                  <div class="row q-gutter-md">
+                    <div class="col-12 col-md-6">
+                      <q-btn
+                        label="Add New User"
+                        color="primary"
+                        rounded
+                        size="lg"
+                        icon="person_add"
+                        @click="showAddUserDialog = true"
+                        class="full-width action-btn-large"
+                      >
+                        <q-tooltip class="bg-primary"
+                          >Add New User Account</q-tooltip
+                        >
+                      </q-btn>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <q-btn
+                        label="Bulk User Import"
+                        color="secondary"
+                        rounded
+                        size="lg"
+                        icon="upload"
+                        @click="showBulkImportDialog = true"
+                        class="full-width action-btn-large"
+                        outline
+                      >
+                        <q-tooltip class="bg-secondary"
+                          >Import Users from CSV</q-tooltip
+                        >
+                      </q-btn>
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
+
+              <!-- Role Management -->
+              <q-card class="enhanced-card q-mt-md" flat>
+                <q-card-section class="card-header">
+                  <div class="row items-center justify-between">
+                    <div class="header-info">
+                      <h6 class="text-h6 q-ma-none text-weight-bold">
+                        Role Management
+                      </h6>
+                      <p class="text-grey-6 q-ma-none text-caption">
+                        Configure user roles and permissions
+                      </p>
+                    </div>
+                    <q-btn
+                      icon="add"
+                      color="primary"
+                      rounded
+                      @click="showAddRoleDialog = true"
+                      class="action-btn"
+                    >
+                      <q-tooltip class="bg-primary">Add New Role</q-tooltip>
+                    </q-btn>
+                  </div>
+                </q-card-section>
+
+                <q-separator />
+
+                <q-card-section class="q-pa-none">
+                  <div class="table-container">
+                    <q-table
+                      :rows="userRoles"
+                      :columns="userRoleColumns"
+                      row-key="id"
+                      class="enhanced-table roles-table"
+                      separator="cell"
+                      flat
+                      bordered
+                      :loading="rolesLoading"
+                      :pagination="{ rowsPerPage: 5 }"
+                    >
+                      <template v-slot:loading>
+                        <q-inner-loading showing color="primary" />
+                      </template>
+
+                      <template v-slot:no-data="{ message }">
+                        <div
+                          class="full-width row flex-center text-grey-6 q-gutter-sm"
+                        >
+                          <q-icon size="2em" name="security" />
+                          <span>{{ message || 'No roles found' }}</span>
+                        </div>
+                      </template>
+
+                      <template v-slot:body-cell-name="props">
+                        <q-td :props="props" class="role-name-cell">
+                          <div class="role-info">
+                            <q-icon
+                              :name="props.row.icon"
+                              color="primary"
+                              size="sm"
+                              class="q-mr-sm"
+                            />
+                            <span class="text-weight-medium">{{
+                              props.value
+                            }}</span>
+                          </div>
+                        </q-td>
+                      </template>
+
+                      <template v-slot:body-cell-permissions="props">
+                        <q-td :props="props" class="permissions-cell">
+                          <div class="permissions-list">
+                            <q-chip
+                              v-for="permission in props.value"
+                              :key="permission"
+                              size="sm"
+                              color="blue-grey-2"
+                              text-color="blue-grey-8"
+                              class="q-ma-xs"
+                            >
+                              {{ permission }}
+                            </q-chip>
+                          </div>
+                        </q-td>
+                      </template>
+
+                      <template v-slot:body-cell-actions="props">
+                        <q-td :props="props" class="actions-cell">
+                          <div class="row q-gutter-sm">
+                            <q-btn
+                              icon="edit"
+                              color="primary"
+                              size="sm"
+                              rounded
+                              @click="editRole(props.row)"
+                              class="action-btn-small"
+                            >
+                              <q-tooltip class="bg-primary"
+                                >Edit Role</q-tooltip
+                              >
+                            </q-btn>
+                            <q-btn
+                              icon="delete"
+                              color="negative"
+                              size="sm"
+                              rounded
+                              @click="deleteRole(props.row)"
+                              class="action-btn-small"
+                            >
+                              <q-tooltip class="bg-negative"
+                                >Delete Role</q-tooltip
+                              >
+                            </q-btn>
+                          </div>
+                        </q-td>
+                      </template>
+                    </q-table>
+                  </div>
+                </q-card-section>
+              </q-card>
+
+              <!-- Recent User Activity -->
+              <q-card class="enhanced-card q-mt-md" flat>
+                <q-card-section class="card-header">
+                  <div class="row items-center justify-between">
+                    <div class="header-info">
+                      <h6 class="text-h6 q-ma-none text-weight-bold">
+                        Recent User Activity
+                      </h6>
+                      <p class="text-grey-6 q-ma-none text-caption">
+                        Latest user actions and system events
+                      </p>
+                    </div>
+                    <q-btn
+                      icon="refresh"
+                      color="primary"
+                      rounded
+                      @click="refreshUserActivity"
+                      class="action-btn"
+                      :loading="activityLoading"
+                    >
+                      <q-tooltip class="bg-primary">Refresh Activity</q-tooltip>
+                    </q-btn>
+                  </div>
+                </q-card-section>
+
+                <q-separator />
+
+                <q-card-section>
+                  <div class="activity-list">
+                    <div
+                      v-for="activity in recentActivity"
+                      :key="activity.id"
+                      class="activity-item"
+                    >
+                      <q-icon
+                        :name="activity.icon"
+                        :color="activity.color"
+                        size="sm"
+                        class="activity-icon"
+                      />
+                      <div class="activity-content">
+                        <div class="activity-text">{{ activity.text }}</div>
+                        <div class="activity-time">
+                          {{ formatTime(activity.timestamp) }}
+                        </div>
+                      </div>
+                    </div>
+                    <div v-if="recentActivity.length === 0" class="no-activity">
+                      <q-icon name="schedule" size="2em" color="grey-5" />
+                      <p class="text-grey-6">No recent activity</p>
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
+            </div>
+          </q-tab-panel>
+
+          <!-- Data Backup -->
+          <q-tab-panel :name="NamedTabsEnum.DATA_BACKUP" class="q-pa-none">
+            <div class="tab-content">
+              <!-- Backup Status -->
+              <q-card class="enhanced-card" flat>
+                <q-card-section class="card-header">
+                  <div class="row items-center justify-between">
+                    <div class="header-info">
+                      <h6 class="text-h6 q-ma-none text-weight-bold">
+                        Data Backup & Recovery
+                      </h6>
+                      <p class="text-grey-6 q-ma-none text-caption">
+                        Manage data backups, restoration, and system recovery
+                      </p>
+                    </div>
+                    <div class="header-stats">
+                      <q-chip
+                        :color="backupStatus.isHealthy ? 'green' : 'red'"
+                        text-color="white"
+                        :icon="
+                          backupStatus.isHealthy ? 'check_circle' : 'error'
+                        "
+                        class="stats-chip"
+                      >
+                        {{ backupStatus.isHealthy ? 'Healthy' : 'Issues' }}
+                      </q-chip>
+                    </div>
+                  </div>
+                </q-card-section>
+
+                <q-separator />
+
+                <q-card-section>
+                  <div class="row q-gutter-lg">
+                    <div class="col-12 col-md-4">
+                      <div class="backup-stat-card">
+                        <q-icon name="schedule" size="2em" color="primary" />
+                        <h6 class="stat-number">
+                          {{ backupStatus.lastBackup }}
+                        </h6>
+                        <p class="stat-label">Last Backup</p>
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <div class="backup-stat-card">
+                        <q-icon name="storage" size="2em" color="secondary" />
+                        <h6 class="stat-number">
+                          {{ backupStatus.totalSize }}
+                        </h6>
+                        <p class="stat-label">Total Size</p>
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <div class="backup-stat-card">
+                        <q-icon name="backup" size="2em" color="info" />
+                        <h6 class="stat-number">
+                          {{ backupStatus.backupCount }}
+                        </h6>
+                        <p class="stat-label">Available Backups</p>
+                      </div>
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
+
+              <!-- Backup Actions -->
+              <q-card class="enhanced-card q-mt-md" flat>
+                <q-card-section class="card-header">
+                  <div class="row items-center justify-between">
+                    <div class="header-info">
+                      <h6 class="text-h6 q-ma-none text-weight-bold">
+                        Backup Operations
+                      </h6>
+                      <p class="text-grey-6 q-ma-none text-caption">
+                        Create, schedule, and manage backups
+                      </p>
+                    </div>
+                  </div>
+                </q-card-section>
+
+                <q-separator />
+
+                <q-card-section>
+                  <div class="row q-gutter-md">
+                    <div class="col-12 col-md-4">
+                      <q-btn
+                        label="Create Backup Now"
+                        color="primary"
+                        rounded
+                        size="lg"
+                        icon="backup"
+                        @click="createBackup"
+                        class="full-width action-btn-large"
+                        :loading="backupInProgress"
+                      >
+                        <q-tooltip class="bg-primary"
+                          >Create Immediate Backup</q-tooltip
+                        >
+                      </q-btn>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <q-btn
+                        label="Schedule Backup"
+                        color="secondary"
+                        rounded
+                        size="lg"
+                        icon="schedule"
+                        @click="showScheduleDialog = true"
+                        class="full-width action-btn-large"
+                        outline
+                      >
+                        <q-tooltip class="bg-secondary"
+                          >Schedule Automatic Backup</q-tooltip
+                        >
+                      </q-btn>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <q-btn
+                        label="Restore Data"
+                        color="warning"
+                        rounded
+                        size="lg"
+                        icon="restore"
+                        @click="showRestoreDialog = true"
+                        class="full-width action-btn-large"
+                        outline
+                      >
+                        <q-tooltip class="bg-warning"
+                          >Restore from Backup</q-tooltip
+                        >
+                      </q-btn>
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
+
+              <!-- Backup History -->
+              <q-card class="enhanced-card q-mt-md" flat>
+                <q-card-section class="card-header">
+                  <div class="row items-center justify-between">
+                    <div class="header-info">
+                      <h6 class="text-h6 q-ma-none text-weight-bold">
+                        Backup History
+                      </h6>
+                      <p class="text-grey-6 q-ma-none text-caption">
+                        View and manage existing backups
+                      </p>
+                    </div>
+                    <q-btn
+                      icon="refresh"
+                      color="primary"
+                      rounded
+                      @click="refreshBackupHistory"
+                      class="action-btn"
+                      :loading="backupHistoryLoading"
+                    >
+                      <q-tooltip class="bg-primary"
+                        >Refresh Backup History</q-tooltip
+                      >
+                    </q-btn>
+                  </div>
+                </q-card-section>
+
+                <q-separator />
+
+                <q-card-section class="q-pa-none">
+                  <div class="table-container">
+                    <q-table
+                      :rows="backupHistory"
+                      :columns="backupHistoryColumns"
+                      row-key="id"
+                      class="enhanced-table backup-history-table"
+                      separator="cell"
+                      flat
+                      bordered
+                      :loading="backupHistoryLoading"
+                      :pagination="{ rowsPerPage: 10 }"
+                    >
+                      <template v-slot:loading>
+                        <q-inner-loading showing color="primary" />
+                      </template>
+
+                      <template v-slot:no-data="{ message }">
+                        <div
+                          class="full-width row flex-center text-grey-6 q-gutter-sm"
+                        >
+                          <q-icon size="2em" name="backup" />
+                          <span>{{
+                            message || 'No backup history found'
+                          }}</span>
+                        </div>
+                      </template>
+
+                      <template v-slot:body-cell-name="props">
+                        <q-td :props="props" class="backup-name-cell">
+                          <div class="backup-info">
+                            <q-icon
+                              name="backup"
+                              color="primary"
+                              size="sm"
+                              class="q-mr-sm"
+                            />
+                            <span class="text-weight-medium">{{
+                              props.value
+                            }}</span>
+                          </div>
+                        </q-td>
+                      </template>
+
+                      <template v-slot:body-cell-status="props">
+                        <q-td :props="props" class="status-cell">
+                          <q-chip
+                            :color="getStatusColor(props.value)"
+                            text-color="white"
+                            :icon="getStatusIcon(props.value)"
+                            class="status-chip"
+                          >
+                            {{ props.value }}
+                          </q-chip>
+                        </q-td>
+                      </template>
+
+                      <template v-slot:body-cell-size="props">
+                        <q-td :props="props" class="size-cell">
+                          <span class="text-weight-medium">{{
+                            props.value
+                          }}</span>
+                        </q-td>
+                      </template>
+
+                      <template v-slot:body-cell-actions="props">
+                        <q-td :props="props" class="actions-cell">
+                          <div class="row q-gutter-sm">
+                            <q-btn
+                              icon="download"
+                              color="primary"
+                              size="sm"
+                              rounded
+                              @click="downloadBackup(props.row)"
+                              class="action-btn-small"
+                            >
+                              <q-tooltip class="bg-primary">Download</q-tooltip>
+                            </q-btn>
+                            <q-btn
+                              icon="restore"
+                              color="warning"
+                              size="sm"
+                              rounded
+                              @click="restoreFromBackup(props.row)"
+                              class="action-btn-small"
+                            >
+                              <q-tooltip class="bg-warning">Restore</q-tooltip>
+                            </q-btn>
+                            <q-btn
+                              icon="delete"
+                              color="negative"
+                              size="sm"
+                              rounded
+                              @click="deleteBackup(props.row)"
+                              class="action-btn-small"
+                            >
+                              <q-tooltip class="bg-negative">Delete</q-tooltip>
+                            </q-btn>
+                          </div>
+                        </q-td>
+                      </template>
+                    </q-table>
+                  </div>
+                </q-card-section>
+              </q-card>
+
+              <!-- Backup Settings -->
+              <q-card class="enhanced-card q-mt-md" flat>
+                <q-card-section class="card-header">
+                  <div class="row items-center justify-between">
+                    <div class="header-info">
+                      <h6 class="text-h6 q-ma-none text-weight-bold">
+                        Backup Settings
+                      </h6>
+                      <p class="text-grey-6 q-ma-none text-caption">
+                        Configure backup preferences and retention policies
+                      </p>
+                    </div>
+                  </div>
+                </q-card-section>
+
+                <q-separator />
+
+                <q-card-section>
+                  <div class="row q-gutter-lg">
+                    <div class="col-12 col-md-6">
+                      <div class="config-section">
+                        <h6 class="config-title">
+                          <q-icon name="settings" class="q-mr-sm" />
+                          Backup Configuration
+                        </h6>
+
+                        <div class="config-item">
+                          <q-toggle
+                            v-model="backupSettings.autoBackup"
+                            label="Enable Automatic Backup"
+                            color="primary"
+                            class="config-toggle"
+                          />
+                          <p class="config-description">
+                            Automatically create backups at scheduled intervals
+                          </p>
+                        </div>
+
+                        <div class="config-item">
+                          <q-select
+                            v-model="backupSettings.frequency"
+                            label="Backup Frequency"
+                            filled
+                            outlined
+                            color="primary"
+                            :options="backupFrequencyOptions"
+                            class="config-input"
+                          >
+                            <template v-slot:prepend>
+                              <q-icon name="schedule" />
+                            </template>
+                          </q-select>
+                        </div>
+
+                        <div class="config-item">
+                          <q-input
+                            v-model="backupSettings.retentionDays"
+                            label="Retention Period (days)"
+                            type="number"
+                            filled
+                            outlined
+                            color="primary"
+                            class="config-input"
+                          >
+                            <template v-slot:prepend>
+                              <q-icon name="history" />
+                            </template>
+                          </q-input>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                      <div class="config-section">
+                        <h6 class="config-title">
+                          <q-icon name="storage" class="q-mr-sm" />
+                          Storage Configuration
+                        </h6>
+
+                        <div class="config-item">
+                          <q-select
+                            v-model="backupSettings.storageLocation"
+                            label="Storage Location"
+                            filled
+                            outlined
+                            color="primary"
+                            :options="storageLocationOptions"
+                            class="config-input"
+                          >
+                            <template v-slot:prepend>
+                              <q-icon name="cloud" />
+                            </template>
+                          </q-select>
+                        </div>
+
+                        <div class="config-item">
+                          <q-toggle
+                            v-model="backupSettings.compression"
+                            label="Enable Compression"
+                            color="primary"
+                            class="config-toggle"
+                          />
+                          <p class="config-description">
+                            Compress backups to save storage space
+                          </p>
+                        </div>
+
+                        <div class="config-item">
+                          <q-toggle
+                            v-model="backupSettings.encryption"
+                            label="Enable Encryption"
+                            color="primary"
+                            class="config-toggle"
+                          />
+                          <p class="config-description">
+                            Encrypt backups for additional security
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row justify-center q-mt-lg">
+                    <q-btn
+                      label="Save Backup Settings"
+                      color="primary"
+                      rounded
+                      size="lg"
+                      icon="save"
+                      @click="saveBackupSettings"
+                      class="submit-btn"
+                      :loading="backupSettingsSaving"
+                    >
+                      <q-tooltip class="bg-primary"
+                        >Save Backup Configuration</q-tooltip
+                      >
+                    </q-btn>
+                  </div>
+                </q-card-section>
+              </q-card>
+            </div>
+          </q-tab-panel>
+        </q-tab-panels>
+      </div>
+    </div>
+  </q-page>
+</template>
+<script setup lang="ts">
+import {
+  computed,
+  inject,
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  ref,
+  watch,
+} from 'vue';
+import { PropertySubscriptionHandler } from 'src/lib/eventHandlers/PropertySubscription.handler';
+import { PropertyTypeModel } from 'src/models/PropertyType.model';
+import { asyncComputed } from '@vueuse/core';
+import { QForm, EventBus, useQuasar, QTableColumn } from 'quasar';
+import { EventNamesEnum } from 'src/lib/enums/events.enum';
+import { isModelValid, clearUIEffects } from 'src/lib/utils';
+import { useNotify } from 'src/composables/useNotify';
+
+enum NamedTabsEnum {
+  PROPERTY_TYPES = 'Property Types',
+  SYSTEM_CONFIG = 'System Config',
+  USER_MANAGEMENT = 'User Management',
+  DATA_BACKUP = 'Data Backup',
+}
+
+// Enhanced column definitions for property types table
+const propertyTypeColumns: QTableColumn[] = [
+  {
+    field: 'name',
+    label: 'Property Type Name',
+    name: 'name',
+    align: 'left',
+    sortable: true,
+  },
+  {
+    field: 'unitPrice',
+    label: 'Unit Price',
+    name: 'unitPrice',
+    align: 'right',
+    sortable: true,
+  },
+  {
+    field: 'actions',
+    label: 'Actions',
+    name: 'actions',
+    align: 'center',
+    sortable: false,
+  },
+];
+
+// Constants
+const eventBus = inject('eventBus') as EventBus;
+const $q = useQuasar();
+
+// Variables
+let timer: NodeJS.Timeout;
+
+// Reactive refs
+const currentTab = ref<NamedTabsEnum>(NamedTabsEnum.PROPERTY_TYPES);
+const propertyTypes = ref<PropertyTypeModel[]>([]);
+const propertyTypeForm = ref<QForm>();
+const propertyTypeId = ref();
+const propertyTypesLoading = ref(false);
+const propertyTypeSubmitting = ref(false);
+const propertyTypeDeleting = ref(false);
+const refreshLoading = ref(false);
+const configSaving = ref(false);
+
+// Models
+const propertyTypeModel = reactive(new PropertyTypeModel());
+
+// System configuration model
+const systemConfig = reactive({
+  // General Settings
+  maintenanceMode: false,
+  autoBackup: true,
+  emailNotifications: true,
+  appName: 'LAWMA Waste Management System',
+
+  // Security Settings
+  twoFactorAuth: false,
+  auditLogging: true,
+  sessionTimeout: 30,
+  maxLoginAttempts: 5,
+
+  // Payment Settings
+  defaultCurrency: 'NGN',
+  lateFeePercentage: 5,
+  gracePeriodDays: 7,
+  autoGenerateInvoices: true,
+  invoicePrefix: 'INV-',
+  invoiceTemplate: 'default',
+});
+
+// User management data
+const userStats = reactive({
+  totalUsers: 45,
+  activeUsers: 38,
+  adminUsers: 5,
+  standardUsers: 33,
+  inactiveUsers: 7,
+  pendingUsers: 2,
+});
+
+const userRoles = ref([
+  {
+    id: 1,
+    name: 'Super Admin',
+    icon: 'admin_panel_settings',
+    permissions: ['all_permissions'],
+    description: 'Full system access',
+  },
+  {
+    id: 2,
+    name: 'Admin',
+    icon: 'verified_user',
+    permissions: ['user_management', 'billing', 'reports'],
+    description: 'Administrative access',
+  },
+  {
+    id: 3,
+    name: 'Billing Officer',
+    icon: 'receipt',
+    permissions: ['billing', 'payments', 'reports'],
+    description: 'Billing and payment management',
+  },
+  {
+    id: 4,
+    name: 'Field Officer',
+    icon: 'location_on',
+    permissions: ['property_management', 'collection'],
+    description: 'Field operations',
+  },
+]);
+
+const userRoleColumns: QTableColumn[] = [
+  {
+    field: 'name',
+    label: 'Role Name',
+    name: 'name',
+    align: 'left',
+    sortable: true,
+  },
+  {
+    field: 'permissions',
+    label: 'Permissions',
+    name: 'permissions',
+    align: 'left',
+    sortable: false,
+  },
+  {
+    field: 'description',
+    label: 'Description',
+    name: 'description',
+    align: 'left',
+    sortable: false,
+  },
+  {
+    field: 'actions',
+    label: 'Actions',
+    name: 'actions',
+    align: 'center',
+    sortable: false,
+  },
+];
+
+const recentActivity = ref([
+  {
+    id: 1,
+    text: 'John Doe logged in',
+    timestamp: new Date().toISOString(),
+    icon: 'login',
+    color: 'green',
+  },
+  {
+    id: 2,
+    text: 'Payment processed for Property #12345',
+    timestamp: new Date(Date.now() - 300000).toISOString(),
+    icon: 'payment',
+    color: 'blue',
+  },
+  {
+    id: 3,
+    text: 'New user registration pending approval',
+    timestamp: new Date(Date.now() - 600000).toISOString(),
+    icon: 'person_add',
+    color: 'orange',
+  },
+]);
+
+// Backup management data
+const backupStatus = reactive({
+  isHealthy: true,
+  lastBackup: '2 hours ago',
+  totalSize: '2.5 GB',
+  backupCount: 15,
+});
+
+const backupHistory = ref([
+  {
+    id: 1,
+    name: 'Daily Backup - 2025-01-18',
+    date: '2025-01-18 02:00:00',
+    status: 'Success',
+    size: '1.2 GB',
+    type: 'Automatic',
+  },
+  {
+    id: 2,
+    name: 'Manual Backup - 2025-01-17',
+    date: '2025-01-17 14:30:00',
+    status: 'Success',
+    size: '1.1 GB',
+    type: 'Manual',
+  },
+  {
+    id: 3,
+    name: 'Daily Backup - 2025-01-17',
+    date: '2025-01-17 02:00:00',
+    status: 'Failed',
+    size: '0 GB',
+    type: 'Automatic',
+  },
+]);
+
+const backupHistoryColumns: QTableColumn[] = [
+  {
+    field: 'name',
+    label: 'Backup Name',
+    name: 'name',
+    align: 'left',
+    sortable: true,
+  },
+  {
+    field: 'date',
+    label: 'Date Created',
+    name: 'date',
+    align: 'left',
+    sortable: true,
+    format: (val: string) => formatDate(val),
+  },
+  {
+    field: 'status',
+    label: 'Status',
+    name: 'status',
+    align: 'center',
+    sortable: true,
+  },
+  {
+    field: 'size',
+    label: 'Size',
+    name: 'size',
+    align: 'right',
+    sortable: true,
+  },
+  {
+    field: 'actions',
+    label: 'Actions',
+    name: 'actions',
+    align: 'center',
+    sortable: false,
+  },
+];
+
+const backupSettings = reactive({
+  autoBackup: true,
+  frequency: 'daily',
+  retentionDays: 30,
+  storageLocation: 'local',
+  compression: true,
+  encryption: false,
+});
+
+// Loading states
+const rolesLoading = ref(false);
+const activityLoading = ref(false);
+const backupInProgress = ref(false);
+const backupHistoryLoading = ref(false);
+const backupSettingsSaving = ref(false);
+
+// Dialog states
+const showAddUserDialog = ref(false);
+const showBulkImportDialog = ref(false);
+const showAddRoleDialog = ref(false);
+const showScheduleDialog = ref(false);
+const showRestoreDialog = ref(false);
+
+// Options
+const invoiceTemplateOptions = [
+  { label: 'Default Template', value: 'default' },
+  { label: 'Professional Template', value: 'professional' },
+  { label: 'Minimal Template', value: 'minimal' },
+];
+
+const backupFrequencyOptions = [
+  { label: 'Daily', value: 'daily' },
+  { label: 'Weekly', value: 'weekly' },
+  { label: 'Monthly', value: 'monthly' },
+];
+
+const storageLocationOptions = [
+  { label: 'Local Storage', value: 'local' },
+  { label: 'Cloud Storage', value: 'cloud' },
+  { label: 'Network Storage', value: 'network' },
+];
+
+// Computed properties
+const propertyTypesOptions = computed(() => {
+  return propertyTypes.value.map((propertytype) => {
+    return {
+      label: `${propertytype.name} - ₦${formatCurrency(
+        propertytype.unitPrice
+      )}`,
+      value: propertytype.id,
+    };
+  });
+});
+
+asyncComputed(async () => {
+  await propertyTypeModel.validate();
+});
+
+// Event handlers
+PropertySubscriptionHandler.handlePostPropertyType(eventBus, {
+  onSuccess: onPropertyTypeSuccess,
+  onError: onPropertyTypeError,
+});
+
+// Enhanced helper methods
+function formatCurrency(amount: number | string): string {
+  if (amount === null || amount === undefined || amount === '') return '0.00';
+
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  if (isNaN(numAmount)) return '0.00';
+
+  return numAmount.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+function clearPropertyTypeForm() {
+  propertyTypeModel.clearValues();
+  propertyTypeId.value = null;
+}
+
+function editPropertyType(propertyType: PropertyTypeModel) {
+  propertyTypeId.value = propertyType.id;
+  propertyTypeModel.id = propertyType.id;
+  propertyTypeModel.name = propertyType.name;
+  propertyTypeModel.unitPrice = propertyType.unitPrice;
+}
+
+function confirmDeletePropertyType(propertyType: PropertyTypeModel) {
+  $q.dialog({
+    title: 'Confirm Delete',
+    message: `Are you sure you want to delete "${propertyType.name}"?`,
+    cancel: true,
+    persistent: true,
+    color: 'negative',
+  }).onOk(() => {
+    deletePropertyTypeById(propertyType.id);
+  });
+}
+
+async function deletePropertyTypeById(id: string) {
+  propertyTypeDeleting.value = true;
+
+  try {
+    // TODO: Implement actual delete API call
+    // await PropertySubscriptionHandler.deletePropertyType(id);
+
+    // For now, just remove from local array
+    propertyTypes.value = propertyTypes.value.filter((pt) => pt.id !== id);
+
+    useNotify({
+      type: 'positive',
+      message: 'Property type deleted successfully!',
+    });
+
+    clearPropertyTypeForm();
+  } catch (error) {
+    useNotify({
+      type: 'negative',
+      message: 'Failed to delete property type. Please try again.',
+    });
+  } finally {
+    propertyTypeDeleting.value = false;
+  }
+}
+
+async function deletePropertyType() {
+  if (propertyTypeModel.id) {
+    confirmDeletePropertyType(propertyTypeModel);
+  }
+}
+
+async function refreshPropertyTypes() {
+  propertyTypesLoading.value = true;
+
+  try {
+    propertyTypes.value = await PropertySubscriptionHandler.getPropertyTypes();
+
+    useNotify({
+      type: 'positive',
+      message: 'Property types refreshed successfully!',
+    });
+  } catch (error) {
+    useNotify({
+      type: 'negative',
+      message: 'Failed to refresh property types.',
+    });
+  } finally {
+    propertyTypesLoading.value = false;
+  }
+}
+
+async function refreshAllData() {
+  refreshLoading.value = true;
+
+  try {
+    await refreshPropertyTypes();
+
+    useNotify({
+      type: 'positive',
+      message: 'All settings data refreshed successfully!',
+    });
+  } catch (error) {
+    useNotify({
+      type: 'negative',
+      message: 'Failed to refresh settings data.',
+    });
+  } finally {
+    refreshLoading.value = false;
+  }
+}
+
+async function saveSystemConfig() {
+  configSaving.value = true;
+
+  try {
+    // TODO: Implement actual save API call
+    // await SystemConfigHandler.saveConfig(systemConfig);
+
+    useNotify({
+      type: 'positive',
+      message: 'System configuration saved successfully!',
+    });
+  } catch (error) {
+    useNotify({
+      type: 'negative',
+      message: 'Failed to save system configuration.',
+    });
+  } finally {
+    configSaving.value = false;
+  }
+}
+
+async function resetToDefaults() {
+  $q.dialog({
+    title: 'Reset to Defaults',
+    message: 'Are you sure you want to reset all settings to default values?',
+    cancel: true,
+    persistent: true,
+    color: 'warning',
+  }).onOk(() => {
+    // Reset to default values
+    Object.assign(systemConfig, {
+      maintenanceMode: false,
+      autoBackup: true,
+      emailNotifications: true,
+      appName: 'LAWMA Waste Management System',
+      twoFactorAuth: false,
+      auditLogging: true,
+      sessionTimeout: 30,
+      maxLoginAttempts: 5,
+      defaultCurrency: 'NGN',
+      lateFeePercentage: 5,
+      gracePeriodDays: 7,
+      autoGenerateInvoices: true,
+      invoicePrefix: 'INV-',
+      invoiceTemplate: 'default',
+    });
+
+    useNotify({
+      type: 'positive',
+      message: 'Settings reset to default values!',
+    });
+  });
+}
+
+async function exportConfig() {
+  try {
+    const config = JSON.stringify(systemConfig, null, 2);
+    const blob = new Blob([config], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `lawma-config-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    useNotify({
+      type: 'positive',
+      message: 'Configuration exported successfully!',
+    });
+  } catch (error) {
+    useNotify({
+      type: 'negative',
+      message: 'Failed to export configuration.',
+    });
+  }
+}
+
+// User Management Functions
+function editRole(role: any) {
+  // TODO: Implement role editing
+  useNotify({
+    type: 'info',
+    message: `Edit role: ${role.name}`,
+  });
+}
+
+function deleteRole(role: any) {
+  $q.dialog({
+    title: 'Delete Role',
+    message: `Are you sure you want to delete the role "${role.name}"?`,
+    cancel: true,
+    persistent: true,
+    color: 'negative',
+  }).onOk(() => {
+    // TODO: Implement role deletion
+    useNotify({
+      type: 'positive',
+      message: 'Role deleted successfully!',
+    });
+  });
+}
+
+function refreshUserActivity() {
+  activityLoading.value = true;
+
+  setTimeout(() => {
+    // TODO: Implement actual API call
+    activityLoading.value = false;
+    useNotify({
+      type: 'positive',
+      message: 'User activity refreshed!',
+    });
+  }, 1000);
+}
+
+// Backup Management Functions
+async function createBackup() {
+  backupInProgress.value = true;
+
+  try {
+    // TODO: Implement actual backup creation
+    await new Promise((resolve) => setTimeout(resolve, 3000)); // Simulate backup process
+
+    const newBackup = {
+      id: Date.now(),
+      name: `Manual Backup - ${new Date().toLocaleDateString()}`,
+      date: new Date().toISOString(),
+      status: 'Success',
+      size: '1.3 GB',
+      type: 'Manual',
+    };
+
+    backupHistory.value.unshift(newBackup);
+    backupStatus.lastBackup = 'Just now';
+    backupStatus.backupCount++;
+
+    useNotify({
+      type: 'positive',
+      message: 'Backup created successfully!',
+    });
+  } catch (error) {
+    useNotify({
+      type: 'negative',
+      message: 'Failed to create backup.',
+    });
+  } finally {
+    backupInProgress.value = false;
+  }
+}
+
+function refreshBackupHistory() {
+  backupHistoryLoading.value = true;
+
+  setTimeout(() => {
+    // TODO: Implement actual API call
+    backupHistoryLoading.value = false;
+    useNotify({
+      type: 'positive',
+      message: 'Backup history refreshed!',
+    });
+  }, 1000);
+}
+
+function downloadBackup(backup: any) {
+  useNotify({
+    type: 'info',
+    message: `Downloading backup: ${backup.name}`,
+  });
+  // TODO: Implement actual download
+}
+
+function restoreFromBackup(backup: any) {
+  $q.dialog({
+    title: 'Restore from Backup',
+    message: `Are you sure you want to restore from "${backup.name}"? This will overwrite current data.`,
+    cancel: true,
+    persistent: true,
+    color: 'warning',
+  }).onOk(() => {
+    useNotify({
+      type: 'positive',
+      message: 'Restore initiated. This may take a few minutes.',
+    });
+    // TODO: Implement actual restore
+  });
+}
+
+function deleteBackup(backup: any) {
+  $q.dialog({
+    title: 'Delete Backup',
+    message: `Are you sure you want to delete "${backup.name}"? This action cannot be undone.`,
+    cancel: true,
+    persistent: true,
+    color: 'negative',
+  }).onOk(() => {
+    backupHistory.value = backupHistory.value.filter((b) => b.id !== backup.id);
+    backupStatus.backupCount--;
+
+    useNotify({
+      type: 'positive',
+      message: 'Backup deleted successfully!',
+    });
+  });
+}
+
+function saveBackupSettings() {
+  backupSettingsSaving.value = true;
+
+  setTimeout(() => {
+    // TODO: Implement actual save
+    backupSettingsSaving.value = false;
+    useNotify({
+      type: 'positive',
+      message: 'Backup settings saved successfully!',
+    });
+  }, 1000);
+}
+
+function getStatusColor(status: string) {
+  switch (status.toLowerCase()) {
+    case 'success':
+      return 'green';
+    case 'failed':
+      return 'red';
+    case 'in progress':
+      return 'blue';
+    default:
+      return 'grey';
+  }
+}
+
+function getStatusIcon(status: string) {
+  switch (status.toLowerCase()) {
+    case 'success':
+      return 'check_circle';
+    case 'failed':
+      return 'error';
+    case 'in progress':
+      return 'schedule';
+    default:
+      return 'help';
+  }
+}
+
+function formatTime(timestamp: string): string {
+  return new Date(timestamp).toLocaleString();
+}
+
+function formatDate(dateString: string): string {
+  return new Date(dateString).toLocaleDateString();
+}
+
+// Enhanced form submission
+function onSubmit() {
+  if (!isModelValid(propertyTypeModel)) {
+    propertyTypeForm.value?.validate();
+    return;
+  }
+
+  propertyTypeSubmitting.value = true;
+
+  eventBus.emit(EventNamesEnum.POST_PROPERTY_TYPE, propertyTypeModel);
+
+  timer = setTimeout(() => {
+    propertyTypeSubmitting.value = false;
+    useNotify({
+      type: 'negative',
+      message: 'Request timeout. Please try again.',
+    });
+  }, 10000);
+}
+
+function onPropertyTypeSuccess() {
+  propertyTypeSubmitting.value = false;
+
+  // Clear form
+  clearPropertyTypeForm();
+
+  // Refresh property types
+  refreshPropertyTypes();
+
+  useNotify({
+    type: 'positive',
+    message: 'Property type saved successfully!',
+  });
+
+  clearUIEffects({ loader: $q.loading, timer });
+}
+
+function onPropertyTypeError() {
+  propertyTypeSubmitting.value = false;
+
+  useNotify({
+    type: 'negative',
+    message: 'Failed to save property type. Please try again.',
+  });
+
+  clearUIEffects({ loader: $q.loading, timer });
+}
+
+// Watchers
+watch(propertyTypeId, (newValue) => {
+  if (newValue) {
+    const propertyTypeToEdit = propertyTypes.value.find(
+      (eachType) => eachType.id === newValue
+    );
+    if (propertyTypeToEdit) {
+      propertyTypeModel.id = propertyTypeToEdit.id;
+      propertyTypeModel.name = propertyTypeToEdit.name;
+      propertyTypeModel.unitPrice = propertyTypeToEdit.unitPrice;
+    }
+  } else {
+    propertyTypeModel.id = undefined;
+    propertyTypeModel.name = '';
+    propertyTypeModel.unitPrice = 0;
+  }
+});
+
+// Lifecycle hooks
+onMounted(async () => {
+  await refreshPropertyTypes();
+});
+
+// Cleanup
+onBeforeUnmount(() => {
+  eventBus.off(EventNamesEnum.POST_PROPERTY_TYPE);
+  if (timer) {
+    clearTimeout(timer);
+  }
+});
+</script>
+
+<style lang="scss" scoped>
+/* Enhanced Modern Styles for Settings Management Page */
+
+/* Main Page Layout */
+.settings-management-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 0;
+  margin: 0;
+}
+
+.page-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Enhanced Header Styles */
+.page-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+  }
+}
+
+.header-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+    gap: 1.5rem;
+  }
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.page-subtitle {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  font-weight: 300;
+}
+
+.title-section {
+  flex: 1;
+
+  @media (max-width: 768px) {
+    text-align: center;
+  }
+}
+
+/* Enhanced Header Action Button */
+.header-actions-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.action-btn-enhanced {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* Navigation Section */
+.navigation-section {
+  margin-bottom: 2rem;
+}
+
+.settings-tabs {
+  .q-tab {
+    min-width: 150px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(102, 126, 234, 0.05);
+    }
+
+    &.q-tab--active {
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+    }
+  }
+
+  .q-tab__indicator {
+    height: 3px;
+    border-radius: 2px;
+  }
+}
+
+/* Content Area */
+.content-area {
+  min-height: 500px;
+}
+
+.tab-content {
+  padding: 0;
+}
+
+.settings-panels {
+  background: transparent;
+
+  .q-tab-panel {
+    padding: 0;
+  }
+}
+
+/* Enhanced Card Styles */
+.enhanced-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+}
+
+.card-header {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  padding: 1.5rem;
+
+  .header-info {
+    h6 {
+      color: #2d3748;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    p {
+      color: #718096;
+      font-size: 0.875rem;
+    }
+  }
+
+  .header-stats {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+}
+
+.stats-chip {
+  font-weight: 600;
+  letter-spacing: 0.25px;
+}
+
+/* Form Styling */
+.form-section {
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.form-section-title {
+  color: #2d3748;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &::before {
+    content: '';
+    width: 4px;
+    height: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 2px;
+  }
+}
+
+.filter-select {
+  .q-field__control {
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Configuration Sections */
+.config-section {
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.config-title {
+  color: #2d3748;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &::before {
+    content: '';
+    width: 4px;
+    height: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 2px;
+  }
+}
+
+.config-item {
+  margin-bottom: 1.5rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.config-toggle {
+  margin-bottom: 0.5rem;
+
+  .q-toggle__label {
+    font-weight: 500;
+    color: #2d3748;
+  }
+}
+
+.config-description {
+  color: #718096;
+  font-size: 0.875rem;
+  margin: 0.5rem 0 0 0;
+  line-height: 1.4;
+}
+
+.config-input {
+  .q-field__control {
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Statistics Cards */
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0.5rem 0;
+    color: #2d3748;
+  }
+
+  .stat-label {
+    color: #718096;
+    font-size: 0.875rem;
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+.backup-stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+    color: #2d3748;
+  }
+
+  .stat-label {
+    color: #718096;
+    font-size: 0.875rem;
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+/* Activity List */
+.activity-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  background: rgba(102, 126, 234, 0.05);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(102, 126, 234, 0.1);
+    transform: translateX(4px);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.activity-icon {
+  flex-shrink: 0;
+}
+
+.activity-content {
+  flex: 1;
+}
+
+.activity-text {
+  font-weight: 500;
+  color: #2d3748;
+  margin-bottom: 0.25rem;
+}
+
+.activity-time {
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+.no-activity {
+  text-align: center;
+  padding: 2rem;
+  color: #718096;
+
+  p {
+    margin-top: 1rem;
+  }
+}
+
+/* Table Styling */
+.table-container {
+  overflow-x: auto;
+  position: relative;
+  width: 100%;
+  border-radius: 12px;
+
+  /* Smooth scrolling on mobile */
+  -webkit-overflow-scrolling: touch;
+
+  /* Hide scrollbar but keep functionality */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(102, 126, 234, 0.3) transparent;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.3);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(102, 126, 234, 0.5);
+    }
+  }
+}
+
+/* Enhanced Table Styles */
+.enhanced-table {
+  background: transparent;
+  overflow: visible;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  .q-table__container {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .q-table__middle {
+    border-radius: 0;
+    overflow-x: auto;
+  }
+
+  thead {
+    tr {
+      background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+    }
+
+    th {
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 0.875rem;
+      padding: 1rem;
+      border: none;
+    }
+  }
+
+  tbody {
+    tr {
+      transition: all 0.3s ease;
+      position: relative;
+
+      &:hover {
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.08) 0%,
+          rgba(147, 51, 234, 0.05) 100%
+        );
+        transform: translateY(-1px);
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+      }
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: middle;
+    }
+  }
+}
+
+/* Enhanced Cell Styles */
+.property-name-cell,
+.role-name-cell,
+.backup-name-cell {
+  .property-info,
+  .role-info,
+  .backup-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .text-weight-medium {
+    color: #2d3748;
+    font-size: 1rem;
+  }
+}
+
+.price-cell {
+  text-align: right;
+
+  .price-chip {
+    font-weight: 600;
+    letter-spacing: 0.25px;
+    min-width: 120px;
+  }
+}
+
+.permissions-cell {
+  .permissions-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+}
+
+.status-cell {
+  text-align: center;
+
+  .status-chip {
+    font-weight: 600;
+    letter-spacing: 0.25px;
+    min-width: 80px;
+  }
+}
+
+.size-cell {
+  text-align: right;
+}
+
+.actions-cell {
+  text-align: center;
+}
+
+/* Button Styles */
+.action-btn,
+.action-btn-small {
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+.action-btn-large {
+  padding: 1rem 2rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  }
+}
+
+.submit-btn {
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  }
+}
+
+.delete-btn {
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(244, 63, 94, 0.3);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .page-container {
+    padding: 0.75rem;
+  }
+
+  .page-header {
+    padding: 1.5rem;
+  }
+
+  .page-title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-container {
+    padding: 0.5rem;
+  }
+
+  .page-header {
+    padding: 1rem;
+    border-radius: 12px;
+  }
+
+  .page-title {
+    font-size: 1.75rem;
+  }
+
+  .card-header {
+    .header-actions {
+      flex-direction: column;
+      gap: 0.75rem;
+      width: 100%;
+    }
+  }
+
+  .enhanced-table tbody td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .config-section {
+    padding: 1rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+
+    .stat-number {
+      font-size: 1.5rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .page-subtitle {
+    font-size: 1rem;
+  }
+
+  .card-header {
+    padding: 1rem;
+  }
+
+  .enhanced-table thead th {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .settings-tabs .q-tab {
+    min-width: 120px;
+    font-size: 0.875rem;
+  }
+}
+
+/* Animation Classes */
+.settings-management-page {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .settings-management-page {
+    background: white;
+  }
+
+  .page-header {
+    background: #667eea;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .enhanced-card {
+    box-shadow: none;
+    border: 1px solid #e2e8f0;
+  }
+
+  .header-actions-section {
+    display: none;
+  }
+}
+</style>

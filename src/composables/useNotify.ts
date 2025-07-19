@@ -4,9 +4,11 @@ import { NotifierTypes } from 'src/lib/types/types';
 export function useNotify({
   type = 'positive',
   message,
+  timeout = 5000,
 }: {
-  type?: NotifierTypes,
+  type?: NotifierTypes;
   message?: string;
+  timeout?: number;
 } = {}) {
   Notify.create({
     message:
@@ -14,6 +16,17 @@ export function useNotify({
         ? 'Process failed'
         : message || 'Process was successful',
     type,
-    timeout: type === 'positive' ? 300 : 5000,
+    timeout,
+    position: 'top',
+    actions: [
+      {
+        icon: 'close',
+        color: 'white',
+        round: true,
+        handler: () => {
+          // Close notification
+        },
+      },
+    ],
   });
 }

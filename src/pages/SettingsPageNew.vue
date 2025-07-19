@@ -31,80 +31,61 @@
 
       <!-- Property Types Management Section -->
       <div class="content-area">
-        <!-- Property Types List -->
+        <!-- Property Types Filter Section -->
         <q-card class="enhanced-card" flat>
           <q-card-section class="card-header">
             <div class="row items-center justify-between">
               <div class="header-info">
-                <div class="row items-center">
-                  <q-icon
-                    name="list"
-                    color="primary"
-                    size="sm"
-                    class="q-mr-sm"
-                  />
-                  <div>
-                    <h6 class="text-h6 q-ma-none text-weight-bold">
-                      Property Types
-                    </h6>
-                    <p class="text-grey-6 q-ma-none text-caption">
-                      {{
-                        searchFilter
-                          ? `Searching "${searchFilter}" - Manage property types and pricing`
-                          : 'Manage property types and pricing'
-                      }}
-                    </p>
-                  </div>
-                </div>
+                <h6 class="text-h6 q-ma-none text-weight-bold">
+                  Property Types Management
+                </h6>
+                <p class="text-grey-6 q-ma-none text-caption">
+                  Manage property types, pricing, and configurations
+                </p>
               </div>
-              <div class="header-actions">
-                <div class="row q-gutter-sm items-center">
-                  <q-input
-                    ref="searchInputRef"
-                    v-model="searchFilter"
-                    label="Search property types..."
-                    outlined
-                    dense
-                    clearable
-                    debounce="300"
-                    class="search-input"
-                    style="min-width: 200px"
-                  >
-                    <template v-slot:prepend>
-                      <q-icon name="search">
-                        <q-tooltip class="bg-grey-8">
-                          Press Ctrl+F to focus search
-                        </q-tooltip>
-                      </q-icon>
-                    </template>
-                    <template v-slot:append>
-                      <q-icon
-                        v-if="searchFilter"
-                        name="info"
-                        color="grey-6"
-                        size="sm"
-                      >
-                        <q-tooltip class="bg-grey-8">
-                          Search by property name or price. Press Escape to
-                          clear.
-                        </q-tooltip>
-                      </q-icon>
-                    </template>
-                  </q-input>
-                  <q-chip
-                    :color="searchFilter ? 'secondary' : 'primary'"
-                    text-color="white"
-                    :icon="searchFilter ? 'search' : 'home_work'"
-                    class="stats-chip"
-                  >
-                    {{ filteredPropertyTypes.length }}
-                    {{ searchFilter ? 'found' : 'types' }}
-                  </q-chip>
+              <div class="header-stats">
+                <q-chip
+                  color="primary"
+                  text-color="white"
+                  icon="home_work"
+                  class="stats-chip"
+                >
+                  {{ propertyTypes.length }} types
+                </q-chip>
+              </div>
+            </div>
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-section>
+            <div class="row items-end q-col-gutter-md">
+              <div class="col-12 col-sm-6 col-md-8">
+                <q-select
+                  v-model="propertyTypeId"
+                  label="Select Property Type to Edit"
+                  filled
+                  outlined
+                  :options="propertyTypesOptions"
+                  emit-value
+                  map-options
+                  clearable
+                  dense
+                  class="filter-select"
+                  color="primary"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="home_work" />
+                  </template>
+                </q-select>
+              </div>
+              <div class="col-12 col-sm-6 col-md-4">
+                <div class="row q-gutter-sm no-wrap justify-end">
                   <q-btn
                     icon="add"
                     color="primary"
                     rounded
-                    @click="openPropertyTypeDialog"
+                    @click="clearPropertyTypeForm"
                     class="action-btn"
                     size="md"
                   >
@@ -129,154 +110,22 @@
               </div>
             </div>
           </q-card-section>
-
-          <q-separator />
-
-          <q-card-section class="q-pa-none">
-            <div class="table-container">
-              <q-table
-                :rows="filteredPropertyTypes"
-                :columns="propertyTypeColumns"
-                row-key="id"
-                class="enhanced-table property-types-table"
-                separator="cell"
-                flat
-                bordered
-                :loading="propertyTypesLoading"
-                :pagination="{ rowsPerPage: 10 }"
-              >
-                <template v-slot:loading>
-                  <q-inner-loading showing color="primary" />
-                </template>
-
-                <template v-slot:no-data>
-                  <div
-                    class="full-width row flex-center text-grey-6 q-gutter-sm q-pa-lg"
-                  >
-                    <q-icon
-                      size="2em"
-                      :name="searchFilter ? 'search_off' : 'home_work'"
-                    />
-                    <div class="text-center">
-                      <div class="text-h6">
-                        {{
-                          searchFilter
-                            ? 'No matching property types'
-                            : 'No property types found'
-                        }}
-                      </div>
-                      <div class="text-caption q-mt-sm">
-                        {{
-                          searchFilter
-                            ? `No property types match "${searchFilter}". Try a different search term.`
-                            : 'Add your first property type to get started.'
-                        }}
-                      </div>
-                      <q-btn
-                        v-if="searchFilter"
-                        flat
-                        color="primary"
-                        icon="clear"
-                        label="Clear search"
-                        @click="searchFilter = ''"
-                        class="q-mt-sm"
-                      />
-                    </div>
-                  </div>
-                </template>
-
-                <template v-slot:body-cell-name="props">
-                  <q-td :props="props" class="property-name-cell">
-                    <div class="property-info">
-                      <q-icon
-                        name="home_work"
-                        color="primary"
-                        size="sm"
-                        class="q-mr-sm"
-                      />
-                      <span
-                        class="text-weight-medium"
-                        v-html="highlightSearchTerm(props.value, searchFilter)"
-                      ></span>
-                    </div>
-                  </q-td>
-                </template>
-
-                <template v-slot:body-cell-unitPrice="props">
-                  <q-td :props="props" class="price-cell">
-                    <q-chip
-                      color="green"
-                      text-color="white"
-                      icon="payments"
-                      class="price-chip"
-                    >
-                      ₦{{ formatCurrency(props.value) }}
-                    </q-chip>
-                  </q-td>
-                </template>
-
-                <template v-slot:body-cell-actions="props">
-                  <q-td :props="props" class="actions-cell">
-                    <div class="row q-gutter-sm">
-                      <q-btn
-                        icon="edit"
-                        color="primary"
-                        size="sm"
-                        rounded
-                        @click="editPropertyType(props.row)"
-                        class="action-btn-small"
-                      >
-                        <q-tooltip class="bg-primary">Edit</q-tooltip>
-                      </q-btn>
-                      <q-btn
-                        icon="delete"
-                        color="negative"
-                        size="sm"
-                        rounded
-                        @click="confirmDeletePropertyType(props.row)"
-                        class="action-btn-small"
-                      >
-                        <q-tooltip class="bg-negative">Delete</q-tooltip>
-                      </q-btn>
-                    </div>
-                  </q-td>
-                </template>
-              </q-table>
-            </div>
-          </q-card-section>
         </q-card>
-      </div>
 
-      <!-- Property Type Form Dialog -->
-      <q-dialog v-model="showPropertyTypeDialog" class="property-type-dialog">
-        <q-card class="property-type-form-card">
-          <q-card-section class="dialog-header">
-            <div class="row items-center justify-between">
-              <div class="dialog-title">
-                <q-icon
-                  name="home_work"
-                  color="primary"
-                  size="md"
-                  class="q-mr-sm"
-                />
-                <span class="text-h6 text-weight-bold">
-                  {{ propertyTypeModel.id ? 'Edit' : 'Add New' }} Property Type
-                </span>
-              </div>
-              <q-btn
-                flat
-                round
-                dense
-                icon="close"
-                @click="closePropertyTypeDialog"
-                class="close-btn"
-              />
+        <!-- Property Type Form -->
+        <q-card class="enhanced-card q-mt-md" flat>
+          <q-card-section class="card-header">
+            <div class="row items-center">
+              <q-icon name="edit" color="primary" size="sm" class="q-mr-sm" />
+              <h6 class="text-h6 q-ma-none text-weight-bold">
+                {{ propertyTypeModel.id ? 'Edit' : 'Add New' }} Property Type
+              </h6>
             </div>
           </q-card-section>
 
           <q-separator />
 
-          <q-card-section class="dialog-content">
+          <q-card-section>
             <q-form ref="propertyTypeForm" @submit.prevent="onSubmit">
               <div class="row q-gutter-lg">
                 <div class="col-12 col-md-5">
@@ -369,7 +218,104 @@
             </q-form>
           </q-card-section>
         </q-card>
-      </q-dialog>
+
+        <!-- Property Types List -->
+        <q-card class="enhanced-card q-mt-md" flat>
+          <q-card-section class="card-header">
+            <div class="row items-center">
+              <q-icon name="list" color="primary" size="sm" class="q-mr-sm" />
+              <h6 class="text-h6 q-ma-none text-weight-bold">
+                Existing Property Types
+              </h6>
+            </div>
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-section class="q-pa-none">
+            <div class="table-container">
+              <q-table
+                :rows="propertyTypes"
+                :columns="propertyTypeColumns"
+                row-key="id"
+                class="enhanced-table property-types-table"
+                separator="cell"
+                flat
+                bordered
+                :loading="propertyTypesLoading"
+                :pagination="{ rowsPerPage: 10 }"
+              >
+                <template v-slot:loading>
+                  <q-inner-loading showing color="primary" />
+                </template>
+
+                <template v-slot:no-data="{ message }">
+                  <div
+                    class="full-width row flex-center text-grey-6 q-gutter-sm"
+                  >
+                    <q-icon size="2em" name="home_work" />
+                    <span>{{ message || 'No property types found' }}</span>
+                  </div>
+                </template>
+
+                <template v-slot:body-cell-name="props">
+                  <q-td :props="props" class="property-name-cell">
+                    <div class="property-info">
+                      <q-icon
+                        name="home_work"
+                        color="primary"
+                        size="sm"
+                        class="q-mr-sm"
+                      />
+                      <span class="text-weight-medium">{{ props.value }}</span>
+                    </div>
+                  </q-td>
+                </template>
+
+                <template v-slot:body-cell-unitPrice="props">
+                  <q-td :props="props" class="price-cell">
+                    <q-chip
+                      color="green"
+                      text-color="white"
+                      icon="payments"
+                      class="price-chip"
+                    >
+                      ₦{{ formatCurrency(props.value) }}
+                    </q-chip>
+                  </q-td>
+                </template>
+
+                <template v-slot:body-cell-actions="props">
+                  <q-td :props="props" class="actions-cell">
+                    <div class="row q-gutter-sm">
+                      <q-btn
+                        icon="edit"
+                        color="primary"
+                        size="sm"
+                        rounded
+                        @click="editPropertyType(props.row)"
+                        class="action-btn-small"
+                      >
+                        <q-tooltip class="bg-primary">Edit</q-tooltip>
+                      </q-btn>
+                      <q-btn
+                        icon="delete"
+                        color="negative"
+                        size="sm"
+                        rounded
+                        @click="confirmDeletePropertyType(props.row)"
+                        class="action-btn-small"
+                      >
+                        <q-tooltip class="bg-negative">Delete</q-tooltip>
+                      </q-btn>
+                    </div>
+                  </q-td>
+                </template>
+              </q-table>
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
     </div>
   </q-page>
 </template>
@@ -382,6 +328,7 @@ import {
   onMounted,
   reactive,
   ref,
+  watch,
 } from 'vue';
 import { PropertySubscriptionHandler } from 'src/lib/eventHandlers/PropertySubscription.handler';
 import { PropertyTypeModel } from 'src/models/PropertyType.model';
@@ -426,39 +373,24 @@ let timer: NodeJS.Timeout;
 // Reactive refs
 const propertyTypes = ref<PropertyTypeModel[]>([]);
 const propertyTypeForm = ref<QForm>();
+const propertyTypeId = ref();
 const propertyTypesLoading = ref(false);
 const propertyTypeSubmitting = ref(false);
 const propertyTypeDeleting = ref(false);
 const refreshLoading = ref(false);
-const showPropertyTypeDialog = ref(false);
-const searchFilter = ref('');
-const searchInputRef = ref();
 
 // Models
 const propertyTypeModel = reactive(new PropertyTypeModel());
 
 // Computed properties
-const filteredPropertyTypes = computed(() => {
-  if (!searchFilter.value) {
-    return propertyTypes.value;
-  }
-
-  const searchTerm = searchFilter.value.toLowerCase().trim();
-  if (!searchTerm) {
-    return propertyTypes.value;
-  }
-
-  return propertyTypes.value.filter((propertyType) => {
-    const name = propertyType.name.toLowerCase();
-    const price = propertyType.unitPrice.toString();
-    const formattedPrice = formatCurrency(propertyType.unitPrice).toLowerCase();
-
-    return (
-      name.includes(searchTerm) ||
-      price.includes(searchTerm) ||
-      formattedPrice.includes(searchTerm) ||
-      name.split(' ').some((word) => word.startsWith(searchTerm))
-    );
+const propertyTypesOptions = computed(() => {
+  return propertyTypes.value.map((propertytype) => {
+    return {
+      label: `${propertytype.name} - ₦${formatCurrency(
+        propertytype.unitPrice
+      )}`,
+      value: propertytype.id,
+    };
   });
 });
 
@@ -485,50 +417,16 @@ function formatCurrency(amount: number | string): string {
   });
 }
 
-function highlightSearchTerm(text: string, searchTerm: string): string {
-  if (!searchTerm) return text;
-
-  const regex = new RegExp(`(${searchTerm})`, 'gi');
-  return text.replace(regex, '<mark class="search-highlight">$1</mark>');
-}
-
 function clearPropertyTypeForm() {
   propertyTypeModel.clearValues();
-}
-
-function openPropertyTypeDialog() {
-  clearPropertyTypeForm();
-  showPropertyTypeDialog.value = true;
-}
-
-function closePropertyTypeDialog() {
-  showPropertyTypeDialog.value = false;
-  clearPropertyTypeForm();
-}
-
-function focusSearch() {
-  if (searchInputRef.value) {
-    searchInputRef.value.focus();
-  }
-}
-
-function handleKeyboardShortcuts(event: KeyboardEvent) {
-  // Ctrl+F or Cmd+F to focus search
-  if ((event.ctrlKey || event.metaKey) && event.key === 'f') {
-    event.preventDefault();
-    focusSearch();
-  }
-  // Escape to clear search
-  if (event.key === 'Escape' && searchFilter.value) {
-    searchFilter.value = '';
-  }
+  propertyTypeId.value = null;
 }
 
 function editPropertyType(propertyType: PropertyTypeModel) {
+  propertyTypeId.value = propertyType.id;
   propertyTypeModel.id = propertyType.id;
   propertyTypeModel.name = propertyType.name;
   propertyTypeModel.unitPrice = propertyType.unitPrice;
-  showPropertyTypeDialog.value = true;
 }
 
 function confirmDeletePropertyType(propertyType: PropertyTypeModel) {
@@ -539,9 +437,7 @@ function confirmDeletePropertyType(propertyType: PropertyTypeModel) {
     persistent: true,
     color: 'negative',
   }).onOk(() => {
-    if (propertyType.id) {
-      deletePropertyTypeById(propertyType.id);
-    }
+    deletePropertyTypeById(propertyType.id);
   });
 }
 
@@ -620,8 +516,8 @@ function onSubmit() {
 function onPropertyTypeSuccess() {
   propertyTypeSubmitting.value = false;
 
-  // Close dialog and clear form
-  closePropertyTypeDialog();
+  // Clear form
+  clearPropertyTypeForm();
 
   // Refresh property types
   refreshPropertyTypes();
@@ -645,12 +541,27 @@ function onPropertyTypeError() {
   clearUIEffects({ loader: $q.loading, timer });
 }
 
+// Watchers
+watch(propertyTypeId, (newValue) => {
+  if (newValue) {
+    const propertyTypeToEdit = propertyTypes.value.find(
+      (eachType) => eachType.id === newValue
+    );
+    if (propertyTypeToEdit) {
+      propertyTypeModel.id = propertyTypeToEdit.id;
+      propertyTypeModel.name = propertyTypeToEdit.name;
+      propertyTypeModel.unitPrice = propertyTypeToEdit.unitPrice;
+    }
+  } else {
+    propertyTypeModel.id = undefined;
+    propertyTypeModel.name = '';
+    propertyTypeModel.unitPrice = 0;
+  }
+});
+
 // Lifecycle hooks
 onMounted(async () => {
   await refreshPropertyTypes();
-
-  // Add keyboard shortcuts
-  document.addEventListener('keydown', handleKeyboardShortcuts);
 });
 
 // Cleanup
@@ -659,9 +570,6 @@ onBeforeUnmount(() => {
   if (timer) {
     clearTimeout(timer);
   }
-
-  // Remove keyboard event listeners
-  document.removeEventListener('keydown', handleKeyboardShortcuts);
 });
 </script>
 
@@ -811,58 +719,6 @@ onBeforeUnmount(() => {
     align-items: center;
     flex-wrap: wrap;
   }
-
-  .header-actions {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-
-    @media (max-width: 768px) {
-      justify-content: center;
-      width: 100%;
-      margin-top: 1rem;
-      flex-direction: column;
-      gap: 1rem;
-
-      .search-input {
-        min-width: 100% !important;
-        width: 100%;
-      }
-
-      .row {
-        justify-content: center;
-        width: 100%;
-      }
-    }
-  }
-
-  .search-input {
-    .q-field__control {
-      border-radius: 12px;
-      background: white;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      transition: all 0.2s ease;
-
-      &:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      }
-    }
-
-    .q-field--focused .q-field__control {
-      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.25);
-    }
-  }
-}
-
-/* Search Highlighting */
-:deep(.search-highlight) {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  color: #92400e;
-  font-weight: 600;
-  padding: 2px 4px;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(146, 64, 14, 0.2);
 }
 
 .stats-chip {
@@ -1135,56 +991,6 @@ onBeforeUnmount(() => {
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-/* Property Type Dialog Styles */
-.property-type-dialog {
-  .property-type-form-card {
-    min-width: 800px;
-    max-width: 90vw;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-
-    @media (max-width: 768px) {
-      min-width: 95vw;
-      max-height: 90vh;
-    }
-  }
-
-  .dialog-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 1.5rem;
-
-    .dialog-title {
-      display: flex;
-      align-items: center;
-      font-weight: 700;
-    }
-
-    .close-btn {
-      color: white;
-      background: rgba(255, 255, 255, 0.2);
-      transition: all 0.2s ease;
-
-      &:hover {
-        background: rgba(255, 255, 255, 0.3);
-        transform: scale(1.1);
-      }
-    }
-  }
-
-  .dialog-content {
-    padding: 2rem;
-    max-height: 70vh;
-    overflow-y: auto;
-
-    @media (max-width: 768px) {
-      padding: 1.5rem;
-      max-height: 75vh;
-    }
   }
 }
 
