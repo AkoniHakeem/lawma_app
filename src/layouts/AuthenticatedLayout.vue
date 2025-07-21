@@ -52,7 +52,7 @@
                     <q-item-section>Settings</q-item-section>
                   </q-item>
                   <q-separator />
-                  <q-item clickable v-close-popup>
+                  <q-item clickable v-close-popup @click="handleLogout">
                     <q-item-section avatar>
                       <q-icon name="logout" />
                     </q-item-section>
@@ -83,9 +83,13 @@
       <div class="sidebar-header">
         <q-card flat class="header-card">
           <q-card-section class="text-center q-pa-lg">
-            <q-avatar size="80px" class="logo-avatar">
-              <q-img src="/assets/lawma-logo.jpeg" />
-            </q-avatar>
+            <div class="sidebar-wastepro-logo">
+              <div class="sidebar-logo-symbol">
+                <div class="arrow arrow-1"></div>
+                <div class="arrow arrow-2"></div>
+                <div class="arrow arrow-3"></div>
+              </div>
+            </div>
             <div class="text-h6 text-white q-mt-md text-weight-bold">
               WastePro
             </div>
@@ -246,6 +250,11 @@ function isActivePage(path: string) {
   );
 }
 
+function handleLogout() {
+  authStore.clearToken();
+  router.push('/auth/signin');
+}
+
 useMeta(() => {
   return {
     title: getRoutePath(),
@@ -319,14 +328,65 @@ onMounted(() => {
   box-shadow: none !important;
 }
 
-.logo-avatar {
+.sidebar-wastepro-logo {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
   border: 3px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease;
 }
 
-.logo-avatar:hover {
+.sidebar-wastepro-logo:hover {
   transform: scale(1.05);
+}
+
+.sidebar-logo-symbol {
+  width: 40px;
+  height: 40px;
+  position: relative;
+}
+
+.sidebar-logo-symbol .arrow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 4px solid white;
+  border-top-color: transparent;
+  border-left-color: transparent;
+  border-radius: 50%;
+}
+
+.sidebar-logo-symbol .arrow::before {
+  content: '';
+  position: absolute;
+  right: 1px;
+  top: -4px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 10px solid white;
+  transform: rotate(35deg);
+}
+
+.sidebar-logo-symbol .arrow-1 {
+  transform: rotate(45deg);
+}
+
+.sidebar-logo-symbol .arrow-2 {
+  transform: rotate(165deg);
+}
+
+.sidebar-logo-symbol .arrow-3 {
+  transform: rotate(285deg);
 }
 
 .navigation-menu {
@@ -404,9 +464,14 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
-  .logo-avatar {
+  .sidebar-wastepro-logo {
     width: 60px !important;
     height: 60px !important;
+  }
+
+  .sidebar-logo-symbol {
+    width: 30px !important;
+    height: 30px !important;
   }
 
   .navigation-menu {

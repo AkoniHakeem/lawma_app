@@ -14,8 +14,14 @@
     <aside class="sc-sidebar" :class="{ 'mobile-open': mobileMenuOpen }">
       <div class="sc-sidebar-content">
         <div class="sc-logo">
-          <q-icon name="mdi-truck" size="32px" color="white" class="q-mr-sm" />
-          <span class="sc-app-title">LAWMA</span>
+          <div class="sc-wastepro-logo">
+            <div class="sc-logo-symbol">
+              <div class="arrow arrow-1"></div>
+              <div class="arrow arrow-2"></div>
+              <div class="arrow arrow-3"></div>
+            </div>
+          </div>
+          <span class="sc-app-title">WastePro</span>
         </div>
         <q-avatar size="40px" class="sc-avatar-sidebar q-mb-md">
           <img
@@ -230,6 +236,58 @@ onUnmounted(() => {
   flex-shrink: 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   margin-bottom: 1rem;
+}
+
+.sc-wastepro-logo {
+  width: 32px;
+  height: 32px;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sc-logo-symbol {
+  width: 28px;
+  height: 28px;
+  position: relative;
+}
+
+.sc-logo-symbol .arrow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 3px solid white;
+  border-top-color: transparent;
+  border-left-color: transparent;
+  border-radius: 50%;
+}
+
+.sc-logo-symbol .arrow::before {
+  content: '';
+  position: absolute;
+  right: 1px;
+  top: -3px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 8px solid white;
+  transform: rotate(35deg);
+}
+
+.sc-logo-symbol .arrow-1 {
+  transform: rotate(45deg);
+}
+
+.sc-logo-symbol .arrow-2 {
+  transform: rotate(165deg);
+}
+
+.sc-logo-symbol .arrow-3 {
+  transform: rotate(285deg);
 }
 
 .sc-app-title {

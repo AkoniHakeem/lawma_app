@@ -2,7 +2,13 @@
   <div class="lawma-app-badge" :class="{ 'in-header': inHeader }">
     <q-badge class="modern-badge" :style="badgeStyle" @click="handleClick">
       <div class="badge-content">
-        <q-icon name="eco" size="18px" class="q-mr-xs" v-if="!inHeader" />
+        <div class="wastepro-logo-mini" v-if="!inHeader">
+          <div class="logo-symbol-mini">
+            <div class="arrow arrow-1"></div>
+            <div class="arrow arrow-2"></div>
+            <div class="arrow arrow-3"></div>
+          </div>
+        </div>
         <span class="badge-text">WastePro</span>
         <div class="badge-subtitle" v-if="!inHeader">Management System</div>
       </div>
@@ -121,5 +127,54 @@ defineComponent({
 
 .in-header .badge-subtitle {
   display: none;
+}
+
+/* WastePro Logo Mini */
+.wastepro-logo-mini {
+  margin-bottom: 4px;
+}
+
+.logo-symbol-mini {
+  width: 20px;
+  height: 20px;
+  position: relative;
+  margin: 0 auto;
+}
+
+.logo-symbol-mini .arrow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 2px solid white;
+  border-top-color: transparent;
+  border-left-color: transparent;
+  border-radius: 50%;
+}
+
+.logo-symbol-mini .arrow::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -2px;
+  width: 0;
+  height: 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-bottom: 5px solid white;
+  transform: rotate(35deg);
+}
+
+.logo-symbol-mini .arrow-1 {
+  transform: rotate(45deg);
+}
+
+.logo-symbol-mini .arrow-2 {
+  transform: rotate(165deg);
+}
+
+.logo-symbol-mini .arrow-3 {
+  transform: rotate(285deg);
 }
 </style>

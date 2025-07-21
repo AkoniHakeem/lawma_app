@@ -1,8 +1,8 @@
 {
   "name": "lawma-app-frontend",
   "version": "0.0.1",
-  "description": "Saas Products & Services",
-  "productName": "Boundelss Edge - Saas Products & Services",
+  "description": "Professional Waste Management Solution for Lagos State and Beyond",
+  "productName": "WastePro - Professional Waste Management Solution",
   "author": "AkoniHakeem <akozymayor@gmail.com>",
   "private": true,
   "scripts": {

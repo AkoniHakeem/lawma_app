@@ -1,126 +1,220 @@
 <template>
-  <div class="signin-bg">
-    <div class="signin-logo">
-      <lawma-app-badge color="light-page" style="height: 48px; width: auto" />
+  <div class="signin-container">
+    <!-- Left Side - Image Section -->
+    <div class="signin-hero">
+      <div class="hero-overlay">
+        <div class="hero-content">
+          <div class="wastepro-logo">
+            <div class="logo-symbol">
+              <div class="arrow arrow-1"></div>
+              <div class="arrow arrow-2"></div>
+              <div class="arrow arrow-3"></div>
+            </div>
+            <span class="logo-text"
+              >Waste<span class="pro-accent">Pro</span></span
+            >
+          </div>
+          <h1 class="hero-title">Professional Waste Management Platform</h1>
+          <p class="hero-subtitle">
+            Streamline your operations with automated billing, payment
+            processing, and comprehensive property management for Lagos State
+            and beyond.
+          </p>
+          <div class="hero-features">
+            <div class="feature-item">
+              <q-icon name="check_circle" color="white" size="sm" />
+              <span>100% Automated Operations</span>
+            </div>
+            <div class="feature-item">
+              <q-icon name="security" color="white" size="sm" />
+              <span>Bank-Level Security</span>
+            </div>
+            <div class="feature-item">
+              <q-icon name="analytics" color="white" size="sm" />
+              <span>Smart Analytics & Reporting</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="flex flex-center" style="height: 80vh">
-      <q-card class="signin-card" rounded>
-        <q-card-section>
-          <div class="text-center signin-title">Sign in</div>
-          <q-tabs
-            v-model="activeTab"
-            class="signin-tabs"
-            align="center"
-            active-color="primary"
-            indicator-color="primary"
-          >
-            <q-tab
-              style="cursor: pointer"
-              name="manager"
-              label="Waste Manager"
-            />
-            <q-tab name="client" label="Serviced Client" />
-          </q-tabs>
-          <q-separator class="q-mb-lg" />
-          <q-form
-            v-if="activeTab === 'manager'"
-            ref="signinFormRef"
-            @submit="onSubmit"
-            @reset="onReset"
-            class="q-gutter-xl q-pt-xl q-px-l signin-form"
-          >
-            <q-input
-              class="signin-input"
-              v-model="newSigninModel.email"
-              label="Email"
-              hint="email"
-              lazy-rules
-              :rules="[() => validateField('email')]"
-              rounded
-              outlined
-            />
 
-            <q-input
-              class="signin-input"
-              :type="showPassword ? 'text' : 'password'"
-              v-model="newSigninModel.password"
-              label="Password"
-              lazy-rules
-              :rules="[() => validateField('password')]"
-              ref="emailRef"
-              rounded
-              outlined
-              :append="showPassword ? 'visibility_off' : 'visibility'"
-              @append="showPassword = !showPassword"
-              :append-icon="showPassword ? 'visibility_off' : 'visibility'"
-              :append-icon-class="showPassword ? 'text-grey-7' : 'text-grey-7'"
-              :type-icon="showPassword ? 'visibility_off' : 'visibility'"
-              :type-icon-class="showPassword ? 'text-grey-7' : 'text-grey-7'"
-              :type-icon-color="showPassword ? 'grey-7' : 'grey-7'"
-              :type-icon-size="showPassword ? '18px' : '18px'"
-              :type-icon-style="
-                showPassword ? 'cursor: pointer' : 'cursor: pointer'
-              "
+    <!-- Right Side - Form Section -->
+    <div class="signin-form-section">
+      <div class="form-container">
+        <div class="form-header">
+          <div class="brand-section">
+            <lawma-app-badge
+              color="primary"
+              style="height: 40px; width: auto"
             />
-            <q-checkbox
-              style="margin-top: -2rem"
-              v-model="showPassword"
-              label="Show password"
-            />
+            <h2 class="signin-title">Welcome Back</h2>
+            <p class="signin-subtitle">
+              Sign in to access your WastePro dashboard
+            </p>
+          </div>
+        </div>
 
-            <div class="text-center" style="width: 100%">
+        <q-card class="signin-card" flat>
+          <q-card-section class="signin-card-content">
+            <q-tabs
+              v-model="activeTab"
+              class="signin-tabs"
+              align="justify"
+              dense
+            >
+              <q-tab
+                name="manager"
+                label="Waste Manager"
+                class="tab-button"
+                no-caps
+              />
+              <q-tab
+                name="client"
+                label="Service Client"
+                class="tab-button"
+                no-caps
+              />
+            </q-tabs>
+
+            <q-separator class="tab-separator" />
+
+            <!-- Manager Form -->
+            <q-form
+              v-if="activeTab === 'manager'"
+              ref="signinFormRef"
+              @submit="onSubmit"
+              class="signin-form"
+            >
+              <div class="form-group">
+                <q-input
+                  v-model="newSigninModel.email"
+                  label="Email Address"
+                  type="email"
+                  outlined
+                  dense
+                  class="modern-input"
+                  lazy-rules
+                  :rules="[
+                    (val) => !!val || 'Email is required',
+                    () => validateField('email'),
+                  ]"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="email" color="primary" />
+                  </template>
+                </q-input>
+              </div>
+
+              <div class="form-group">
+                <q-input
+                  v-model="newSigninModel.password"
+                  :type="showPassword ? 'text' : 'password'"
+                  label="Password"
+                  outlined
+                  dense
+                  class="modern-input"
+                  lazy-rules
+                  :rules="[
+                    (val) => !!val || 'Password is required',
+                    () => validateField('password'),
+                  ]"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="lock" color="primary" />
+                  </template>
+                  <template v-slot:append>
+                    <q-icon
+                      :name="showPassword ? 'visibility_off' : 'visibility'"
+                      class="cursor-pointer"
+                      color="grey-6"
+                      @click="showPassword = !showPassword"
+                    />
+                  </template>
+                </q-input>
+              </div>
+
               <q-btn
-                style="width: 100%"
-                label="Sign In"
                 type="submit"
                 color="primary"
-                rounded
-              />
-            </div>
-          </q-form>
-          <q-form
-            v-else
-            ref="clientFormRef"
-            @submit.prevent="onClientLogin"
-            class="q-gutter-xl q-pt-xl q-px-l signin-form"
-          >
-            <q-input
-              class="signin-input"
-              v-model="clientModel.propertyCode"
-              label="Property Code"
-              lazy-rules
-              :rules="[() => validateClientField('propertyCode')]"
-              rounded
-              outlined
-            />
-            <q-input
-              class="signin-input"
-              v-model="clientModel.phoneNumber"
-              label="Phone Number"
-              lazy-rules
-              :rules="[() => validateClientField('phoneNumber')]"
-              rounded
-              outlined
-              :mask="'##########'"
-              :placeholder="'Enter your phone number'"
-              :autofocus="true"
-              :clearable="true"
-              :input-attrs="{ maxlength: 15 }"
-              type="tel"
-            />
-            <div class="text-center" style="width: 100%">
+                size="lg"
+                class="signin-button"
+                no-caps
+                unelevated
+              >
+                <q-icon name="login" class="q-mr-sm" />
+                Sign In to Dashboard
+              </q-btn>
+            </q-form>
+
+            <!-- Client Form -->
+            <q-form
+              v-else
+              ref="clientFormRef"
+              @submit.prevent="onClientLogin"
+              class="signin-form"
+            >
+              <div class="form-group">
+                <q-input
+                  v-model="clientModel.propertyCode"
+                  label="Property Code"
+                  outlined
+                  dense
+                  class="modern-input"
+                  lazy-rules
+                  :rules="[() => validateClientField('propertyCode')]"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="home" color="primary" />
+                  </template>
+                </q-input>
+              </div>
+
+              <div class="form-group">
+                <q-input
+                  v-model="clientModel.phoneNumber"
+                  label="Phone Number"
+                  outlined
+                  dense
+                  class="modern-input"
+                  lazy-rules
+                  :rules="[() => validateClientField('phoneNumber')]"
+                  :mask="'##########'"
+                  placeholder="Enter your phone number"
+                  type="tel"
+                  :input-attrs="{ maxlength: 15 }"
+                  clearable
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="phone" color="primary" />
+                  </template>
+                </q-input>
+              </div>
+
               <q-btn
-                style="width: 100%"
-                label="Sign In"
+                type="submit"
                 color="primary"
-                rounded
+                size="lg"
+                class="signin-button client-signin"
                 :disable="!clientFormValid"
-                type="submit"
-              />
-            </div>
-          </q-form>
-        </q-card-section>
-      </q-card>
+                no-caps
+                unelevated
+              >
+                <q-icon name="account_circle" class="q-mr-sm" />
+                Access My Account
+              </q-btn>
+            </q-form>
+          </q-card-section>
+        </q-card>
+
+        <div class="form-footer">
+          <p class="footer-text">
+            Powered by <strong>BoundlessEdge</strong> •
+            <a href="https://wasteproutils.com" class="footer-link"
+              >wasteproutils.com</a
+            >
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -243,7 +337,7 @@ async function onClientLogin() {
         await store.handleAuthToken(response.data.token);
         $q.notify({
           color: 'positive',
-          message: response.data.message || 'Login successful!',
+          message: 'Login successful! Welcome to WastePro.',
           icon: 'check_circle',
         });
         await router.replace('/sc/dashboard');
@@ -284,44 +378,313 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.signin-bg {
-  min-height: 100vh;
-  background: #f7f8fa;
-}
-.signin-logo {
+.signin-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 3rem 0 2rem;
+  min-height: 100vh;
+  background: #f8fafc;
 }
-.signin-card {
+
+/* Hero Section */
+.signin-hero {
+  flex: 1;
+  background: linear-gradient(
+      135deg,
+      rgba(44, 85, 48, 0.9) 0%,
+      rgba(74, 124, 89, 0.85) 50%,
+      rgba(255, 107, 53, 0.8) 100%
+    ),
+    url('/assets/Waste_Disposal_Operation.png');
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: none;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+}
+
+.hero-content {
+  max-width: 500px;
+  text-align: center;
+  color: white;
+}
+
+/* WastePro Logo */
+.wastepro-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 2rem;
+  font-size: 2.2rem;
+  font-weight: bold;
+}
+
+.logo-symbol {
+  width: 50px;
+  height: 50px;
+  position: relative;
+}
+
+.logo-symbol .arrow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 5px solid white;
+  border-top-color: transparent;
+  border-left-color: transparent;
+  border-radius: 50%;
+}
+
+.logo-symbol .arrow::before {
+  content: '';
+  position: absolute;
+  right: 1px;
+  top: -5px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 14px solid white;
+  transform: rotate(35deg);
+}
+
+.arrow-1 {
+  transform: rotate(45deg);
+}
+.arrow-2 {
+  transform: rotate(165deg);
+}
+.arrow-3 {
+  transform: rotate(285deg);
+}
+
+.logo-text .pro-accent {
+  color: #ff6b35;
+  font-weight: 800;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  opacity: 0.95;
+  line-height: 1.6;
+}
+
+.hero-features {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Form Section */
+.signin-form-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  max-width: 500px;
+}
+
+.form-container {
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
-  border-radius: 18px;
 }
+
+.form-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.brand-section {
+  margin-bottom: 2rem;
+}
+
 .signin-title {
-  font-size: 1.75rem;
+  font-size: 2rem;
   font-weight: 700;
-  color: rgba(233, 149, 254, 0.667);
+  color: #1a202c;
+  margin: 1rem 0 0.5rem;
 }
+
+.signin-subtitle {
+  color: #64748b;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.signin-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e2e8f0;
+}
+
+.signin-card-content {
+  padding: 2rem;
+}
+
 .signin-tabs {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
+
+.tab-button {
+  font-weight: 600;
+  text-transform: none;
+}
+
+.tab-separator {
+  margin: 1.5rem 0;
+  background: #e2e8f0;
+}
+
 .signin-form {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  gap: 1rem;
+  gap: 1.5rem;
 }
-.signin-input {
+
+.form-group {
   width: 100%;
 }
-.signin-info {
-  display: flex;
-  align-items: center;
-}
-.full-width {
+
+.modern-input {
   width: 100%;
+}
+
+.modern-input :deep(.q-field__control) {
+  border-radius: 8px;
+  border-color: #e2e8f0;
+}
+
+.modern-input :deep(.q-field__control):hover {
+  border-color: #cbd5e0;
+}
+
+.modern-input :deep(.q-field--focused .q-field__control) {
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+.signin-button {
+  width: 100%;
+  height: 48px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
+.client-signin.signin-button {
+  background: #4a7c59 !important;
+  color: white !important;
+}
+
+.client-signin.signin-button:hover {
+  background: #2c5530 !important;
+}
+
+.form-footer {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.footer-text {
+  color: #64748b;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.footer-link {
+  color: #3182ce;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.footer-link:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (min-width: 768px) {
+  .signin-hero {
+    display: flex;
+  }
+
+  .signin-form-section {
+    max-width: 600px;
+  }
+}
+
+@media (max-width: 767px) {
+  .signin-container {
+    flex-direction: column;
+  }
+
+  .signin-form-section {
+    padding: 1rem;
+  }
+
+  .form-container {
+    max-width: 100%;
+  }
+
+  .signin-card-content {
+    padding: 1.5rem;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .signin-title {
+    font-size: 1.75rem;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .signin-container {
+    background: #0f172a;
+  }
+
+  .signin-card {
+    background: #1e293b;
+    border-color: #334155;
+  }
+
+  .signin-title {
+    color: #f1f5f9;
+  }
+
+  .signin-subtitle,
+  .footer-text {
+    color: #94a3b8;
+  }
 }
 </style>
