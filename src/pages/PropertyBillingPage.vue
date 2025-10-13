@@ -74,13 +74,7 @@
       </div>
       <!-- Enhanced Content Area -->
       <div class="content-area">
-        <q-tab-panels
-          v-model="currentTab"
-          class="content-panels"
-          animated
-          swipeable
-          infinite
-        >
+        <q-tab-panels v-model="currentTab" class="content-panels" animated>
           <!-- Properties Tab Panel -->
           <q-tab-panel
             :name="NamedTabsEnum.PROPERTIES"
@@ -731,49 +725,48 @@
         </q-tab-panels>
       </div>
 
-      <!-- add new property dialog -->
-      <!-- <div style="width: 80rem"> -->
-      <q-dialog v-model="showDialog">
-        <!-- dialog content -->
-        <!-- <div class="flex flex-center" style="height: 85vh; width: 85rem"> -->
-        <dialog-card height="auto" :width="`${dialogWidth}rem`">
-          <!-- <component :is="currentDialogComponent" /> -->
-          <new-property-subscription
-            v-if="currentTab === NamedTabsEnum.PROPERTIES"
-            @add-subscriber="
-              onSecondaryModalTrigger(NamedSecondaryModal.ADD_SUBSCRIBER)
-            "
-            @add-street="
-              onSecondaryModalTrigger(NamedSecondaryModal.ADD_STREET)
-            "
-            @add-property-type="
-              onSecondaryModalTrigger(NamedSecondaryModal.ADD_PROPERTY_TYPE)
-            "
-          />
-          <generate-bill v-else-if="currentTab === NamedTabsEnum.BILLINGS" />
-        </dialog-card>
-        <!-- </div> -->
-      </q-dialog>
+      <!-- New Property Subscription Modal -->
+      <new-property-subscription
+        v-if="currentTab === NamedTabsEnum.PROPERTIES"
+        v-model="showDialog"
+        @close="showDialog = false"
+        @add-subscriber="
+          onSecondaryModalTrigger(NamedSecondaryModal.ADD_SUBSCRIBER)
+        "
+        @add-street="onSecondaryModalTrigger(NamedSecondaryModal.ADD_STREET)"
+        @add-property-type="
+          onSecondaryModalTrigger(NamedSecondaryModal.ADD_PROPERTY_TYPE)
+        "
+      />
+
+      <!-- Generate Bill Modal -->
       <q-dialog
-        v-model="showSecondaryDialog"
-        persistent
-        transition-show="scale"
-        transition-hide="scale"
+        v-model="showDialog"
+        v-else-if="currentTab === NamedTabsEnum.BILLINGS"
       >
-        <dialog-card height="auto" :width="`${dialogWidth - 30}rem`">
-          <add-subscriber
-            v-if="secondaryModalValue === NamedSecondaryModal.ADD_SUBSCRIBER"
-          />
-          <add-street
-            v-else-if="secondaryModalValue === NamedSecondaryModal.ADD_STREET"
-          />
-          <add-property-type
-            v-else-if="
-              secondaryModalValue === NamedSecondaryModal.ADD_PROPERTY_TYPE
-            "
-          />
+        <dialog-card height="auto" :width="`${dialogWidth}rem`">
+          <generate-bill />
         </dialog-card>
       </q-dialog>
+
+      <!-- Secondary Modals -->
+      <add-subscriber
+        v-if="secondaryModalValue === NamedSecondaryModal.ADD_SUBSCRIBER"
+        v-model="showSecondaryDialog"
+        @close="showSecondaryDialog = false"
+      />
+      <add-street
+        v-else-if="secondaryModalValue === NamedSecondaryModal.ADD_STREET"
+        v-model="showSecondaryDialog"
+        @close="showSecondaryDialog = false"
+      />
+      <add-property-type
+        v-else-if="
+          secondaryModalValue === NamedSecondaryModal.ADD_PROPERTY_TYPE
+        "
+        v-model="showSecondaryDialog"
+        @close="showSecondaryDialog = false"
+      />
       <q-dialog
         v-model="showRemotelyTriggeredDialog"
         persistent
@@ -1605,8 +1598,11 @@ function toggleDialog() {
 }
 
 function onSecondaryModalTrigger(currentModalValue: NamedSecondaryModal) {
-  showSecondaryDialog.value = true;
+  // Close the main dialog first
+  showDialog.value = false;
+  // Then open the secondary modal
   secondaryModalValue.value = currentModalValue;
+  showSecondaryDialog.value = true;
 }
 
 eventBus.on(EventNamesEnum.TRIGGER_REMOTE_MODAL_LGA, () => {
@@ -1622,6 +1618,16 @@ eventBus.on(EventNamesEnum.TRIGGER_REMOTE_MODAL_LGA_WARD, () => {
 watch(showPaymentHistoryModal, (newValue) => {
   if (!newValue) {
     propertySubscriptionId.value = null;
+  }
+});
+
+// Reopen main dialog when secondary modal is closed (for better UX)
+watch(showSecondaryDialog, (newValue) => {
+  if (!newValue && currentTab.value === NamedTabsEnum.PROPERTIES) {
+    // Small delay to ensure smooth transition
+    setTimeout(() => {
+      showDialog.value = true;
+    }, 100);
   }
 });
 
@@ -1687,6 +1693,56 @@ onMounted(async () => {
     rowsPerPage: number;
   };
   subscriptionTableLoading.value = false;
+
+  // Prevent tab switching when scrolling within tables on mobile
+  const tableContainers = document.querySelectorAll(
+    '.table-container, .q-table__middle'
+  );
+
+  tableContainers.forEach((container) => {
+    let isScrolling = false;
+    let startX = 0;
+
+    // Track touch start
+    container.addEventListener(
+      'touchstart',
+      (e) => {
+        startX = e.touches[0].clientX;
+        isScrolling = false;
+      },
+      { passive: true }
+    );
+
+    // Track touch move to detect horizontal scrolling
+    container.addEventListener(
+      'touchmove',
+      (e) => {
+        if (e.touches.length === 1) {
+          const currentX = e.touches[0].clientX;
+          const diffX = Math.abs(currentX - startX);
+
+          // If horizontal movement is detected, mark as scrolling
+          if (diffX > 10) {
+            isScrolling = true;
+            // Stop event propagation to prevent tab switching
+            e.stopPropagation();
+          }
+        }
+      },
+      { passive: false }
+    );
+
+    // Reset scrolling flag on touch end
+    container.addEventListener(
+      'touchend',
+      () => {
+        setTimeout(() => {
+          isScrolling = false;
+        }, 100);
+      },
+      { passive: true }
+    );
+  });
 });
 
 onBeforeUnmount(async () => {
@@ -1841,6 +1897,15 @@ onBeforeUnmount(async () => {
 
 .content-panels {
   background: transparent;
+
+  /* Prevent tab swiping interference with table scrolling */
+  touch-action: auto;
+
+  .q-tab-panel {
+    /* Allow normal touch interactions within tab panels */
+    touch-action: auto;
+    overflow: visible;
+  }
 }
 
 /* Enhanced Card Styles */
@@ -1908,6 +1973,9 @@ onBeforeUnmount(async () => {
 
   /* Smooth scrolling on mobile */
   -webkit-overflow-scrolling: touch;
+
+  /* Ensure horizontal scrolling takes priority over tab swiping */
+  touch-action: pan-x;
 
   /* Hide scrollbar but keep functionality */
   scrollbar-width: thin;
@@ -2327,6 +2395,89 @@ onBeforeUnmount(async () => {
   .enhanced-table tbody td {
     padding: 0.75rem 0.5rem;
     font-size: 0.875rem;
+  }
+
+  /* Enhanced Mobile Table Scrolling */
+  .enhanced-table {
+    /* Ensure smooth horizontal scrolling on mobile */
+    .q-table__middle {
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+      scrollbar-width: thin; /* Firefox */
+
+      /* Custom scrollbar for webkit browsers */
+      &::-webkit-scrollbar {
+        height: 8px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 4px;
+
+        &:hover {
+          background: #a1a1a1;
+        }
+      }
+    }
+
+    /* Prevent table from shrinking on mobile */
+    table {
+      min-width: 600px; /* Minimum width to ensure all columns are visible */
+      width: 100%;
+    }
+
+    /* Ensure action columns maintain their width */
+    .actions-cell {
+      min-width: 120px;
+      width: 120px;
+      position: sticky;
+      right: 0;
+      background: inherit;
+      z-index: 1;
+
+      /* Add subtle shadow to indicate sticky position */
+      &::before {
+        content: '';
+        position: absolute;
+        left: -5px;
+        top: 0;
+        bottom: 0;
+        width: 5px;
+        background: linear-gradient(to right, rgba(0, 0, 0, 0.1), transparent);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+    }
+
+    tbody tr:hover .actions-cell::before {
+      opacity: 1;
+    }
+  }
+
+  /* Table container improvements for mobile */
+  .table-container {
+    overflow: visible; /* Allow table to handle its own scrolling */
+    position: relative;
+
+    /* Add scroll hint indicators */
+    &::after {
+      content: '⟵ Scroll horizontally to see more ⟶';
+      position: absolute;
+      bottom: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+      color: #666;
+      opacity: 0.7;
+      text-align: center;
+      pointer-events: none;
+    }
   }
 }
 

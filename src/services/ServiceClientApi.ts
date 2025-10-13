@@ -1,4 +1,8 @@
 import { api } from 'boot/axios';
+import {
+  optimizedRequestApi,
+  cacheControl,
+} from 'src/lib/requests/optimized.request';
 
 export interface DashboardMetrics {
   currentOutstandingBill: number;
@@ -165,43 +169,53 @@ export interface PaymentProofResponse {
 
 export class ServiceClientApi {
   static async getDashboardMetrics(year?: number): Promise<DashboardMetrics> {
-    const params = year ? { year: year.toString() } : {};
-    const response = await api.get('/service-client/dashboard-metrics', {
-      params,
+    return optimizedRequestApi('/service-client/dashboard-metrics', 'get', {
+      params: year ? { year: year.toString() } : {},
+      cache: true,
+      cacheTtl: 600000, // 10 minutes cache
+      priority: 'high',
     });
-    return response.data;
   }
 
   static async getBilling(
     filters: BillingFilters = {}
   ): Promise<BillingResponse> {
     const params: Record<string, string> = {};
-
     if (filters.page) params.page = filters.page.toString();
     if (filters.limit) params.limit = filters.limit.toString();
     if (filters.year) params.year = filters.year.toString();
-    if (filters.status) params.status = filters.status;
+    if (filters.filter) params.filter = filters.filter;
 
-    const response = await api.get('/service-client/billing', { params });
-    return response.data;
+    return optimizedRequestApi('/service-client/billing', 'get', {
+      params,
+      cache: true,
+      cacheTtl: 300000, // 5 minutes cache
+      priority: 'high',
+    });
   }
 
   static async getPayments(
     filters: PaymentFilters = {}
   ): Promise<PaymentHistoryResponse> {
     const params: Record<string, string> = {};
-
     if (filters.page) params.page = filters.page.toString();
     if (filters.limit) params.limit = filters.limit.toString();
     if (filters.year) params.year = filters.year.toString();
 
-    const response = await api.get('/service-client/payments', { params });
-    return response.data;
+    return optimizedRequestApi('/service-client/payments', 'get', {
+      params,
+      cache: true,
+      cacheTtl: 300000, // 5 minutes cache
+      priority: 'normal',
+    });
   }
 
   static async getVirtualAccount(): Promise<VirtualAccountDetails> {
-    const response = await api.get('/service-client/virtual-account');
-    return response.data;
+    return optimizedRequestApi('/service-client/virtual-account', 'get', {
+      cache: true,
+      cacheTtl: 1800000, // 30 minutes cache (rarely changes)
+      priority: 'normal',
+    });
   }
 
   static async downloadBill(billId: string): Promise<string> {
@@ -209,6 +223,16 @@ export class ServiceClientApi {
       `/service-client/billing/${billId}/download`,
       {
         responseType: 'text',
+      }
+    );
+    return response.data;
+  }
+
+  static async downloadBillPDF(billId: string): Promise<Blob> {
+    const response = await api.get(
+      `/service-client/billing/${billId}/download-pdf`,
+      {
+        responseType: 'blob',
       }
     );
     return response.data;
@@ -223,24 +247,55 @@ export class ServiceClientApi {
     if (filters.limit) params.limit = filters.limit.toString();
     if (filters.filter) params.filter = filters.filter;
 
-    const response = await api.get('/service-client/notifications', { params });
-    return response.data;
+    return optimizedRequestApi('/service-client/notifications', 'get', {
+      params,
+      cache: true,
+      cacheTtl: 120000, // 2 minutes cache (notifications update frequently)
+      priority: 'normal',
+    });
   }
 
   static async markNotificationAsRead(notificationId: string): Promise<void> {
-    await api.post(`/service-client/notifications/${notificationId}/read`);
+    await optimizedRequestApi(
+      `/service-client/notifications/${notificationId}/read`,
+      'post',
+      {
+        cache: false,
+        priority: 'high',
+      }
+    );
+    // Invalidate notifications cache after marking as read
+    cacheControl.invalidate('/service-client/notifications');
   }
 
   static async markAllNotificationsAsRead(): Promise<{
     message: string;
     count: number;
   }> {
-    const response = await api.post('/service-client/notifications/read-all');
-    return response.data;
+    const result = await optimizedRequestApi(
+      '/service-client/notifications/read-all',
+      'post',
+      {
+        cache: false,
+        priority: 'high',
+      }
+    );
+    // Invalidate notifications cache after marking all as read
+    cacheControl.invalidate('/service-client/notifications');
+    return result;
   }
 
   static async deleteNotification(notificationId: string): Promise<void> {
-    await api.delete(`/service-client/notifications/${notificationId}`);
+    await optimizedRequestApi(
+      `/service-client/notifications/${notificationId}`,
+      'delete',
+      {
+        cache: false,
+        priority: 'normal',
+      }
+    );
+    // Invalidate notifications cache after deletion
+    cacheControl.invalidate('/service-client/notifications');
   }
 
   // Payment proof method - DISABLED

@@ -39,6 +39,7 @@ module.exports = configure(function (/* ctx */) {
       'eventBus',
       'apexcharts',
       'storeforage',
+      'navigationLoader',
     ],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css
@@ -177,7 +178,7 @@ module.exports = configure(function (/* ctx */) {
       // extendSSRWebserverConf (esbuildConf) {},
       // extendPackageJson (json) {},
 
-      pwa: false,
+      pwa: true,
 
       // manualStoreHydration: true,
       // manualPostHydrationTrigger: true,
@@ -197,11 +198,163 @@ module.exports = configure(function (/* ctx */) {
       swFilename: 'sw.js',
       manifestFilename: 'manifest.json',
       useCredentialsForManifestTag: false,
-      // useFilenameHashes: true,
-      // extendGenerateSWOptions (cfg) {}
-      // extendInjectManifestOptions (cfg) {},
-      // extendManifestJson (json) {}
-      // extendPWACustomSWConf (esbuildConf) {}
+
+      // PWA Manifest Configuration
+      extendManifestJson(json) {
+        Object.assign(json, {
+          name: 'WastePro - Waste Management System',
+          short_name: 'WastePro',
+          description:
+            'Professional Waste Management Solution for Lagos State and Beyond',
+          start_url: '/',
+          display: 'standalone',
+          orientation: 'portrait-primary',
+          background_color: '#2c5530',
+          theme_color: '#2c5530',
+          categories: ['utilities', 'productivity', 'government'],
+          lang: 'en-US',
+          scope: '/',
+          icons: [
+            {
+              src: 'icons/icon-128x128.png',
+              sizes: '128x128',
+              type: 'image/png',
+            },
+            {
+              src: 'icons/icon-192x192.png',
+              sizes: '192x192',
+              type: 'image/png',
+            },
+            {
+              src: 'icons/icon-256x256.png',
+              sizes: '256x256',
+              type: 'image/png',
+            },
+            {
+              src: 'icons/icon-384x384.png',
+              sizes: '384x384',
+              type: 'image/png',
+            },
+            {
+              src: 'icons/icon-512x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'any',
+            },
+            {
+              src: 'icons/icon-512x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'maskable',
+            },
+          ],
+          screenshots: [
+            {
+              src: 'assets/Payment_History.png',
+              sizes: '1920x1080',
+              type: 'image/png',
+              form_factor: 'wide',
+              label: 'Payment Management Interface',
+            },
+            {
+              src: 'assets/Billing_Management.png',
+              sizes: '390x844',
+              type: 'image/png',
+              form_factor: 'narrow',
+              label: 'Mobile Billing Management',
+            },
+          ],
+          shortcuts: [
+            {
+              name: 'Dashboard',
+              short_name: 'Dashboard',
+              description: 'Quick access to dashboard',
+              url: '/dashboard',
+              icons: [{ src: 'icons/icon-192x192.png', sizes: '192x192' }],
+            },
+            {
+              name: 'Billing',
+              short_name: 'Billing',
+              description: 'Access billing management',
+              url: '/property-billing',
+              icons: [{ src: 'icons/icon-192x192.png', sizes: '192x192' }],
+            },
+            {
+              name: 'Client Portal',
+              short_name: 'Portal',
+              description: 'Service client portal',
+              url: '/service-client',
+              icons: [{ src: 'icons/icon-192x192.png', sizes: '192x192' }],
+            },
+          ],
+        });
+      },
+
+      // Service Worker Configuration
+      extendGenerateSWOptions(cfg) {
+        Object.assign(cfg, {
+          skipWaiting: true,
+          clientsClaim: true,
+          cleanupOutdatedCaches: true,
+          offlineGoogleAnalytics: false,
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts-cache',
+                expiration: {
+                  maxEntries: 10,
+                  maxAgeSeconds: 60 * 60 * 24 * 365, // <== 365 days
+                },
+                cacheableResponse: {
+                  statuses: [0, 200],
+                },
+              },
+            },
+            {
+              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'gstatic-fonts-cache',
+                expiration: {
+                  maxEntries: 10,
+                  maxAgeSeconds: 60 * 60 * 24 * 365, // <== 365 days
+                },
+                cacheableResponse: {
+                  statuses: [0, 200],
+                },
+              },
+            },
+            {
+              urlPattern: /\.(?:png|gif|jpg|jpeg|svg|webp)$/,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'images-cache',
+                expiration: {
+                  maxEntries: 100,
+                  maxAgeSeconds: 60 * 60 * 24 * 30, // <== 30 days
+                },
+              },
+            },
+            {
+              urlPattern: /^https:\/\/api\..*/i,
+              handler: 'NetworkFirst',
+              options: {
+                cacheName: 'api-cache',
+                networkTimeoutSeconds: 10,
+                expiration: {
+                  maxEntries: 50,
+                  maxAgeSeconds: 60 * 5, // <== 5 minutes
+                },
+                cacheableResponse: {
+                  statuses: [0, 200],
+                },
+              },
+            },
+          ],
+        });
+      },
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/developing-cordova-apps/configuring-cordova

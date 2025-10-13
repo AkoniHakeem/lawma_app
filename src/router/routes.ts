@@ -1,5 +1,23 @@
 import { RouteRecordRaw } from 'vue-router';
 
+export interface RbacMeta {
+  requireAuth?: boolean;
+  requirePermissions?: string[];
+  requireRoles?: string[];
+  requireAnyPermission?: boolean; // true = OR logic, false = AND logic (default)
+  requireAnyRole?: boolean; // true = OR logic, false = AND logic (default)
+}
+
+declare module 'vue-router' {
+  interface RouteMeta {
+    requireAuth?: boolean;
+    requirePermissions?: string[];
+    requireRoles?: string[];
+    requireAnyPermission?: boolean;
+    requireAnyRole?: boolean;
+  }
+}
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -14,29 +32,111 @@ const routes: RouteRecordRaw[] = [
     name: 'dashboard',
     path: '/dashboard',
     component: () => import('layouts/AuthenticatedLayout.vue'),
+    meta: {
+      requireAuth: true,
+    },
     children: [
-      { path: '', component: () => import('pages/DashboardPage.vue') },
+      {
+        path: '',
+        component: () => import('pages/DashboardPage.vue'),
+        meta: {
+          requireAuth: true,
+          requirePermissions: ['dashboard:view'],
+        },
+      },
     ],
   },
   {
     name: 'properties-billings',
     path: '/properties-billings',
     component: () => import('layouts/AuthenticatedLayout.vue'),
+    meta: {
+      requireAuth: true,
+    },
     children: [
-      { path: '', component: () => import('pages/PropertyBillingPage.vue') },
+      {
+        path: '',
+        component: () => import('pages/PropertyBillingPage.vue'),
+        meta: {
+          requireAuth: true,
+          requirePermissions: ['property:view', 'billing:view'],
+          requireAnyPermission: true, // User needs either property:view OR billing:view
+        },
+      },
     ],
   },
   {
     name: 'payments',
     path: '/payments',
     component: () => import('layouts/AuthenticatedLayout.vue'),
-    children: [{ path: '', component: () => import('pages/PaymentPage.vue') }],
+    meta: {
+      requireAuth: true,
+    },
+    children: [
+      {
+        path: '',
+        component: () => import('pages/PaymentPage.vue'),
+        meta: {
+          requireAuth: true,
+          requirePermissions: ['payment:view'],
+        },
+      },
+    ],
   },
   {
     name: 'settings',
     path: '/settings',
     component: () => import('layouts/AuthenticatedLayout.vue'),
-    children: [{ path: '', component: () => import('pages/SettingsPage.vue') }],
+    meta: {
+      requireAuth: true,
+    },
+    children: [
+      {
+        path: '',
+        component: () => import('pages/SettingsPage.vue'),
+        meta: {
+          requireAuth: true,
+          requirePermissions: ['settings:view'],
+        },
+      },
+    ],
+  },
+  {
+    name: 'user-access-management',
+    path: '/user-access-management',
+    component: () => import('layouts/AuthenticatedLayout.vue'),
+    meta: {
+      requireAuth: true,
+    },
+    children: [
+      {
+        path: '',
+        component: () => import('pages/UserAccessManagement.vue'),
+        meta: {
+          requireAuth: true,
+          requireRoles: ['admin', 'super_admin'],
+          requireAnyRole: true, // User needs either admin OR super_admin role
+        },
+      },
+    ],
+  },
+  {
+    name: 'role-management',
+    path: '/role-management',
+    component: () => import('layouts/AuthenticatedLayout.vue'),
+    meta: {
+      requireAuth: true,
+    },
+    children: [
+      {
+        path: '',
+        component: () => import('pages/RoleManagement.vue'),
+        meta: {
+          requireAuth: true,
+          requireRoles: ['super_admin'], // Only super admins can manage roles
+        },
+      },
+    ],
   },
   {
     path: '/auth',
@@ -44,6 +144,10 @@ const routes: RouteRecordRaw[] = [
     children: [
       { path: 'signin', component: () => import('pages/SigninPage.vue') },
     ],
+  },
+  {
+    path: '/unauthorized',
+    component: () => import('pages/UnauthorizedPage.vue'),
   },
   {
     path: '/print/:datestring',
@@ -54,31 +158,58 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/sc',
     component: () => import('layouts/ServiceClientLayout.vue'),
+    meta: {
+      requireAuth: true,
+      requireRoles: ['service_client'],
+    },
     children: [
       {
         name: 'sc-dashboard',
         path: 'dashboard',
         component: () => import('pages/service-client/DashboardPage.vue'),
+        meta: {
+          requireAuth: true,
+          requireRoles: ['service_client'],
+        },
       },
       {
         name: 'sc-billing',
         path: 'billing',
         component: () => import('pages/service-client/BillingPage.vue'),
+        meta: {
+          requireAuth: true,
+          requireRoles: ['service_client'],
+          requirePermissions: ['billing:view'],
+        },
       },
       {
         name: 'sc-payments',
         path: 'payments',
         component: () => import('pages/service-client/PaymentsPage.vue'),
+        meta: {
+          requireAuth: true,
+          requireRoles: ['service_client'],
+          requirePermissions: ['payment:view'],
+        },
       },
       {
         name: 'sc-notifications',
         path: 'notifications',
         component: () => import('pages/service-client/NotificationPage.vue'),
+        meta: {
+          requireAuth: true,
+          requireRoles: ['service_client'],
+        },
       },
       {
         name: 'sc-profile',
         path: 'profile',
         component: () => import('pages/service-client/ProfilePage.vue'),
+        meta: {
+          requireAuth: true,
+          requireRoles: ['service_client'],
+          requirePermissions: ['profile:view'],
+        },
       },
       // Add more service client pages here as needed
     ],

@@ -13,14 +13,37 @@
             >Waste<span class="pro-accent">Pro</span></span
           >
         </a>
-        <ul class="nav-links">
-          <li><a href="#home">Home</a></li>
-          <li><a href="#features">Features</a></li>
-          <li><a href="#screenshots">Screenshots</a></li>
-          <li><a href="#onboard">Get Started</a></li>
-          <li><a href="#about">About</a></li>
+
+        <!-- Mobile menu toggle -->
+        <button
+          class="mobile-menu-toggle"
+          @click="toggleMobileMenu"
+          :class="{ active: mobileMenuOpen }"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <ul class="nav-links" :class="{ 'mobile-open': mobileMenuOpen }">
+          <li><a href="#home" @click="closeMobileMenu">Home</a></li>
+          <li><a href="#features" @click="closeMobileMenu">Features</a></li>
           <li>
-            <router-link to="/auth/signin" class="app-access"
+            <a href="#screenshots" @click="closeMobileMenu">Screenshots</a>
+          </li>
+          <li><a href="#onboard" @click="closeMobileMenu">Get Started</a></li>
+          <li><a href="#about" @click="closeMobileMenu">About</a></li>
+          <li v-if="canInstall">
+            <button @click="installPWA" class="install-app">
+              <span class="install-icon">📱</span>
+              Install App
+            </button>
+          </li>
+          <li>
+            <router-link
+              to="/auth/signin"
+              class="app-access"
+              @click="handleNavigation"
               >Access App</router-link
             >
           </li>
@@ -311,6 +334,64 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { showNavigationLoader } from '../boot/navigationLoader';
+
+const router = useRouter();
+
+// Mobile menu state
+const mobileMenuOpen = ref(false);
+
+// PWA Installation
+const showInstallButton = ref(false);
+const deferredPrompt = ref(null);
+
+// Mobile menu functions
+const toggleMobileMenu = () => {
+  mobileMenuOpen.value = !mobileMenuOpen.value;
+
+  // Prevent body scroll when menu is open
+  if (mobileMenuOpen.value) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
+};
+
+const closeMobileMenu = () => {
+  mobileMenuOpen.value = false;
+  document.body.style.overflow = '';
+};
+
+// Navigation handler with loader
+const handleNavigation = () => {
+  closeMobileMenu();
+  showNavigationLoader('Accessing App...');
+  router.push('/auth/signin');
+};
+
+// PWA Installation handlers
+const installApp = async () => {
+  if (deferredPrompt.value) {
+    // Show the install prompt
+    deferredPrompt.value.prompt();
+
+    // Wait for the user to respond to the prompt
+    const { outcome } = await deferredPrompt.value.userChoice;
+
+    if (outcome === 'accepted') {
+      console.log('User accepted the install prompt');
+    } else {
+      console.log('User dismissed the install prompt');
+    }
+
+    // Clear the deferredPrompt
+    deferredPrompt.value = null;
+    showInstallButton.value = false;
+  }
+
+  closeMobileMenu();
+};
 
 // Screenshots data - only the 3 app screenshots
 const screenshots = [
@@ -352,6 +433,44 @@ onMounted(() => {
         });
       }
     });
+  });
+
+  // Close mobile menu when clicking outside
+  document.addEventListener('click', (e) => {
+    const nav = document.querySelector('nav');
+    const toggle = document.querySelector('.mobile-menu-toggle');
+
+    if (
+      mobileMenuOpen.value &&
+      nav &&
+      !nav.contains(e.target) &&
+      !toggle.contains(e.target)
+    ) {
+      closeMobileMenu();
+    }
+  });
+
+  // Close mobile menu on escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && mobileMenuOpen.value) {
+      closeMobileMenu();
+    }
+  });
+
+  // PWA Install Event Listeners
+  window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+    // Save the event for triggering later
+    deferredPrompt.value = e;
+    // Show install button
+    showInstallButton.value = true;
+  });
+
+  window.addEventListener('appinstalled', () => {
+    console.log('PWA was installed');
+    showInstallButton.value = false;
+    deferredPrompt.value = null;
   });
 });
 </script>
@@ -479,8 +598,65 @@ nav {
   transition: background 0.3s;
 }
 
+.install-app {
+  background: #2196f3;
+  padding: 8px 16px;
+  border-radius: 5px;
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+  transition: background 0.3s;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.install-app:hover {
+  background: #1976d2;
+}
+
 .app-access:hover {
   background: #e55a30;
+}
+
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  width: 30px;
+  height: 24px;
+  position: relative;
+  z-index: 1001;
+}
+
+.mobile-menu-toggle span {
+  display: block;
+  height: 3px;
+  width: 100%;
+  background: white;
+  margin-bottom: 6px;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.mobile-menu-toggle span:last-child {
+  margin-bottom: 0;
+}
+
+.mobile-menu-toggle.active span:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+
+.mobile-menu-toggle.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-menu-toggle.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
 }
 
 /* Hero Section */
@@ -912,8 +1088,76 @@ nav {
 
 /* Responsive */
 @media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: flex;
+  }
+
   .nav-links {
-    display: none;
+    position: fixed;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 70px);
+    background: rgba(44, 85, 48, 0.98);
+    backdrop-filter: blur(10px);
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding-top: 2rem;
+    gap: 1.5rem;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+  }
+
+  .nav-links.mobile-open {
+    transform: translateX(0);
+  }
+
+  .nav-links li {
+    opacity: 0;
+    animation: fadeInMobile 0.3s ease forwards;
+  }
+
+  .nav-links.mobile-open li:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+  .nav-links.mobile-open li:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  .nav-links.mobile-open li:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+  .nav-links.mobile-open li:nth-child(4) {
+    animation-delay: 0.4s;
+  }
+  .nav-links.mobile-open li:nth-child(5) {
+    animation-delay: 0.5s;
+  }
+  .nav-links.mobile-open li:nth-child(6) {
+    animation-delay: 0.6s;
+  }
+
+  .nav-links a {
+    font-size: 1.2rem;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+  }
+
+  .nav-links a:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .install-app {
+    font-size: 1.2rem;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+  }
+
+  .install-app:hover {
+    background: #1976d2;
   }
 
   .hero-content h1 {
@@ -935,6 +1179,17 @@ nav {
 
   .screenshot-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@keyframes fadeInMobile {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>

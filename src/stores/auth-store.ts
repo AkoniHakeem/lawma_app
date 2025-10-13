@@ -5,6 +5,7 @@ import {
   forageSetItem,
   forageRemoveItem,
 } from 'src/boot/storeforage';
+import { useRbacStore } from './rbac-store';
 
 const authUserData =
   (forageGetItem<AuthUserData>(
@@ -33,10 +34,24 @@ const useAuthStore = defineStore('auth', {
         { ...this.$state },
         (err) => {
           // TODO: handle error
+          console.error('Failed to save auth data:', err);
         }
       );
+
+      // Load RBAC data after successful authentication
+      try {
+        const rbacStore = useRbacStore();
+        await rbacStore.loadUserAccess();
+      } catch (error) {
+        console.warn('Failed to load RBAC data:', error);
+        // Don't fail authentication if RBAC fails
+      }
     },
     async logout() {
+      // Clear RBAC store
+      const rbacStore = useRbacStore();
+      rbacStore.reset();
+
       // Clear the store state
       this.token = undefined;
       this.userData = undefined;

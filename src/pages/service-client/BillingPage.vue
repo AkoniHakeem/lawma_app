@@ -373,9 +373,15 @@ import {
   BillingResponse,
   BillingFilters,
 } from 'src/services/ServiceClientApi';
+import { useNetworkStatus } from 'src/composables/useNetworkStatus';
+import { useLoadingOptimization } from 'src/composables/useLoadingOptimization';
 
 const $q = useQuasar();
 const router = useRouter();
+
+// Network optimization
+const { isOnline, isSlowConnection } = useNetworkStatus();
+const { setLoading, isLoading, getOptimalPageSize } = useLoadingOptimization();
 
 // Reactive data
 const loading = ref(false);
@@ -447,12 +453,26 @@ const propertyDetails = computed(() => {
 
 // Methods
 async function loadBilling() {
+  if (!isOnline.value) {
+    $q.notify({
+      color: 'warning',
+      message: 'No internet connection. Please check your network.',
+      timeout: 3000,
+    });
+    return;
+  }
+
+  setLoading('billing', true);
   loading.value = true;
+
   try {
+    // Optimize page size based on connection speed
+    const optimalLimit = getOptimalPageSize(filters.value.limit);
+
     // Update filters with selected values
     const updatedFilters: BillingFilters = {
       page: filters.value.page,
-      limit: filters.value.limit,
+      limit: optimalLimit,
     };
 
     if (selectedYear.value) {
@@ -467,6 +487,16 @@ async function loadBilling() {
     }
 
     console.log('Loading billing with filters:', updatedFilters);
+
+    // Show loading indicator for slow connections
+    if (isSlowConnection.value) {
+      $q.notify({
+        color: 'info',
+        message: 'Loading data... This may take a moment on slow connections.',
+        timeout: 2000,
+      });
+    }
+
     billingData.value = await ServiceClientApi.getBilling(updatedFilters);
   } catch (error: any) {
     console.error('Failed to load billing data:', error);
@@ -476,6 +506,7 @@ async function loadBilling() {
       icon: 'error',
     });
   } finally {
+    setLoading('billing', false);
     loading.value = false;
   }
 }
@@ -483,7 +514,11 @@ async function loadBilling() {
 function onTableRequest(props: any) {
   const { page, rowsPerPage } = props.pagination;
   filters.value.page = page;
-  filters.value.limit = rowsPerPage;
+
+  // Optimize page size based on connection speed
+  const optimalLimit = getOptimalPageSize(rowsPerPage);
+  filters.value.limit = optimalLimit;
+
   loadBilling();
 }
 
@@ -552,35 +587,34 @@ function formatDate(dateString: string): string {
 
 async function downloadBillPDF(bill: BillingRecord) {
   try {
-    // Use the ServiceClientApi to generate and download the bill
-    const response = await ServiceClientApi.downloadBill(bill.id);
+    // Use the ServiceClientApi to generate and download the bill as PDF
+    const pdfBlob = await ServiceClientApi.downloadBillPDF(bill.id);
 
-    // Open the HTML content in a new window
-    const billWindow = window.open('', '_blank', 'width=800,height=600');
+    // Create a blob URL for the PDF
+    const url = window.URL.createObjectURL(pdfBlob);
 
-    if (!billWindow) {
-      throw new Error(
-        'Unable to open bill window. Please allow popups for this site.'
-      );
-    }
+    // Create a temporary anchor element to trigger download
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `bill-${bill.id}.pdf`;
 
-    billWindow.document.write(response);
-    billWindow.document.close();
+    // Append to body, click, and remove
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
-    // Add print functionality
-    billWindow.onload = () => {
-      billWindow.print();
-    };
+    // Clean up the blob URL
+    window.URL.revokeObjectURL(url);
 
     $q.notify({
       type: 'positive',
-      message: 'Bill generated successfully',
+      message: 'Bill downloaded successfully',
     });
   } catch (error) {
     console.error('Error downloading bill:', error);
     $q.notify({
       type: 'negative',
-      message: 'Failed to generate bill. Please try again.',
+      message: 'Failed to download bill. Please try again.',
     });
   }
 }

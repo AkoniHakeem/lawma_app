@@ -84,6 +84,8 @@ import {
   DashboardMetrics,
 } from 'src/services/ServiceClientApi';
 import { useQuasar } from 'quasar';
+import { useNetworkStatus } from 'src/composables/useNetworkStatus';
+import { useLoadingOptimization } from 'src/composables/useLoadingOptimization';
 
 const $q = useQuasar();
 const selectedYear = ref(new Date().getFullYear());
