@@ -41,7 +41,8 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/DashboardPage.vue'),
         meta: {
           requireAuth: true,
-          requirePermissions: ['dashboard:view'],
+          // Dashboard is a basic route - no specific permission required
+          // Users with any valid role should be able to access dashboard
         },
       },
     ],
@@ -59,8 +60,8 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/PropertyBillingPage.vue'),
         meta: {
           requireAuth: true,
-          requirePermissions: ['property:view', 'billing:view'],
-          requireAnyPermission: true, // User needs either property:view OR billing:view
+          requirePermissions: ['properties:read', 'billing:read'],
+          requireAnyPermission: true, // User needs either properties:read OR billing:read
         },
       },
     ],
@@ -78,7 +79,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/PaymentPage.vue'),
         meta: {
           requireAuth: true,
-          requirePermissions: ['payment:view'],
+          requirePermissions: ['payments:read'],
         },
       },
     ],
@@ -96,7 +97,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/SettingsPage.vue'),
         meta: {
           requireAuth: true,
-          requirePermissions: ['settings:view'],
+          requirePermissions: ['settings:read'],
         },
       },
     ],
@@ -179,7 +180,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           requireAuth: true,
           requireRoles: ['service_client'],
-          requirePermissions: ['billing:view'],
+          requirePermissions: ['billing:read'],
         },
       },
       {
@@ -189,7 +190,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           requireAuth: true,
           requireRoles: ['service_client'],
-          requirePermissions: ['payment:view'],
+          requirePermissions: ['payments:read'],
         },
       },
       {
@@ -208,13 +209,50 @@ const routes: RouteRecordRaw[] = [
         meta: {
           requireAuth: true,
           requireRoles: ['service_client'],
-          requirePermissions: ['profile:view'],
+          // Profile is a basic user function - no additional permission required
         },
       },
       // Add more service client pages here as needed
     ],
   },
-
+  // Onboarding routes (public access)
+  {
+    path: '/onboarding',
+    component: () => import('layouts/OnboardingLayout.vue'),
+    meta: {
+      requireAuth: false,
+    },
+    children: [
+      {
+        path: '',
+        component: () => import('pages/OnboardingLanding.vue'),
+        meta: {
+          requireAuth: false,
+        },
+      },
+      {
+        path: 'register',
+        component: () => import('pages/OnboardingRegistration.vue'),
+        meta: {
+          requireAuth: false,
+        },
+      },
+      {
+        path: 'data-upload/:id',
+        component: () => import('pages/OnboardingDataUpload.vue'),
+        meta: {
+          requireAuth: false,
+        },
+      },
+      {
+        path: 'summary/:id',
+        component: () => import('pages/OnboardingSummary.vue'),
+        meta: {
+          requireAuth: false,
+        },
+      },
+    ],
+  },
   // Always leave this as last one,
   // but you can also remove it
   {

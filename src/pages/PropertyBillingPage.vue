@@ -1066,7 +1066,7 @@ const pagination = ref({
   // sortBy: 'desc',
   // descending: false,
   page: 1,
-  rowsPerPage: 3,
+  rowsPerPage: 50,
   rowsNumber: 10,
 });
 const subscriptionTableLoading = ref(true);

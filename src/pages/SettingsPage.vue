@@ -5,13 +5,14 @@
       <div class="page-header">
         <div class="header-content">
           <div class="title-section">
-            <h1 class="page-title">Property Types Management</h1>
+            <h1 class="page-title">Settings Management</h1>
             <p class="page-subtitle">
-              Manage property types, pricing, and configurations
+              Manage system settings, property types, and access controls
             </p>
           </div>
           <div class="header-actions-section">
             <q-btn
+              v-if="currentTab === 'property-types'"
               color="white"
               text-color="primary"
               rounded
@@ -29,347 +30,393 @@
         </div>
       </div>
 
-      <!-- Property Types Management Section -->
+      <!-- Navigation Tabs -->
+      <div class="tabs-container">
+        <q-tabs
+          v-model="currentTab"
+          dense
+          class="text-grey"
+          active-color="primary"
+          indicator-color="primary"
+          align="justify"
+          narrow-indicator
+        >
+          <q-tab
+            name="property-types"
+            icon="home_work"
+            label="Property Types"
+          />
+          <q-tab name="rbac-settings" icon="security" label="Access Control" />
+        </q-tabs>
+      </div>
+
+      <!-- Tab Panels Content -->
       <div class="content-area">
-        <!-- Property Types List -->
-        <q-card class="enhanced-card" flat>
-          <q-card-section class="card-header">
-            <div class="row items-center justify-between">
-              <div class="header-info">
-                <div class="row items-center">
-                  <q-icon
-                    name="list"
-                    color="primary"
-                    size="sm"
-                    class="q-mr-sm"
-                  />
-                  <div>
-                    <h6 class="text-h6 q-ma-none text-weight-bold">
-                      Property Types
-                    </h6>
-                    <p class="text-grey-6 q-ma-none text-caption">
-                      {{
-                        searchFilter
-                          ? `Searching "${searchFilter}" - Manage property types and pricing`
-                          : 'Manage property types and pricing'
-                      }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div class="header-actions">
-                <div class="row q-gutter-sm items-center">
-                  <q-input
-                    ref="searchInputRef"
-                    v-model="searchFilter"
-                    label="Search property types..."
-                    outlined
-                    dense
-                    clearable
-                    debounce="300"
-                    class="search-input"
-                    style="min-width: 200px"
-                  >
-                    <template v-slot:prepend>
-                      <q-icon name="search">
-                        <q-tooltip class="bg-grey-8">
-                          Press Ctrl+F to focus search
-                        </q-tooltip>
-                      </q-icon>
-                    </template>
-                    <template v-slot:append>
+        <q-tab-panels v-model="currentTab" animated>
+          <!-- Property Types Tab -->
+          <q-tab-panel name="property-types">
+            <!-- Property Types List -->
+            <q-card class="enhanced-card" flat>
+              <q-card-section class="card-header">
+                <div class="row items-center justify-between">
+                  <div class="header-info">
+                    <div class="row items-center">
                       <q-icon
-                        v-if="searchFilter"
-                        name="info"
-                        color="grey-6"
-                        size="sm"
-                      >
-                        <q-tooltip class="bg-grey-8">
-                          Search by property name or price. Press Escape to
-                          clear.
-                        </q-tooltip>
-                      </q-icon>
-                    </template>
-                  </q-input>
-                  <q-chip
-                    :color="searchFilter ? 'secondary' : 'primary'"
-                    text-color="white"
-                    :icon="searchFilter ? 'search' : 'home_work'"
-                    class="stats-chip"
-                  >
-                    {{ filteredPropertyTypes.length }}
-                    {{ searchFilter ? 'found' : 'types' }}
-                  </q-chip>
-                  <q-btn
-                    icon="add"
-                    color="primary"
-                    rounded
-                    @click="openPropertyTypeDialog"
-                    class="action-btn"
-                    size="md"
-                  >
-                    <q-tooltip class="bg-primary"
-                      >Add New Property Type</q-tooltip
-                    >
-                  </q-btn>
-                  <q-btn
-                    icon="refresh"
-                    color="secondary"
-                    rounded
-                    @click="refreshPropertyTypes"
-                    class="action-btn"
-                    :loading="propertyTypesLoading"
-                    size="md"
-                  >
-                    <q-tooltip class="bg-secondary"
-                      >Refresh Property Types</q-tooltip
-                    >
-                  </q-btn>
-                </div>
-              </div>
-            </div>
-          </q-card-section>
-
-          <q-separator />
-
-          <q-card-section class="q-pa-none">
-            <div class="table-container">
-              <q-table
-                :rows="filteredPropertyTypes"
-                :columns="propertyTypeColumns"
-                row-key="id"
-                class="enhanced-table property-types-table"
-                separator="cell"
-                flat
-                bordered
-                :loading="propertyTypesLoading"
-                :pagination="{ rowsPerPage: 10 }"
-              >
-                <template v-slot:loading>
-                  <q-inner-loading showing color="primary" />
-                </template>
-
-                <template v-slot:no-data>
-                  <div
-                    class="full-width row flex-center text-grey-6 q-gutter-sm q-pa-lg"
-                  >
-                    <q-icon
-                      size="2em"
-                      :name="searchFilter ? 'search_off' : 'home_work'"
-                    />
-                    <div class="text-center">
-                      <div class="text-h6">
-                        {{
-                          searchFilter
-                            ? 'No matching property types'
-                            : 'No property types found'
-                        }}
-                      </div>
-                      <div class="text-caption q-mt-sm">
-                        {{
-                          searchFilter
-                            ? `No property types match "${searchFilter}". Try a different search term.`
-                            : 'Add your first property type to get started.'
-                        }}
-                      </div>
-                      <q-btn
-                        v-if="searchFilter"
-                        flat
-                        color="primary"
-                        icon="clear"
-                        label="Clear search"
-                        @click="searchFilter = ''"
-                        class="q-mt-sm"
-                      />
-                    </div>
-                  </div>
-                </template>
-
-                <template v-slot:body-cell-name="props">
-                  <q-td :props="props" class="property-name-cell">
-                    <div class="property-info">
-                      <q-icon
-                        name="home_work"
+                        name="list"
                         color="primary"
                         size="sm"
                         class="q-mr-sm"
                       />
-                      <span
-                        class="text-weight-medium"
-                        v-html="highlightSearchTerm(props.value, searchFilter)"
-                      ></span>
+                      <div>
+                        <h6 class="text-h6 q-ma-none text-weight-bold">
+                          Property Types
+                        </h6>
+                        <p class="text-grey-6 q-ma-none text-caption">
+                          {{
+                            searchFilter
+                              ? `Searching "${searchFilter}" - Manage property types and pricing`
+                              : 'Manage property types and pricing'
+                          }}
+                        </p>
+                      </div>
                     </div>
-                  </q-td>
-                </template>
-
-                <template v-slot:body-cell-unitPrice="props">
-                  <q-td :props="props" class="price-cell">
-                    <q-chip
-                      color="green"
-                      text-color="white"
-                      icon="payments"
-                      class="price-chip"
-                    >
-                      ₦{{ formatCurrency(props.value) }}
-                    </q-chip>
-                  </q-td>
-                </template>
-
-                <template v-slot:body-cell-actions="props">
-                  <q-td :props="props" class="actions-cell">
-                    <div class="row q-gutter-sm">
-                      <q-btn
-                        icon="edit"
-                        color="primary"
-                        size="sm"
-                        rounded
-                        @click="editPropertyType(props.row)"
-                        class="action-btn-small"
-                      >
-                        <q-tooltip class="bg-primary">Edit</q-tooltip>
-                      </q-btn>
-                      <q-btn
-                        icon="delete"
-                        color="negative"
-                        size="sm"
-                        rounded
-                        @click="confirmDeletePropertyType(props.row)"
-                        class="action-btn-small"
-                      >
-                        <q-tooltip class="bg-negative">Delete</q-tooltip>
-                      </q-btn>
-                    </div>
-                  </q-td>
-                </template>
-              </q-table>
-            </div>
-          </q-card-section>
-        </q-card>
-      </div>
-
-      <!-- Property Type Form Dialog -->
-      <q-dialog v-model="showPropertyTypeDialog" class="property-type-dialog">
-        <q-card class="property-type-form-card">
-          <q-card-section class="dialog-header">
-            <div class="row items-center justify-between">
-              <div class="dialog-title">
-                <q-icon
-                  name="home_work"
-                  color="primary"
-                  size="md"
-                  class="q-mr-sm"
-                />
-                <span class="text-h6 text-weight-bold">
-                  {{ propertyTypeModel.id ? 'Edit' : 'Add New' }} Property Type
-                </span>
-              </div>
-              <q-btn
-                flat
-                round
-                dense
-                icon="close"
-                @click="closePropertyTypeDialog"
-                class="close-btn"
-              />
-            </div>
-          </q-card-section>
-
-          <q-separator />
-
-          <q-card-section class="dialog-content">
-            <q-form ref="propertyTypeForm" @submit.prevent="onSubmit">
-              <div class="row q-gutter-lg">
-                <div class="col-12 col-md-5">
-                  <div class="form-section">
-                    <h6 class="form-section-title">Property Information</h6>
-                    <div class="q-mb-md">
+                  </div>
+                  <div class="header-actions">
+                    <div class="row q-gutter-sm items-center">
                       <q-input
-                        v-model="propertyTypeModel.name"
-                        label="Property Type Name"
-                        filled
+                        ref="searchInputRef"
+                        v-model="searchFilter"
+                        label="Search property types..."
                         outlined
-                        color="primary"
+                        dense
                         clearable
-                        :rules="[
-                          () => $validateField(propertyTypeModel, 'name'),
-                        ]"
+                        debounce="300"
+                        class="search-input"
+                        style="min-width: 200px"
                       >
                         <template v-slot:prepend>
-                          <q-icon name="home_work" />
+                          <q-icon name="search">
+                            <q-tooltip class="bg-grey-8">
+                              Press Ctrl+F to focus search
+                            </q-tooltip>
+                          </q-icon>
+                        </template>
+                        <template v-slot:append>
+                          <q-icon
+                            v-if="searchFilter"
+                            name="info"
+                            color="grey-6"
+                            size="sm"
+                          >
+                            <q-tooltip class="bg-grey-8">
+                              Search by property name or price. Press Escape to
+                              clear.
+                            </q-tooltip>
+                          </q-icon>
                         </template>
                       </q-input>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-12 col-md-5">
-                  <div class="form-section">
-                    <h6 class="form-section-title">Pricing Configuration</h6>
-                    <div class="q-mb-md">
-                      <q-input
-                        v-model="propertyTypeModel.unitPrice"
-                        label="Unit Price"
-                        filled
-                        outlined
+                      <q-chip
+                        :color="searchFilter ? 'secondary' : 'primary'"
+                        text-color="white"
+                        :icon="searchFilter ? 'search' : 'home_work'"
+                        class="stats-chip"
+                      >
+                        {{ filteredPropertyTypes.length }}
+                        {{ searchFilter ? 'found' : 'types' }}
+                      </q-chip>
+                      <q-btn
+                        icon="add"
                         color="primary"
-                        type="number"
-                        prefix="₦"
-                        :rules="[
-                          () => $validateField(propertyTypeModel, 'unitPrice'),
-                        ]"
+                        rounded
+                        @click="openPropertyTypeDialog"
+                        class="action-btn"
+                        size="md"
                       >
-                        <template v-slot:prepend>
-                          <q-icon name="payments" />
-                        </template>
-                      </q-input>
+                        <q-tooltip class="bg-primary"
+                          >Add New Property Type</q-tooltip
+                        >
+                      </q-btn>
+                      <q-btn
+                        icon="refresh"
+                        color="secondary"
+                        rounded
+                        @click="refreshPropertyTypes"
+                        class="action-btn"
+                        :loading="propertyTypesLoading"
+                        size="md"
+                      >
+                        <q-tooltip class="bg-secondary"
+                          >Refresh Property Types</q-tooltip
+                        >
+                      </q-btn>
                     </div>
                   </div>
                 </div>
-              </div>
+              </q-card-section>
 
-              <div class="row justify-center q-mt-lg">
-                <div class="row q-gutter-md">
-                  <q-btn
-                    :label="
-                      propertyTypeModel.id
-                        ? 'Update Property Type'
-                        : 'Create Property Type'
-                    "
-                    color="primary"
-                    rounded
-                    size="lg"
-                    :icon="propertyTypeModel.id ? 'update' : 'add'"
-                    @click="onSubmit"
-                    class="submit-btn"
-                    :loading="propertyTypeSubmitting"
-                  >
-                    <q-tooltip class="bg-primary">
-                      {{ propertyTypeModel.id ? 'Update' : 'Create' }} Property
-                      Type
-                    </q-tooltip>
-                  </q-btn>
+              <q-separator />
 
-                  <q-btn
-                    v-if="propertyTypeModel.id"
-                    label="Delete Property Type"
-                    color="negative"
-                    rounded
-                    size="lg"
-                    icon="delete"
-                    @click="deletePropertyType"
-                    class="delete-btn"
-                    :loading="propertyTypeDeleting"
+              <q-card-section class="q-pa-none">
+                <div class="table-container">
+                  <q-table
+                    :rows="filteredPropertyTypes"
+                    :columns="propertyTypeColumns"
+                    row-key="id"
+                    class="enhanced-table property-types-table"
+                    separator="cell"
+                    flat
+                    bordered
+                    :loading="propertyTypesLoading"
+                    :pagination="{ rowsPerPage: 10 }"
                   >
-                    <q-tooltip class="bg-negative"
-                      >Delete This Property Type</q-tooltip
-                    >
-                  </q-btn>
+                    <template v-slot:loading>
+                      <q-inner-loading showing color="primary" />
+                    </template>
+
+                    <template v-slot:no-data>
+                      <div
+                        class="full-width row flex-center text-grey-6 q-gutter-sm q-pa-lg"
+                      >
+                        <q-icon
+                          size="2em"
+                          :name="searchFilter ? 'search_off' : 'home_work'"
+                        />
+                        <div class="text-center">
+                          <div class="text-h6">
+                            {{
+                              searchFilter
+                                ? 'No matching property types'
+                                : 'No property types found'
+                            }}
+                          </div>
+                          <div class="text-caption q-mt-sm">
+                            {{
+                              searchFilter
+                                ? `No property types match "${searchFilter}". Try a different search term.`
+                                : 'Add your first property type to get started.'
+                            }}
+                          </div>
+                          <q-btn
+                            v-if="searchFilter"
+                            flat
+                            color="primary"
+                            icon="clear"
+                            label="Clear search"
+                            @click="searchFilter = ''"
+                            class="q-mt-sm"
+                          />
+                        </div>
+                      </div>
+                    </template>
+
+                    <template v-slot:body-cell-name="props">
+                      <q-td :props="props" class="property-name-cell">
+                        <div class="property-info">
+                          <q-icon
+                            name="home_work"
+                            color="primary"
+                            size="sm"
+                            class="q-mr-sm"
+                          />
+                          <span
+                            class="text-weight-medium"
+                            v-html="
+                              highlightSearchTerm(props.value, searchFilter)
+                            "
+                          ></span>
+                        </div>
+                      </q-td>
+                    </template>
+
+                    <template v-slot:body-cell-unitPrice="props">
+                      <q-td :props="props" class="price-cell">
+                        <q-chip
+                          color="green"
+                          text-color="white"
+                          icon="payments"
+                          class="price-chip"
+                        >
+                          ₦{{ formatCurrency(props.value) }}
+                        </q-chip>
+                      </q-td>
+                    </template>
+
+                    <template v-slot:body-cell-actions="props">
+                      <q-td :props="props" class="actions-cell">
+                        <div class="row q-gutter-sm">
+                          <q-btn
+                            icon="edit"
+                            color="primary"
+                            size="sm"
+                            rounded
+                            @click="editPropertyType(props.row)"
+                            class="action-btn-small"
+                          >
+                            <q-tooltip class="bg-primary">Edit</q-tooltip>
+                          </q-btn>
+                          <q-btn
+                            icon="delete"
+                            color="negative"
+                            size="sm"
+                            rounded
+                            @click="confirmDeletePropertyType(props.row)"
+                            class="action-btn-small"
+                          >
+                            <q-tooltip class="bg-negative">Delete</q-tooltip>
+                          </q-btn>
+                        </div>
+                      </q-td>
+                    </template>
+                  </q-table>
                 </div>
-              </div>
-            </q-form>
-          </q-card-section>
-        </q-card>
-      </q-dialog>
+              </q-card-section>
+            </q-card>
+
+            <!-- Property Type Form Dialog -->
+            <q-dialog
+              v-model="showPropertyTypeDialog"
+              class="property-type-dialog"
+            >
+              <q-card class="property-type-form-card">
+                <q-card-section class="dialog-header">
+                  <div class="row items-center justify-between">
+                    <div class="dialog-title">
+                      <q-icon
+                        name="home_work"
+                        color="primary"
+                        size="md"
+                        class="q-mr-sm"
+                      />
+                      <span class="text-h6 text-weight-bold">
+                        {{ propertyTypeModel.id ? 'Edit' : 'Add New' }} Property
+                        Type
+                      </span>
+                    </div>
+                    <q-btn
+                      flat
+                      round
+                      dense
+                      icon="close"
+                      @click="closePropertyTypeDialog"
+                      class="close-btn"
+                    />
+                  </div>
+                </q-card-section>
+
+                <q-separator />
+
+                <q-card-section class="dialog-content">
+                  <q-form ref="propertyTypeForm" @submit.prevent="onSubmit">
+                    <div class="row q-gutter-lg">
+                      <div class="col-12 col-md-5">
+                        <div class="form-section">
+                          <h6 class="form-section-title">
+                            Property Information
+                          </h6>
+                          <div class="q-mb-md">
+                            <q-input
+                              v-model="propertyTypeModel.name"
+                              label="Property Type Name"
+                              filled
+                              outlined
+                              color="primary"
+                              clearable
+                              :rules="[
+                                () => $validateField(propertyTypeModel, 'name'),
+                              ]"
+                            >
+                              <template v-slot:prepend>
+                                <q-icon name="home_work" />
+                              </template>
+                            </q-input>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-12 col-md-5">
+                        <div class="form-section">
+                          <h6 class="form-section-title">
+                            Pricing Configuration
+                          </h6>
+                          <div class="q-mb-md">
+                            <q-input
+                              v-model="propertyTypeModel.unitPrice"
+                              label="Unit Price"
+                              filled
+                              outlined
+                              color="primary"
+                              type="number"
+                              prefix="₦"
+                              :rules="[
+                                () =>
+                                  $validateField(
+                                    propertyTypeModel,
+                                    'unitPrice'
+                                  ),
+                              ]"
+                            >
+                              <template v-slot:prepend>
+                                <q-icon name="payments" />
+                              </template>
+                            </q-input>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row justify-center q-mt-lg">
+                      <div class="row q-gutter-md">
+                        <q-btn
+                          :label="
+                            propertyTypeModel.id
+                              ? 'Update Property Type'
+                              : 'Create Property Type'
+                          "
+                          color="primary"
+                          rounded
+                          size="lg"
+                          :icon="propertyTypeModel.id ? 'update' : 'add'"
+                          @click="onSubmit"
+                          class="submit-btn"
+                          :loading="propertyTypeSubmitting"
+                        >
+                          <q-tooltip class="bg-primary">
+                            {{
+                              propertyTypeModel.id ? 'Update' : 'Create'
+                            }}
+                            Property Type
+                          </q-tooltip>
+                        </q-btn>
+
+                        <q-btn
+                          v-if="propertyTypeModel.id"
+                          label="Delete Property Type"
+                          color="negative"
+                          rounded
+                          size="lg"
+                          icon="delete"
+                          @click="deletePropertyType"
+                          class="delete-btn"
+                          :loading="propertyTypeDeleting"
+                        >
+                          <q-tooltip class="bg-negative"
+                            >Delete This Property Type</q-tooltip
+                          >
+                        </q-btn>
+                      </div>
+                    </div>
+                  </q-form>
+                </q-card-section>
+              </q-card>
+            </q-dialog>
+          </q-tab-panel>
+
+          <!-- RBAC Settings Tab -->
+          <q-tab-panel name="rbac-settings">
+            <RbacSettings />
+          </q-tab-panel>
+        </q-tab-panels>
+      </div>
     </div>
   </q-page>
 </template>
@@ -390,6 +437,7 @@ import { QForm, EventBus, useQuasar, QTableColumn } from 'quasar';
 import { EventNamesEnum } from 'src/lib/enums/events.enum';
 import { isModelValid, clearUIEffects } from 'src/lib/utils';
 import { useNotify } from 'src/composables/useNotify';
+import RbacSettings from 'src/components/settings/RbacSettings.vue';
 
 // Enhanced column definitions for property types table
 const propertyTypeColumns: QTableColumn[] = [
@@ -429,6 +477,7 @@ const propertyTypeForm = ref<QForm>();
 const propertyTypesLoading = ref(false);
 const propertyTypeSubmitting = ref(false);
 const propertyTypeDeleting = ref(false);
+const currentTab = ref('property-types');
 const refreshLoading = ref(false);
 const showPropertyTypeDialog = ref(false);
 const searchFilter = ref('');
@@ -667,6 +716,32 @@ onBeforeUnmount(() => {
 
 <style lang="scss" scoped>
 /* Enhanced Modern Styles for Settings Management Page */
+
+/* Tabs Container */
+.tabs-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+
+  .q-tabs {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+
+    .q-tab {
+      text-transform: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+
+      &--active {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+      }
+    }
+  }
+}
 
 /* Main Page Layout */
 .settings-management-page {

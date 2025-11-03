@@ -70,7 +70,10 @@ export default boot(async ({ app, redirect, router }) => {
 
   // // check if user is authenticated
   router.beforeEach(async (to, from, next) => {
-    if (!['/', '/auth/signin'].includes(to.path)) {
+    if (
+      !['/', '/auth/signin'].includes(to.path) &&
+      !to.path.startsWith('/onboarding')
+    ) {
       const authStore = JSON.parse(
         (await forageGetItem<AuthUserData>(
           StorageNamesEnum.AUTH_USER_DATA

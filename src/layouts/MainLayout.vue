@@ -14,11 +14,22 @@
 
         <div class="gt-sm">
           <q-btn flat label="Home" />
+          <q-btn
+            flat
+            label="Waste Operator Registration"
+            to="/onboarding/register"
+          />
           <!-- <q-btn flat label="Features" />
           <q-btn flat label="Pricing" />
           <q-btn flat label="About" />
           <q-btn flat label="Contact" /> -->
-          <q-btn unelevated color="primary" label="Get Started with WastePro" class="q-ml-md" to="/auth/signin" />
+          <q-btn
+            unelevated
+            color="primary"
+            label="Get Started with WastePro"
+            class="q-ml-md"
+            to="/auth/signin"
+          />
         </div>
 
         <q-btn flat round dense icon="menu" class="lt-md">
@@ -52,12 +63,19 @@
     <q-footer class="bg-dark text-white">
       <div class="row q-pa-lg q-col-gutter-md">
         <div class="col-12 col-md-6">
-          <p class="text-subtitle2">© 2024 Boundless Edge. All rights reserved.</p>
+          <p class="text-subtitle2">
+            © 2024 Boundless Edge. All rights reserved.
+          </p>
         </div>
         <div class="col-12 col-md-6 text-right">
           <q-btn flat round icon="fab fa-facebook" />
           <q-btn flat round icon="fab fa-twitter" />
-          <q-btn href="https://www.linkedin.com/in/boundless-edge-22b432338/" flat round icon="fab fa-linkedin" />
+          <q-btn
+            href="https://www.linkedin.com/in/boundless-edge-22b432338/"
+            flat
+            round
+            icon="fab fa-linkedin"
+          />
         </div>
       </div>
     </q-footer>
@@ -65,6 +83,5 @@
 </template>
 
 <script setup lang="ts">
-
 //
 </script>

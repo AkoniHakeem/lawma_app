@@ -1,5 +1,6 @@
 import { NavigationGuardNext, RouteLocationNormalized } from 'vue-router';
 import { useRbacStore } from 'src/stores/rbac-store';
+import { useSettingsStore } from 'src/stores/settings-store';
 import useAuthStore from 'src/stores/auth-store';
 
 export function createRbacGuard() {
@@ -10,6 +11,7 @@ export function createRbacGuard() {
   ) => {
     const rbacStore = useRbacStore();
     const authStore = useAuthStore();
+    const settingsStore = useSettingsStore();
     const meta = to.meta;
 
     // If route doesn't require auth, allow access
@@ -20,6 +22,14 @@ export function createRbacGuard() {
     // Check if user is authenticated
     if (!authStore.getToken) {
       return next('/auth/signin?redirect=' + encodeURIComponent(to.fullPath));
+    }
+
+    // If RBAC is disabled, allow all authenticated users full access
+    if (!settingsStore.rbacEnabled) {
+      console.info(
+        'RBAC disabled - allowing full access to authenticated user'
+      );
+      return next();
     }
 
     // Check if user access data is loaded
@@ -106,10 +116,10 @@ export function createRbacGuard() {
       if (!hasRequiredPermissions) {
         // Check if these are basic permissions that existing users should have access to
         const basicPermissions = [
-          'dashboard:view',
           'billing:read',
           'payments:read',
           'properties:read',
+          'settings:read',
         ];
         const isBasicPermissionRequest = meta.requirePermissions.every(
           (p: string) => basicPermissions.includes(p)

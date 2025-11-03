@@ -32,6 +32,15 @@
             <a href="#screenshots" @click="closeMobileMenu">Screenshots</a>
           </li>
           <li><a href="#onboard" @click="closeMobileMenu">Get Started</a></li>
+          <li>
+            <router-link
+              to="/onboarding"
+              class="onboard-link"
+              @click="closeMobileMenu"
+            >
+              Waste Operator Onboarding
+            </router-link>
+          </li>
           <li><a href="#about" @click="closeMobileMenu">About</a></li>
           <li v-if="canInstall">
             <button @click="installPWA" class="install-app">
@@ -179,13 +188,19 @@
               <li>✅ Staff management and role assignments</li>
               <li>✅ Route optimization tools</li>
             </ul>
-            <a
-              href="mailto:dev@boundlesedge.com?subject=WastePro Onboarding Request - Waste Operator"
+            <q-btn
+              to="/onboarding"
               class="contact-button"
+              color="primary"
+              size="lg"
+              rounded
+              no-caps
             >
-              Get Started with Automation
-            </a>
-            <p class="contact-info">Email: dev@boundlesedge.com</p>
+              Start Your Onboarding Now
+            </q-btn>
+            <p class="contact-info">
+              Get started in minutes - Upload your property data easily!
+            </p>
           </div>
 
           <div class="user-card">
@@ -617,6 +632,23 @@ nav {
 
 .app-access:hover {
   background: #e55a30;
+}
+
+.onboard-link {
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  padding: 8px 16px;
+  border-radius: 5px;
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.onboard-link:hover {
+  background: linear-gradient(135deg, #45a049 0%, #4caf50 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
 }
 
 /* Mobile Menu Toggle */

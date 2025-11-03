@@ -136,6 +136,24 @@
       <!-- Footer Section -->
       <div class="sidebar-footer">
         <q-separator class="q-mb-md" color="blue-grey-7" />
+
+        <!-- Logout Button -->
+        <q-item
+          clickable
+          v-ripple
+          @click="handleLogout"
+          class="logout-btn q-mx-md q-mb-md"
+        >
+          <q-item-section avatar>
+            <q-icon name="logout" size="24px" color="red-4" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-red-4 text-weight-medium">
+              Logout
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+
         <div class="text-center q-pa-md">
           <div class="text-caption text-blue-grey-4">© 2024 WastePro</div>
           <div class="text-caption text-blue-grey-5">v1.0.0</div>
@@ -152,7 +170,7 @@
 </template>
 
 <script setup lang="ts">
-import { getCssVar, useMeta } from 'quasar';
+import { useMeta } from 'quasar';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import LawmaAppBadge from 'src/components/LawmaAppBadge.vue';
@@ -199,11 +217,6 @@ const sidebarStyle = computed(() => ({
   boxShadow: '4px 0 20px rgba(0, 0, 0, 0.15)',
 }));
 
-// computed
-const activePage = computed(() => {
-  return router.currentRoute.value.path;
-});
-
 // Header styling
 const headerStyle = computed(() => ({
   background: 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
@@ -237,12 +250,6 @@ function getRoutePath() {
   return routePath;
 }
 
-function getColor(
-  colorAlias: 'secondary' | 'accent' | 'dark' | 'light-page' | 'dark-page'
-) {
-  return getCssVar(colorAlias);
-}
-
 function isActivePage(path: string) {
   return (
     router.currentRoute.value.path === path ||
@@ -251,7 +258,7 @@ function isActivePage(path: string) {
 }
 
 function handleLogout() {
-  authStore.clearToken();
+  authStore.logout();
   router.push('/auth/signin');
 }
 
@@ -435,6 +442,20 @@ onMounted(() => {
   right: 0;
   background: rgba(38, 50, 56, 0.8);
   backdrop-filter: blur(10px);
+}
+
+.logout-btn {
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  min-height: 48px;
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.2);
+}
+
+.logout-btn:hover {
+  background: rgba(244, 67, 54, 0.2);
+  transform: translateX(4px);
+  border: 1px solid rgba(244, 67, 54, 0.4);
 }
 
 /* Ripple effect enhancement */

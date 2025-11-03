@@ -137,11 +137,86 @@ export class RbacApiService {
    */
   async updateUserRoles(
     profileId: string,
-    updateData: UpdateUserRolesRequest
+    data: UpdateUserRolesRequest
   ): Promise<{ message: string }> {
     const response = await api.put(
       `${this.baseUrl}/users/${profileId}/roles`,
-      updateData
+      data
+    );
+    return response.data;
+  }
+
+  /**
+   * Get RBAC system status
+   */
+  async getRbacStatus(): Promise<{
+    initialized: boolean;
+    rolesCount: number;
+    permissionsCount: number;
+    entityProfileId: string;
+  }> {
+    const response = await api.get(`${this.baseUrl}/status`);
+    return response.data;
+  }
+
+  /**
+   * Enable RBAC system-wide
+   */
+  async enableRbac(): Promise<{
+    success: boolean;
+    message: string;
+    enabled: boolean;
+  }> {
+    const response = await api.post(`${this.baseUrl}/enable`);
+    return response.data;
+  }
+
+  /**
+   * Disable RBAC system-wide
+   */
+  async disableRbac(): Promise<{
+    success: boolean;
+    message: string;
+    enabled: boolean;
+  }> {
+    const response = await api.post(`${this.baseUrl}/disable`);
+    return response.data;
+  }
+
+  /**
+   * Get RBAC enabled status
+   */
+  async getRbacEnabled(): Promise<{ enabled: boolean; success: boolean }> {
+    const response = await api.get(`${this.baseUrl}/enabled`);
+    return response.data;
+  }
+
+  /**
+   * Get users for management interface
+   */
+  async getUsersForManagement(): Promise<EntityUsers> {
+    const response = await api.get(`${this.baseUrl}/users/management`);
+    return response.data;
+  }
+
+  /**
+   * Assign role to user
+   */
+  async assignUserRole(data: AssignRoleRequest): Promise<{ message: string }> {
+    const response = await api.post(`${this.baseUrl}/users/assign-role`, data);
+    return response.data;
+  }
+
+  /**
+   * Remove role from user (for management interface)
+   */
+  async removeUserRole(
+    profileId: string,
+    roleId: string,
+    profileType: 'entity_user_profile' | 'entity_subscriber_profile'
+  ): Promise<{ message: string }> {
+    const response = await api.delete(
+      `${this.baseUrl}/users/${profileId}/roles/${roleId}?profileType=${profileType}`
     );
     return response.data;
   }
@@ -169,16 +244,6 @@ export class RbacApiService {
   ): Promise<{ hasPermission: boolean }> {
     const response = await api.get(
       `${this.baseUrl}/users/${profileId}/permissions/${permissionName}?profileType=${profileType}`
-    );
-    return response.data;
-  }
-
-  /**
-   * Remove role from user
-   */
-  async removeUserRole(userRoleId: string): Promise<{ message: string }> {
-    const response = await api.delete(
-      `${this.baseUrl}/user-roles/${userRoleId}`
     );
     return response.data;
   }
