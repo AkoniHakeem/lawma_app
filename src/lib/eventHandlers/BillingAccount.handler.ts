@@ -95,7 +95,12 @@ export class BillingAccountHandler {
     );
   }
 
-  static async getBillingsForPrinting(streetId: string, billingMonth: string, propertySubscriptionId?: string) {
+  static async getBillingsForPrinting(
+    streetId: string, 
+    billingMonth: string, 
+    propertySubscriptionId?: string,
+    billingYear?: string
+  ) {
     const billingDetails = await requestApi(
       UrlPathsEnum.BILLING_ACCOUNT_DETAILS.replace(':streetId', streetId),
       'get',
@@ -103,6 +108,7 @@ export class BillingAccountHandler {
         params: {
           billingMonth,
           propertySubscriptionId,
+          billingYear,
         },
       }
     );

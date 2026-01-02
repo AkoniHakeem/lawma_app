@@ -364,7 +364,8 @@ async function submit() {
       await BillingAccountHandler.getBillingsForPrinting(
         billingModel.streetId,
         billingModel.month,
-        billingModel.propertySuscriptionId
+        billingModel.propertySuscriptionId,
+        billingModel.year
       );
       $router.push(`/print/${datestring.value}`);
     } else {
