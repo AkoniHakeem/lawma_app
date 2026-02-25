@@ -829,6 +829,13 @@
           @close="showPaymentHistoryModal = false"
         />
       </q-dialog>
+      <q-dialog v-model="showBillingsHistoryModal">
+        <view-property-billings
+          v-if="propertySubscriptionId"
+          :property-subscription-id="propertySubscriptionId"
+          @close="showBillingsHistoryModal = false"
+        />
+      </q-dialog>
       <!-- </div> -->
     </div>
   </q-page>
@@ -864,6 +871,7 @@ import { onBeforeUnmount } from 'vue';
 import { useNotify } from 'src/composables/useNotify';
 import ViewPropertyDetails from 'src/components/ViewPropertyDetails.vue';
 import ViewPropertyPayments from 'src/components/ViewPropertyPayments.vue';
+import ViewPropertyBillings from 'src/components/ViewPropertyBillings.vue';
 import { BillingHandler } from 'src/lib/eventHandlers/Billing.handler';
 
 // consts
