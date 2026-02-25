@@ -96,8 +96,8 @@ export class BillingAccountHandler {
   }
 
   static async getBillingsForPrinting(
-    streetId: string, 
-    billingMonth: string, 
+    streetId: string,
+    billingMonth: string,
     propertySubscriptionId?: string,
     billingYear?: string
   ) {

@@ -86,6 +86,25 @@
                 </q-select>
               </div>
 
+              <div class="col-12 col-sm-6 col-md-2">
+                <q-select
+                  v-model="paymentYear"
+                  label="Select Year"
+                  filled
+                  outlined
+                  :options="paymentYearOptions"
+                  clearable
+                  emit-value
+                  dense
+                  class="filter-select"
+                  color="primary"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="event" />
+                  </template>
+                </q-select>
+              </div>
+
               <div class="col-12 col-sm-6 col-md-3">
                 <q-select
                   v-model="tableStreetId"
@@ -723,6 +742,7 @@ const paymentModel = reactive(new PaymentModel());
 
 // Reactive refs
 const paymentMonth = ref(monthNow);
+const paymentYear = ref(new Date().getFullYear().toString());
 const paymentTableTitle = ref('Payment History');
 const showPaymentFormDialog = ref(false);
 const propertySubscriptions = ref<PropertySubscription[]>();
@@ -807,6 +827,15 @@ const propertyOptionsFiltered = ref(propertySubscriptionOptions.value);
 
 const paymentMonthsOptions = computed(() => {
   return Object.values(months).map((value) => value);
+});
+
+const paymentYearOptions = computed(() => {
+  const currentYear = new Date().getFullYear();
+  const years = [];
+  for (let i = currentYear; i >= currentYear - 10; i--) {
+    years.push(i.toString());
+  }
+  return years;
 });
 
 const displayPaymentDate = computed(() => {
@@ -962,11 +991,13 @@ async function getPayments() {
     if (tablePropertySubscriptionId.value) {
       payments.value = await PaymentHandler.getPayments({
         month: paymentMonth.value,
+        year: paymentYear.value,
         propertySubscriptionId: tablePropertySubscriptionId.value,
       });
     } else {
       payments.value = await PaymentHandler.getPayments({
         month: paymentMonth.value,
+        year: paymentYear.value,
       });
     }
 
@@ -1126,6 +1157,11 @@ async function exportPayments() {
 // Watchers
 watch(paymentMonth, async (newValue) => {
   paymentTableTitle.value = `Payment History (${newValue})`;
+  await getPayments();
+});
+
+watch(paymentYear, async (newValue) => {
+  paymentTableTitle.value = `Payment History (${paymentMonth.value} ${newValue})`;
   await getPayments();
 });
 

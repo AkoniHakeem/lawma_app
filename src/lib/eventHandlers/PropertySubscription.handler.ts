@@ -290,4 +290,19 @@ export class PropertySubscriptionHandler {
       body: data,
     });
   }
+
+  static async toggleBillingStatus(
+    propertySubscriptionId: string,
+    isBillingActive: boolean
+  ) {
+    const response = await requestApi(
+      UrlPathsEnum.TOGGLE_BILLING_STATUS.replace(':id', propertySubscriptionId),
+      'patch',
+      {
+        body: { isBillingActive },
+      }
+    );
+
+    return response;
+  }
 }

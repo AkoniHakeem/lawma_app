@@ -36,6 +36,7 @@ export interface PropertySubscription {
   createdAt: string;
   streetId: string;
   entitySubscriberProfileId: string;
+  isBillingActive?: boolean;
   propertySubscriptionUnits: PropertySubscriptionUnit[];
   arrears: number;
   entitySubscriberProfile: EntitySubscriberProfile;
