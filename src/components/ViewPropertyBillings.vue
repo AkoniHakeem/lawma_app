@@ -30,6 +30,49 @@
       <q-separator />
 
       <q-card-section class="modal-body">
+        <!-- Billing Status Section -->
+        <div class="billing-status-section" v-if="propertyDetails">
+          <q-card flat bordered class="status-card">
+            <q-card-section>
+              <div class="status-content">
+                <div class="status-info">
+                  <div class="status-label">
+                    <q-icon 
+                      :name="propertyDetails.isBillingActive ? 'notifications_active' : 'notifications_off'"
+                      :color="propertyDetails.isBillingActive ? 'positive' : 'grey'"
+                      size="sm"
+                      class="q-mr-xs"
+                    />
+                    <span>Billing Status:</span>
+                  </div>
+                  <q-badge 
+                    :color="propertyDetails.isBillingActive ? 'positive' : 'negative'"
+                    :label="propertyDetails.isBillingActive ? 'Active' : 'Disabled'"
+                    class="status-badge"
+                  />
+                </div>
+                <q-btn
+                  :color="propertyDetails.isBillingActive ? 'negative' : 'positive'"
+                  :icon="propertyDetails.isBillingActive ? 'block' : 'check_circle'"
+                  :label="propertyDetails.isBillingActive ? 'Disable Billing' : 'Enable Billing'"
+                  @click="toggleBillingStatus"
+                  :loading="togglingStatus"
+                  outline
+                  class="toggle-btn"
+                />
+              </div>
+              <div class="status-note" v-if="!propertyDetails.isBillingActive">
+                <q-icon name="info" color="warning" size="xs" class="q-mr-xs" />
+                <span class="text-caption text-grey-7">
+                  Billing is currently disabled. New billings will not be generated for this property.
+                </span>
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <q-separator class="q-my-md" v-if="propertyDetails" />
+
         <!-- Filters Section -->
         <div class="filters-section">
           <div class="filter-row">
@@ -185,6 +228,7 @@ interface PropertyDetails {
   propertyName: string;
   streetName: string;
   oldCode: string;
+  isBillingActive: boolean;
 }
 
 interface BillingSummary {
@@ -227,6 +271,7 @@ const billings = ref<BillingRecord[]>([]);
 const propertyDetails = ref<PropertyDetails | null>(null);
 const selectedYear = ref<string | null>(null);
 const selectedMonth = ref<string | null>(null);
+const togglingStatus = ref(false);
 
 // Pagination
 const pagination = ref({
@@ -398,10 +443,40 @@ async function loadPropertyDetails() {
         propertyName: response.propertySubscriptionName || 'N/A',
         streetName: response.streetName || 'N/A',
         oldCode: response.oldCode || 'N/A',
+        isBillingActive: response.isBillingActive ?? true,
       };
     }
   } catch (error) {
     console.error('Error loading property details:', error);
+  }
+}
+
+async function toggleBillingStatus() {
+  if (!propertyDetails.value) return;
+  
+  togglingStatus.value = true;
+  try {
+    const newStatus = !propertyDetails.value.isBillingActive;
+    const response = await PropertySubscriptionHandler.toggleBillingStatus(
+      props.propertySubscriptionId,
+      newStatus
+    );
+    
+    useNotify({
+      type: 'positive',
+      message: response.message || `Billing ${newStatus ? 'enabled' : 'disabled'} successfully`,
+    });
+    
+    // Update local state
+    propertyDetails.value.isBillingActive = newStatus;
+  } catch (error) {
+    console.error('Error toggling billing status:', error);
+    useNotify({
+      type: 'negative',
+      message: 'Failed to update billing status',
+    });
+  } finally {
+    togglingStatus.value = false;
   }
 }
 
@@ -483,6 +558,56 @@ watch(
   .modal-body {
     padding: 24px;
     background: #f5f5f5;
+
+    .billing-status-section {
+      .status-card {
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #667eea;
+
+        .status-content {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 16px;
+
+          .status-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            .status-label {
+              display: flex;
+              align-items: center;
+              font-size: 16px;
+              font-weight: 600;
+              color: #333;
+            }
+
+            .status-badge {
+              font-size: 14px;
+              padding: 6px 16px;
+              font-weight: 600;
+            }
+          }
+
+          .toggle-btn {
+            min-width: 160px;
+          }
+        }
+
+        .status-note {
+          display: flex;
+          align-items: flex-start;
+          margin-top: 12px;
+          padding: 12px;
+          background: #fff9e6;
+          border-radius: 6px;
+          border-left: 3px solid #ffa726;
+        }
+      }
+    }
 
     .filters-section {
       .filter-row {
