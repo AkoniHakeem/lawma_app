@@ -801,6 +801,8 @@
         <view-property-details
           :dialogWidth="dialogWidth"
           :property-subscription-id="propertySubscriptionId"
+          @close="showPropertySubscriptionModal = false"
+          @deleted="handlePropertyDeleted"
         />
       </q-dialog>
       <q-dialog v-model="showPaymentHistoryModal">
@@ -1539,6 +1541,31 @@ async function billingDetailsTableClickHandler(
     });
 
     $q.loading.hide();
+  }
+}
+
+async function handlePropertyDeleted(propertySubscriptionId: string) {
+  try {
+    // Refresh the subscriptions table
+    subscriptionTableLoading.value = true;
+    const requestData = await PropertySubscriptionHandler.getSubscriptions();
+    propertySubscriptionTableModel.value = requestData?.data;
+    pagination.value = requestData?.pagination as unknown as {
+      page: number;
+      rowsNumber: number;
+      rowsPerPage: number;
+    };
+    useNotify({
+      type: 'positive',
+      message: 'Property subscription list refreshed',
+    });
+  } catch (error) {
+    useNotify({
+      type: 'negative',
+      message: 'Failed to refresh table',
+    });
+  } finally {
+    subscriptionTableLoading.value = false;
   }
 }
 

@@ -20,5 +20,6 @@ export enum UrlPathsEnum {
   UPDATE_ARREARS = '/utils-billing/billing/account',
   UPDATE_PROPERTY_NAME = '/utils-billing/subscription/update-property-name',
   TOGGLE_BILLING_STATUS = '/utils-billing/subscription/:id/toggle-billing',
+  DELETE_PROPERTY_SUBSCRIPTION = '/utils-billing/subscription/:id',
   UPDATE_PHONE = '/utils-billing/billing/account',
 }

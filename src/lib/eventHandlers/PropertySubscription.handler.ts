@@ -305,4 +305,13 @@ export class PropertySubscriptionHandler {
 
     return response;
   }
+
+  static async deletePropertySubscription(propertySubscriptionId: string) {
+    const response = await requestApi(
+      UrlPathsEnum.DELETE_PROPERTY_SUBSCRIPTION.replace(':id', propertySubscriptionId),
+      'delete'
+    );
+
+    return response;
+  }
 }

@@ -551,6 +551,15 @@
         <q-btn flat class="action-btn" @click="viewPayments">
           View Payments
         </q-btn>
+        <q-btn 
+          flat 
+          color="negative" 
+          icon="delete" 
+          class="action-btn" 
+          @click="confirmDeleteProperty"
+        >
+          Delete Property
+        </q-btn>
         <q-btn flat class="close-action-btn" @click="closeModal"> Close </q-btn>
       </div>
     </template>
@@ -590,6 +599,7 @@ const props = defineProps<ViewPropertyDetailsProps>();
 const emit = defineEmits<{
   close: [];
   viewPayments: [propertySubscriptionId: string];
+  deleted: [propertySubscriptionId: string];
 }>();
 
 // Composables
@@ -1090,6 +1100,36 @@ function closeModal() {
 
 function viewPayments() {
   emit('viewPayments', props.propertySubscriptionId);
+}
+
+async function confirmDeleteProperty() {
+  $q.dialog({
+    title: 'Confirm Delete',
+    message: `Are you sure you want to delete "${propertySubscription.value.propertySubscriptionName}"? This action cannot be undone.`,
+    cancel: true,
+    persistent: true,
+    color: 'negative',
+  }).onOk(async () => {
+    try {
+      $q.loading.show({ message: 'Deleting property subscription...' });
+      const response = await PropertySubscriptionHandler.deletePropertySubscription(
+        props.propertySubscriptionId
+      );
+      useNotify({
+        type: 'positive',
+        message: response.message || 'Property subscription deleted successfully',
+      });
+      closeModal();
+      emit('deleted', props.propertySubscriptionId);
+    } catch (error: any) {
+      useNotify({
+        type: 'negative',
+        message: error?.message || 'Failed to delete property subscription',
+      });
+    } finally {
+      $q.loading.hide();
+    }
+  });
 }
 
 // Watchers
