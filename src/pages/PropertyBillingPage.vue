@@ -273,25 +273,6 @@
                         >
                           <q-tooltip class="bg-blue">View Monthly Billings</q-tooltip>
                         </q-btn>
-                        <q-btn
-                          flat
-                          round
-                          dense
-                          :color="props.row.isBillingActive ? 'orange' : 'grey'"
-                          :icon="props.row.isBillingActive ? 'notifications_active' : 'notifications_off'"
-                          size="sm"
-                          @click="
-                            toggleBillingStatus(
-                              props.row.propertySubscriptionId,
-                              props.row.isBillingActive
-                            )
-                          "
-                          class="action-btn"
-                        >
-                          <q-tooltip :class="props.row.isBillingActive ? 'bg-orange' : 'bg-grey'">
-                            {{ props.row.isBillingActive ? 'Disable Billing' : 'Enable Billing' }}
-                          </q-tooltip>
-                        </q-btn>
                       </div>
                     </q-td>
                   </template>
@@ -1535,39 +1516,7 @@ async function propertySubscriptionTableMenuItemClickHandler(
   }
 }
 
-async function toggleBillingStatus(
-  propertyId: string,
-  currentStatus: boolean
-) {
-  try {
-    $q.loading.show({
-      message: currentStatus ? 'Disabling billing...' : 'Enabling billing...',
-    });
-
-    const response = await PropertySubscriptionHandler.toggleBillingStatus(
-      propertyId,
-      !currentStatus
-    );
-
-    useNotify({
-      type: 'positive',
-      message: response.message || 'Billing status updated successfully',
-    });
-
-    // Refresh the table
-    await onRequest({
-      pagination: pagination.value,
-      filter: filter.value,
-    });
-  } catch (error) {
-    useNotify({
-      type: 'negative',
-      message: 'Failed to update billing status',
-    });
-  } finally {
-    $q.loading.hide();
-  }
-}
+// toggleBillingStatus function removed - now handled in ViewPropertyBillings modal
 
 async function billingDetailsTableClickHandler(
   type: string,
