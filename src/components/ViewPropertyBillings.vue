@@ -37,24 +37,42 @@
               <div class="status-content">
                 <div class="status-info">
                   <div class="status-label">
-                    <q-icon 
-                      :name="propertyDetails.isBillingActive ? 'notifications_active' : 'notifications_off'"
-                      :color="propertyDetails.isBillingActive ? 'positive' : 'grey'"
+                    <q-icon
+                      :name="
+                        propertyDetails.isBillingActive
+                          ? 'notifications_active'
+                          : 'notifications_off'
+                      "
+                      :color="
+                        propertyDetails.isBillingActive ? 'positive' : 'grey'
+                      "
                       size="sm"
                       class="q-mr-xs"
                     />
                     <span>Billing Status:</span>
                   </div>
-                  <q-badge 
-                    :color="propertyDetails.isBillingActive ? 'positive' : 'negative'"
-                    :label="propertyDetails.isBillingActive ? 'Active' : 'Disabled'"
+                  <q-badge
+                    :color="
+                      propertyDetails.isBillingActive ? 'positive' : 'negative'
+                    "
+                    :label="
+                      propertyDetails.isBillingActive ? 'Active' : 'Disabled'
+                    "
                     class="status-badge"
                   />
                 </div>
                 <q-btn
-                  :color="propertyDetails.isBillingActive ? 'negative' : 'positive'"
-                  :icon="propertyDetails.isBillingActive ? 'block' : 'check_circle'"
-                  :label="propertyDetails.isBillingActive ? 'Disable Billing' : 'Enable Billing'"
+                  :color="
+                    propertyDetails.isBillingActive ? 'negative' : 'positive'
+                  "
+                  :icon="
+                    propertyDetails.isBillingActive ? 'block' : 'check_circle'
+                  "
+                  :label="
+                    propertyDetails.isBillingActive
+                      ? 'Disable Billing'
+                      : 'Enable Billing'
+                  "
                   @click="toggleBillingStatus"
                   :loading="togglingStatus"
                   outline
@@ -64,7 +82,8 @@
               <div class="status-note" v-if="!propertyDetails.isBillingActive">
                 <q-icon name="info" color="warning" size="xs" class="q-mr-xs" />
                 <span class="text-caption text-grey-7">
-                  Billing is currently disabled. New billings will not be generated for this property.
+                  Billing is currently disabled. New billings will not be
+                  generated for this property.
                 </span>
               </div>
             </q-card-section>
@@ -359,15 +378,26 @@ const billingSummary = computed((): BillingSummary | null => {
     return sum + parseFloat(billing.amount);
   }, 0);
 
-  const sortedBillings = [...billings.value].sort(
-    (a, b) => {
-      if (a.year !== b.year) {
-        return parseInt(b.year) - parseInt(a.year);
-      }
-      const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-      return monthOrder.indexOf(b.month) - monthOrder.indexOf(a.month);
+  const sortedBillings = [...billings.value].sort((a, b) => {
+    if (a.year !== b.year) {
+      return parseInt(b.year) - parseInt(a.year);
     }
-  );
+    const monthOrder = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    return monthOrder.indexOf(b.month) - monthOrder.indexOf(a.month);
+  });
 
   return {
     totalCount: billings.value.length,
@@ -435,9 +465,10 @@ async function loadBillings() {
 
 async function loadPropertyDetails() {
   try {
-    const response = await PropertySubscriptionHandler.getPropertySubscriptionDetails(
-      props.propertySubscriptionId
-    );
+    const response =
+      await PropertySubscriptionHandler.getPropertySubscriptionDetails(
+        props.propertySubscriptionId
+      );
     if (response) {
       propertyDetails.value = {
         propertyName: response.propertySubscriptionName || 'N/A',
@@ -453,7 +484,7 @@ async function loadPropertyDetails() {
 
 async function toggleBillingStatus() {
   if (!propertyDetails.value) return;
-  
+
   togglingStatus.value = true;
   try {
     const newStatus = !propertyDetails.value.isBillingActive;
@@ -461,12 +492,14 @@ async function toggleBillingStatus() {
       props.propertySubscriptionId,
       newStatus
     );
-    
+
     useNotify({
       type: 'positive',
-      message: response.message || `Billing ${newStatus ? 'enabled' : 'disabled'} successfully`,
+      message:
+        response.message ||
+        `Billing ${newStatus ? 'enabled' : 'disabled'} successfully`,
     });
-    
+
     // Update local state
     propertyDetails.value.isBillingActive = newStatus;
   } catch (error) {

@@ -8,6 +8,9 @@
     }"
   >
     <slot></slot>
+    <q-card-actions v-if="$slots['modal-actions']">
+      <slot name="modal-actions"></slot>
+    </q-card-actions>
   </q-card>
 </template>
 <script setup lang="ts">

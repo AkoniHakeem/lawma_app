@@ -284,11 +284,18 @@ export class PropertySubscriptionHandler {
   //   //
   // }
 
-  static async updatePropertyName(data: { propertySubscriptionName: string; propertySubscriptionId: string; }) {
+  static async updatePropertyName(data: {
+    propertySubscriptionName: string;
+    propertySubscriptionId: string;
+  }) {
     //
-    const response = await requestApi(UrlPathsEnum.UPDATE_PROPERTY_NAME, 'put', {
-      body: data,
-    });
+    const response = await requestApi(
+      UrlPathsEnum.UPDATE_PROPERTY_NAME,
+      'put',
+      {
+        body: data,
+      }
+    );
   }
 
   static async toggleBillingStatus(
@@ -308,7 +315,10 @@ export class PropertySubscriptionHandler {
 
   static async deletePropertySubscription(propertySubscriptionId: string) {
     const response = await requestApi(
-      UrlPathsEnum.DELETE_PROPERTY_SUBSCRIPTION.replace(':id', propertySubscriptionId),
+      UrlPathsEnum.DELETE_PROPERTY_SUBSCRIPTION.replace(
+        ':id',
+        propertySubscriptionId
+      ),
       'delete'
     );
 

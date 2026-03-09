@@ -16,6 +16,48 @@
           <div class="section-header">
             <q-icon name="home" size="sm" color="primary" />
             <h3 class="section-title">Property Information</h3>
+            <div class="action-icons q-ml-auto">
+              <q-btn
+                flat
+                round
+                color="primary"
+                icon="payments"
+                size="sm"
+                @click="viewPayments"
+              >
+                <q-tooltip>View Payments</q-tooltip>
+              </q-btn>
+              <q-btn
+                flat
+                round
+                color="secondary"
+                icon="receipt"
+                size="sm"
+                @click="viewBillings"
+              >
+                <q-tooltip>View Billings</q-tooltip>
+              </q-btn>
+              <q-btn
+                flat
+                round
+                color="negative"
+                icon="delete"
+                size="sm"
+                @click="confirmDeleteProperty"
+              >
+                <q-tooltip>Delete Property Subscription</q-tooltip>
+              </q-btn>
+              <q-btn
+                flat
+                round
+                color="grey-7"
+                icon="close"
+                size="sm"
+                @click="closeModal"
+              >
+                <q-tooltip>Close</q-tooltip>
+              </q-btn>
+            </div>
           </div>
           <div class="info-grid">
             <div class="info-item">
@@ -546,24 +588,6 @@
       </div>
     </q-card-section>
 
-    <template #modal-actions>
-      <div class="modal-actions">
-        <q-btn flat class="action-btn" @click="viewPayments">
-          View Payments
-        </q-btn>
-        <q-btn 
-          flat 
-          color="negative" 
-          icon="delete" 
-          class="action-btn" 
-          @click="confirmDeleteProperty"
-        >
-          Delete Property
-        </q-btn>
-        <q-btn flat class="close-action-btn" @click="closeModal"> Close </q-btn>
-      </div>
-    </template>
-
     <!-- Edit Arrears Modal -->
     <edit-arrears
       v-model="openEditModal"
@@ -599,6 +623,7 @@ const props = defineProps<ViewPropertyDetailsProps>();
 const emit = defineEmits<{
   close: [];
   viewPayments: [propertySubscriptionId: string];
+  viewBillings: [propertySubscriptionId: string];
   deleted: [propertySubscriptionId: string];
 }>();
 
@@ -1102,22 +1127,37 @@ function viewPayments() {
   emit('viewPayments', props.propertySubscriptionId);
 }
 
+function viewBillings() {
+  emit('viewBillings', props.propertySubscriptionId);
+}
+
 async function confirmDeleteProperty() {
   $q.dialog({
-    title: 'Confirm Delete',
-    message: `Are you sure you want to delete "${propertySubscription.value.propertySubscriptionName}"? This action cannot be undone.`,
-    cancel: true,
+    title: 'Delete Property Subscription',
+    message: `⚠️ WARNING: You are about to permanently delete "${propertySubscription.value.propertySubscriptionName}". This action cannot be undone and will remove all associated billing records. Are you sure you want to proceed?`,
+    cancel: {
+      label: 'Cancel',
+      color: 'grey-7',
+      flat: true,
+    },
+    ok: {
+      label: 'Delete',
+      color: 'negative',
+      unelevated: true,
+    },
     persistent: true,
     color: 'negative',
   }).onOk(async () => {
     try {
       $q.loading.show({ message: 'Deleting property subscription...' });
-      const response = await PropertySubscriptionHandler.deletePropertySubscription(
-        props.propertySubscriptionId
-      );
+      const response =
+        await PropertySubscriptionHandler.deletePropertySubscription(
+          props.propertySubscriptionId
+        );
       useNotify({
         type: 'positive',
-        message: response.message || 'Property subscription deleted successfully',
+        message:
+          response.message || 'Property subscription deleted successfully',
       });
       closeModal();
       emit('deleted', props.propertySubscriptionId);
@@ -1302,6 +1342,20 @@ onMounted(async () => {
       font-size: 1.125rem;
       font-weight: 600;
       color: #1a202c;
+    }
+
+    .action-icons {
+      display: flex;
+      gap: 0.5rem;
+      margin-left: auto;
+
+      .q-btn {
+        transition: all 0.2s ease;
+
+        &:hover {
+          transform: scale(1.1);
+        }
+      }
     }
   }
 }

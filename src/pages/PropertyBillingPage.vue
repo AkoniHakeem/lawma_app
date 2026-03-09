@@ -271,7 +271,9 @@
                           "
                           class="action-btn"
                         >
-                          <q-tooltip class="bg-blue">View Monthly Billings</q-tooltip>
+                          <q-tooltip class="bg-blue"
+                            >View Monthly Billings</q-tooltip
+                          >
                         </q-btn>
                       </div>
                     </q-td>
@@ -802,6 +804,8 @@
           :dialogWidth="dialogWidth"
           :property-subscription-id="propertySubscriptionId"
           @close="showPropertySubscriptionModal = false"
+          @view-payments="handleViewPayments"
+          @view-billings="handleViewBillings"
           @deleted="handlePropertyDeleted"
         />
       </q-dialog>
@@ -1567,6 +1571,18 @@ async function handlePropertyDeleted(propertySubscriptionId: string) {
   } finally {
     subscriptionTableLoading.value = false;
   }
+}
+
+function handleViewPayments(propertyId: string) {
+  showPropertySubscriptionModal.value = false;
+  propertySubscriptionId.value = propertyId;
+  showPaymentHistoryModal.value = true;
+}
+
+function handleViewBillings(propertyId: string) {
+  showPropertySubscriptionModal.value = false;
+  propertySubscriptionId.value = propertyId;
+  showBillingsHistoryModal.value = true;
 }
 
 async function billingTableMenuItemClickHandler(
