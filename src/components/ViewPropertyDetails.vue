@@ -132,7 +132,6 @@
                 <q-icon name="warning" size="sm" />
                 <span>Outstanding Balance</span>
                 <q-btn
-                  v-if="arrears > 0"
                   flat
                   dense
                   icon="edit"

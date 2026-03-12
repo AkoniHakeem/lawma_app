@@ -747,6 +747,7 @@
       <!-- New Property Subscription Modal -->
       <new-property-subscription
         v-if="currentTab === NamedTabsEnum.PROPERTIES"
+        ref="newPropertySubscriptionRef"
         v-model="showDialog"
         @close="showDialog = false"
         @add-subscriber="
@@ -1065,6 +1066,7 @@ BillingAccountHandler.handleGetDefaulters(eventBus, {
 // refs
 const currentTab = ref<NamedTabsEnum>(NamedTabsEnum.PROPERTIES);
 const showDialog = ref(false);
+const newPropertySubscriptionRef = ref<InstanceType<typeof NewPropertySubscription>>();
 const currentBIllingMonth = ref(monthNow);
 const showSecondaryDialog = ref(false);
 const showRemotelyTriggeredDialog = ref(false);
@@ -1698,6 +1700,10 @@ watch(showPaymentHistoryModal, (newValue) => {
 // Reopen main dialog when secondary modal is closed (for better UX)
 watch(showSecondaryDialog, (newValue) => {
   if (!newValue && currentTab.value === NamedTabsEnum.PROPERTIES) {
+    // Reload custodians if AddSubscriber modal was just closed
+    if (secondaryModalValue.value === NamedSecondaryModal.ADD_SUBSCRIBER) {
+      newPropertySubscriptionRef.value?.reloadCustodians();
+    }
     // Small delay to ensure smooth transition
     setTimeout(() => {
       showDialog.value = true;

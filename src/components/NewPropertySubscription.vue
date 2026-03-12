@@ -140,13 +140,16 @@
                     <div class="street-input-group">
                       <q-select
                         v-model="newPropertySubscription.streetId"
-                        :options="streetOptions"
+                        :options="streetOptionsFiltered"
                         outlined
                         dense
-                        placeholder="Select street"
+                        placeholder="Select or type to search street"
                         emit-value
                         map-options
                         clearable
+                        use-input
+                        input-debounce="300"
+                        @filter="filterStreets"
                         class="street-select"
                         :rules="[
                           () =>
@@ -216,13 +219,16 @@
                     <div class="select-input-group">
                       <q-select
                         v-model="newPropertySubscription.propertyTypeId"
-                        :options="propertyTypesOptions"
+                        :options="propertyTypesOptionsFiltered"
                         outlined
                         dense
-                        placeholder="Select property type"
+                        placeholder="Select or type to search property type"
                         emit-value
                         map-options
                         clearable
+                        use-input
+                        input-debounce="300"
+                        @filter="filterPropertyTypes"
                         class="property-select"
                         :rules="[
                           () =>
@@ -284,13 +290,16 @@
                         v-model="
                           newPropertySubscription.propertySubscriberProfileId
                         "
-                        :options="custodianOptions"
+                        :options="custodianOptionsFiltered"
                         outlined
                         dense
-                        placeholder="Select custodian"
+                        placeholder="Select or type to search custodian"
                         emit-value
                         map-options
                         clearable
+                        use-input
+                        input-debounce="300"
+                        @filter="filterCustodians"
                         class="property-select"
                         :rules="[
                           () =>
@@ -435,6 +444,11 @@ const subscribers = ref<SubscriberModel[]>([]);
 const propertyTypes = ref<PropertyTypeModel[]>([]);
 const { streets } = storeToRefs(LgaWardStreetStore);
 
+// Filtered options for search
+const custodianOptionsFiltered = ref([] as { label: string; value: string }[]);
+const propertyTypesOptionsFiltered = ref([] as { label: string; value: string }[]);
+const streetOptionsFiltered = ref([] as { label: string; value: string }[]);
+
 // Model
 const newPropertySubscription = reactive(new PropertySubscriptionModel());
 
@@ -479,6 +493,19 @@ const isFormValid = computed(() => {
     !Object.keys(newPropertySubscription.errors || {}).length
   );
 });
+
+// Initialize filtered options
+watch(custodianOptions, (newOptions) => {
+  custodianOptionsFiltered.value = newOptions;
+}, { immediate: true });
+
+watch(propertyTypesOptions, (newOptions) => {
+  propertyTypesOptionsFiltered.value = newOptions;
+}, { immediate: true });
+
+watch(streetOptions, (newOptions) => {
+  streetOptionsFiltered.value = newOptions;
+}, { immediate: true });
 
 // Methods
 function getFieldError(fieldName: string): string {
@@ -564,6 +591,58 @@ function onSelecButtonClicked(
     emit('addStreet');
   }
 }
+
+// Filter functions for type-to-search
+function filterCustodians(val: string, update: (callback: () => void) => void) {
+  update(() => {
+    if (val === '') {
+      custodianOptionsFiltered.value = custodianOptions.value;
+    } else {
+      const needle = val.toLowerCase();
+      custodianOptionsFiltered.value = custodianOptions.value.filter(
+        (v) => v.label.toLowerCase().indexOf(needle) > -1
+      );
+    }
+  });
+}
+
+function filterPropertyTypes(val: string, update: (callback: () => void) => void) {
+  update(() => {
+    if (val === '') {
+      propertyTypesOptionsFiltered.value = propertyTypesOptions.value;
+    } else {
+      const needle = val.toLowerCase();
+      propertyTypesOptionsFiltered.value = propertyTypesOptions.value.filter(
+        (v) => v.label.toLowerCase().indexOf(needle) > -1
+      );
+    }
+  });
+}
+
+function filterStreets(val: string, update: (callback: () => void) => void) {
+  update(() => {
+    if (val === '') {
+      streetOptionsFiltered.value = streetOptions.value;
+    } else {
+      const needle = val.toLowerCase();
+      streetOptionsFiltered.value = streetOptions.value.filter(
+        (v) => v.label.toLowerCase().indexOf(needle) > -1
+      );
+    }
+  });
+}
+
+// Reload custodians after adding new subscriber
+async function reloadCustodians() {
+  try {
+    subscribers.value = await PropertySubscriptionHandler.getSubscriberUsers();
+  } catch (error) {
+    console.error('Error reloading custodians:', error);
+  }
+}
+
+// Expose reload function for parent to call
+defineExpose({ reloadCustodians });
 
 // Watchers
 watch(
