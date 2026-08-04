@@ -7,6 +7,7 @@ export enum UrlPathsEnum {
   STREET = '/utils-billing/street',
   PROPERTY_TYPES = '/utils-billing/property-type',
   PHONE_CODE = '/utils-billing/phone-code',
+  STAFF_USER = '/utils-billing/user',
   SUBSCRIBER_USER = '/utils-billing/subscriber-user',
   SUBSCRIPTION = '/utils-billing/subscription',
   BILLING = '/utils-billing/billing',

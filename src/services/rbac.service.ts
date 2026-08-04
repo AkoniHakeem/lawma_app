@@ -49,7 +49,12 @@ export interface EntityUser {
 
 export interface EntityUsers {
   entityUsers: EntityUser[];
-  subscriberUsers: EntityUser[];
+  /**
+   * @deprecated Subscriber profiles are not granted operator-app access and
+   * are no longer returned by the backend. Kept optional for backward
+   * compatibility with older API responses.
+   */
+  subscriberUsers?: EntityUser[];
 }
 
 export interface CreateRoleRequest {

@@ -7,8 +7,10 @@ import {
   requestGetSubscriberUser,
   requestGetSubscription,
   requestPostPropertyType,
+  requestPostStaffUser,
   requestPostSubscriber,
   requestPostSubscription,
+  type CreateStaffUserPayload,
 } from '../requests/propertySubscription.request';
 import { PropertyTypeModel } from 'src/models/PropertyType.model';
 import { SubscriberModel } from 'src/models/Subscriber.model';
@@ -212,6 +214,42 @@ export class PropertySubscriptionHandler {
           // notify user
           Notify.create({
             message: 'Post Subscriber failed',
+            color: 'negative',
+            icon: 'warning',
+            timeout: 5000,
+          });
+        }
+      }
+    );
+  }
+
+  static async handlePostStaffUser(
+    eventSource: EventBus,
+    {
+      onSuccess,
+      onError,
+    }: { onSuccess?: () => void; onError?: (error: unknown) => void } = {}
+  ) {
+    eventSource.on(
+      EventNamesEnum.POST_STAFF_USER,
+      async (newStaff: CreateStaffUserPayload) => {
+        try {
+          await requestPostStaffUser({
+            ...newStaff,
+            password: newStaff.password ?? 'default-password',
+            profileType: 'entity_user_profile',
+          });
+
+          onSuccess?.();
+
+          Notify.create({
+            message: 'Staff user added successfully',
+            color: 'positive',
+          });
+        } catch (error) {
+          onError?.(error);
+          Notify.create({
+            message: 'Failed to add staff user',
             color: 'negative',
             icon: 'warning',
             timeout: 5000,

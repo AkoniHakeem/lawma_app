@@ -46,7 +46,12 @@
             icon="home_work"
             label="Property Types"
           />
-          <q-tab name="rbac-settings" icon="security" label="Access Control" />
+          <q-tab
+            v-if="rbacStore.isSuperAdmin"
+            name="rbac-settings"
+            icon="security"
+            label="Access Control"
+          />
         </q-tabs>
       </div>
 
@@ -412,7 +417,7 @@
           </q-tab-panel>
 
           <!-- RBAC Settings Tab -->
-          <q-tab-panel name="rbac-settings">
+          <q-tab-panel v-if="rbacStore.isSuperAdmin" name="rbac-settings">
             <RbacSettings />
           </q-tab-panel>
         </q-tab-panels>
@@ -429,6 +434,7 @@ import {
   onMounted,
   reactive,
   ref,
+  watch,
 } from 'vue';
 import { PropertySubscriptionHandler } from 'src/lib/eventHandlers/PropertySubscription.handler';
 import { PropertyTypeModel } from 'src/models/PropertyType.model';
@@ -438,6 +444,7 @@ import { EventNamesEnum } from 'src/lib/enums/events.enum';
 import { isModelValid, clearUIEffects } from 'src/lib/utils';
 import { useNotify } from 'src/composables/useNotify';
 import RbacSettings from 'src/components/settings/RbacSettings.vue';
+import { useRbacStore } from 'src/stores/rbac-store';
 
 // Enhanced column definitions for property types table
 const propertyTypeColumns: QTableColumn[] = [
@@ -467,6 +474,7 @@ const propertyTypeColumns: QTableColumn[] = [
 // Constants
 const eventBus = inject('eventBus') as EventBus;
 const $q = useQuasar();
+const rbacStore = useRbacStore();
 
 // Variables
 let timer: NodeJS.Timeout;
@@ -482,6 +490,19 @@ const refreshLoading = ref(false);
 const showPropertyTypeDialog = ref(false);
 const searchFilter = ref('');
 const searchInputRef = ref();
+
+// If the user lands on the Access Control tab without super-admin
+// privileges (e.g. via stale state, URL manipulation, or after a role
+// change), snap them back to the Property Types tab.
+watch(
+  () => rbacStore.isSuperAdmin,
+  (isSuper) => {
+    if (!isSuper && currentTab.value === 'rbac-settings') {
+      currentTab.value = 'property-types';
+    }
+  },
+  { immediate: true }
+);
 
 // Models
 const propertyTypeModel = reactive(new PropertyTypeModel());
@@ -697,6 +718,14 @@ function onPropertyTypeError() {
 // Lifecycle hooks
 onMounted(async () => {
   await refreshPropertyTypes();
+
+  // Make sure the RBAC store knows who the current user is, so the
+  // Access Control tab gates correctly even on a hard reload of /settings.
+  if (!rbacStore.currentUser) {
+    rbacStore.loadUserAccess().catch((err) => {
+      console.warn('Failed to load user access on Settings page:', err);
+    });
+  }
 
   // Add keyboard shortcuts
   document.addEventListener('keydown', handleKeyboardShortcuts);

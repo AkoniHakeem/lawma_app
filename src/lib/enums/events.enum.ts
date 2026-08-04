@@ -10,6 +10,7 @@ export enum EventNamesEnum {
   POST_STREET = 'post_street',
   POST_PROPERTY_TYPE = 'post_property_type',
   POST_SUBSCRIBER = 'post_subscriber',
+  POST_STAFF_USER = 'post_staff_user',
   GENERATE_BILLING = 'generate_billing',
   VIEW_BILLING_DETAILS = 'view_billing_details',
   GET_DEFAULTERS = 'get_defaulters',

@@ -34,6 +34,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('layouts/AuthenticatedLayout.vue'),
     meta: {
       requireAuth: true,
+      requireRoles: ['super_admin'],
     },
     children: [
       {
@@ -41,8 +42,10 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/DashboardPage.vue'),
         meta: {
           requireAuth: true,
-          // Dashboard is a basic route - no specific permission required
-          // Users with any valid role should be able to access dashboard
+          requireRoles: ['super_admin'],
+          // Dashboard surfaces system-wide financial metrics, so it's
+          // restricted to super-admins only. Other staff land on
+          // Properties & Billings after sign-in.
         },
       },
     ],

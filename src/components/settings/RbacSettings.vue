@@ -124,17 +124,29 @@
                 </div>
               </div>
             </div>
-            <q-btn
-              color="white"
-              text-color="grey-9"
-              icon="refresh"
-              @click="refreshUsers"
-              :loading="usersLoading"
-              round
-              flat
-            >
-              <q-tooltip>Refresh Users</q-tooltip>
-            </q-btn>
+            <div class="row q-gutter-sm items-center">
+              <q-btn
+                color="primary"
+                icon="person_add"
+                label="Add Staff User"
+                @click="showAddStaffDialog = true"
+                no-caps
+                unelevated
+              >
+                <q-tooltip>Invite a teammate to your operator workspace</q-tooltip>
+              </q-btn>
+              <q-btn
+                color="white"
+                text-color="grey-9"
+                icon="refresh"
+                @click="refreshUsers"
+                :loading="usersLoading"
+                round
+                flat
+              >
+                <q-tooltip>Refresh Users</q-tooltip>
+              </q-btn>
+            </div>
           </div>
         </q-card-section>
 
@@ -254,6 +266,14 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <!-- Add Staff User Dialog -->
+    <AddStaffUser
+      v-if="showAddStaffDialog"
+      v-model="showAddStaffDialog"
+      @created="onStaffUserCreated"
+      @close="showAddStaffDialog = false"
+    />
   </div>
 </template>
 
@@ -262,6 +282,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import { useSettingsStore } from 'src/stores/settings-store';
 import { rbacApi, type Role, type EntityUser } from 'src/services/rbac.service';
+import AddStaffUser from 'src/components/AddStaffUser.vue';
 
 const $q = useQuasar();
 const settingsStore = useSettingsStore();
@@ -295,6 +316,7 @@ const editRolesDialog = ref(false);
 const selectedUser = ref<EntityUser | null>(null);
 const selectedRoles = ref<string[]>([]);
 const saveRolesLoading = ref(false);
+const showAddStaffDialog = ref(false);
 
 // Table columns
 const userColumns = [
@@ -417,7 +439,9 @@ async function loadUsers() {
   usersLoading.value = true;
   try {
     const userData = await rbacApi.getUsersForManagement();
-    users.value = [...userData.entityUsers, ...userData.subscriberUsers];
+    // Subscriber profiles are intentionally excluded — they don't have
+    // operator-app access. Only entity (staff) users are listed here.
+    users.value = [...userData.entityUsers];
   } catch (error) {
     console.error('Error loading users:', error);
     $q.notify({
@@ -516,6 +540,11 @@ function removeUser(user: EntityUser) {
       message: 'User removed successfully',
     });
   });
+}
+
+async function onStaffUserCreated() {
+  showAddStaffDialog.value = false;
+  await loadUsers();
 }
 
 // Lifecycle

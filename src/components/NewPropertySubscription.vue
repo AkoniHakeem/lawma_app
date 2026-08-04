@@ -641,8 +641,26 @@ async function reloadCustodians() {
   }
 }
 
-// Expose reload function for parent to call
-defineExpose({ reloadCustodians });
+// Reload property types after a new property type has been added
+async function reloadPropertyTypes() {
+  try {
+    propertyTypes.value = await PropertySubscriptionHandler.getPropertyTypes();
+  } catch (error) {
+    console.error('Error reloading property types:', error);
+  }
+}
+
+// Reload streets via the LGA/Ward/Street store after a new street is added
+async function reloadStreets() {
+  try {
+    await LgaWardStreetStore.fetchServerData({ type: 'street' });
+  } catch (error) {
+    console.error('Error reloading streets:', error);
+  }
+}
+
+// Expose reload functions for parent to call
+defineExpose({ reloadCustodians, reloadPropertyTypes, reloadStreets });
 
 // Watchers
 watch(

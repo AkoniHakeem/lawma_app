@@ -109,3 +109,25 @@ export async function requestPostSubscriber(subscriber: SubscriberModel) {
     });
   }
 }
+
+export interface CreateStaffUserPayload {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  phoneCodeId: string;
+  password?: string;
+  /** Backend's ProfileTypes enum string value for staff users. */
+  profileType: 'entity_user_profile';
+}
+
+export async function requestPostStaffUser(staff: CreateStaffUserPayload) {
+  const serverResponse = await api.post(UrlPathsEnum.STAFF_USER, staff);
+  if (serverResponse.status === 201 || serverResponse.status === 200) {
+    return serverResponse.data;
+  } else {
+    throw new Error('Staff user creation failed', {
+      cause: serverResponse.data,
+    });
+  }
+}

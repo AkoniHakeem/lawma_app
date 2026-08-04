@@ -1,0 +1,1768 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WastePro User Manual</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --green-900: #1a3a22;
+            --green-700: #2c5530;
+            --green-500: #4a7c59;
+            --green-300: #a4d4af;
+            --green-50: #e8f1ea;
+            --orange: #ff6b35;
+            --orange-50: #fff4ee;
+            --ink: #1f2937;
+            --muted: #5b6b66;
+            --line: #d8e6da;
+            --bg: #fafbf9;
+            --code-bg: #f1f5f3;
+            --warn-bg: #fff7e6;
+            --warn-bd: #f0c97a;
+            --tip-bg: #eef7ff;
+            --tip-bd: #93c2eb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            color: var(--ink);
+            background: var(--bg);
+            line-height: 1.65;
+            font-size: 16px;
+        }
+
+        /* layout */
+        .layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        aside.toc {
+            position: sticky;
+            top: 0;
+            align-self: start;
+            height: 100vh;
+            overflow-y: auto;
+            background: linear-gradient(180deg, var(--green-900) 0%, var(--green-700) 100%);
+            color: #fff;
+            padding: 32px 24px;
+        }
+
+        aside.toc .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 28px;
+            font-weight: 800;
+            font-size: 22px;
+            letter-spacing: -0.5px;
+        }
+
+        aside.toc .brand .dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--orange), var(--green-300));
+            display: inline-block;
+        }
+
+        aside.toc h4 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255, 255, 255, 0.5);
+            margin: 22px 0 10px;
+            font-weight: 700;
+        }
+
+        aside.toc a {
+            display: block;
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin-bottom: 2px;
+            transition: all 0.15s;
+        }
+
+        aside.toc a:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+        }
+
+        aside.toc .toc-print {
+            margin-top: 30px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            padding-top: 16px;
+        }
+
+        main {
+            padding: 64px 64px 100px;
+            max-width: 920px;
+        }
+
+        /* hero */
+        .hero {
+            background: linear-gradient(135deg, var(--green-700), var(--green-500));
+            color: #fff;
+            border-radius: 18px;
+            padding: 44px 40px;
+            margin-bottom: 40px;
+        }
+
+        .hero .eyebrow {
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0.7;
+            margin-bottom: 8px;
+        }
+
+        .hero h1 {
+            margin: 0 0 12px 0;
+            font-size: 38px;
+            letter-spacing: -1px;
+            line-height: 1.15;
+        }
+
+        .hero p {
+            margin: 0;
+            font-size: 17px;
+            opacity: 0.92;
+            max-width: 640px;
+        }
+
+        /* typography */
+        h2 {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--green-900);
+            letter-spacing: -0.5px;
+            margin: 56px 0 14px;
+            padding-top: 12px;
+            border-top: 3px solid var(--green-50);
+        }
+
+        h2:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--green-700);
+            margin: 32px 0 8px;
+        }
+
+        h4 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--ink);
+            margin: 22px 0 6px;
+        }
+
+        p {
+            margin: 0 0 12px;
+            color: var(--ink);
+        }
+
+        ul,
+        ol {
+            margin: 0 0 14px;
+            padding-left: 22px;
+        }
+
+        li {
+            margin-bottom: 6px;
+            color: var(--ink);
+        }
+
+        strong {
+            color: var(--green-900);
+        }
+
+        a {
+            color: var(--green-700);
+        }
+
+        /* inline UI references */
+        .ui {
+            display: inline-flex;
+            align-items: center;
+            background: var(--green-50);
+            color: var(--green-900);
+            padding: 1px 8px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid #c5dccb;
+            white-space: nowrap;
+        }
+
+        .ui .material-icons {
+            font-size: 15px;
+            margin-right: 4px;
+            color: var(--green-700);
+        }
+
+        .ui.btn {
+            background: var(--orange-50);
+            color: #b54218;
+            border-color: #f5cdb6;
+        }
+
+        .ui.btn .material-icons {
+            color: var(--orange);
+        }
+
+        .key {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-bottom-width: 2px;
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-size: 13px;
+            font-family: ui-monospace, Menlo, monospace;
+            color: #1f2937;
+        }
+
+        /* callouts */
+        .note,
+        .tip,
+        .warn {
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin: 18px 0;
+            border-left: 4px solid;
+        }
+
+        .note {
+            background: var(--green-50);
+            border-color: var(--green-500);
+        }
+
+        .tip {
+            background: var(--tip-bg);
+            border-color: var(--tip-bd);
+        }
+
+        .warn {
+            background: var(--warn-bg);
+            border-color: var(--warn-bd);
+        }
+
+        .note strong,
+        .tip strong,
+        .warn strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* role cards */
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+            margin: 20px 0 30px;
+        }
+
+        .role-card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 2px 6px rgba(15, 31, 18, 0.04);
+        }
+
+        .role-card .icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: var(--green-50);
+            color: var(--green-700);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            font-size: 24px;
+        }
+
+        .role-card .icon.orange {
+            background: var(--orange-50);
+            color: var(--orange);
+        }
+
+        .role-card h4 {
+            margin: 0 0 6px;
+        }
+
+        .role-card p {
+            font-size: 14px;
+            color: var(--muted);
+            margin: 0;
+        }
+
+        /* step lists */
+        ol.steps {
+            counter-reset: step;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        ol.steps>li {
+            counter-increment: step;
+            position: relative;
+            padding: 4px 0 14px 44px;
+            margin: 0;
+            border-left: 2px dashed var(--line);
+            margin-left: 14px;
+            padding-left: 30px;
+        }
+
+        ol.steps>li:last-child {
+            border-left: 0;
+            padding-bottom: 0;
+        }
+
+        ol.steps>li::before {
+            content: counter(step);
+            position: absolute;
+            left: -16px;
+            top: 0;
+            width: 30px;
+            height: 30px;
+            background: var(--green-700);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            box-shadow: 0 0 0 4px var(--bg);
+        }
+
+        /* visual: app shell representation */
+        .shell {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: #fff;
+            overflow: hidden;
+            margin: 18px 0;
+            box-shadow: 0 4px 12px rgba(15, 31, 18, 0.05);
+        }
+
+        .shell-header {
+            background: linear-gradient(135deg, #fff, #f5f5f5);
+            border-bottom: 1px solid var(--line);
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 14px;
+        }
+
+        .shell-header .menu {
+            width: 26px;
+            height: 26px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+        }
+
+        .shell-header .page-pill {
+            background: linear-gradient(135deg, #1a237e, #3f51b5);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .shell-header .actions {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+            color: #64748b;
+        }
+
+        .shell-body {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            min-height: 260px;
+        }
+
+        .shell-side {
+            background: linear-gradient(145deg, #263238, #455a64);
+            color: #fff;
+            padding: 18px 14px;
+            font-size: 13px;
+        }
+
+        .shell-side .item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 4px;
+        }
+
+        .shell-side .item.active {
+            background: linear-gradient(135deg, var(--orange), #ffa000);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .shell-main {
+            padding: 24px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        }
+
+        .shell-main h5 {
+            margin: 0 0 14px;
+            color: var(--ink);
+            font-size: 16px;
+        }
+
+        .shell-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .shell-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 14px;
+            border: 1px solid var(--line);
+        }
+
+        .shell-card .num {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--green-700);
+        }
+
+        .shell-card .lbl {
+            font-size: 11px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* dark variant for service client preview */
+        .shell.sc .shell-side {
+            background: #181c23;
+        }
+
+        .shell.sc .shell-side .item.active {
+            background: rgba(79, 172, 254, 0.2);
+            color: #4facfe;
+        }
+
+        /* Q & A */
+        details {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 12px 18px;
+            margin-bottom: 10px;
+        }
+
+        details>summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--green-900);
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        details>summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details>summary::before {
+            content: '+';
+            width: 22px;
+            height: 22px;
+            background: var(--green-50);
+            color: var(--green-700);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        details[open]>summary::before {
+            content: '−';
+        }
+
+        details p {
+            margin: 10px 0 4px;
+            font-size: 15px;
+            color: var(--ink);
+        }
+
+        /* footer */
+        footer {
+            margin-top: 80px;
+            padding-top: 28px;
+            border-top: 1px solid var(--line);
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        footer strong {
+            color: var(--green-900);
+        }
+
+        /* print */
+        @media print {
+            aside.toc {
+                display: none;
+            }
+
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            main {
+                padding: 20px;
+                max-width: 100%;
+            }
+
+            .hero {
+                background: var(--green-700) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            h2 {
+                page-break-after: avoid;
+            }
+
+            details {
+                page-break-inside: avoid;
+            }
+
+            body {
+                font-size: 13px;
+            }
+        }
+
+        /* small screens */
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            aside.toc {
+                position: static;
+                height: auto;
+            }
+
+            main {
+                padding: 32px 24px 60px;
+            }
+
+            .hero {
+                padding: 28px 22px;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            .shell-body {
+                grid-template-columns: 1fr;
+            }
+
+            .shell-side {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="layout">
+
+        <!-- Sticky Table of Contents -->
+        <aside class="toc">
+            <div class="brand">
+                <span class="dot"></span> WastePro
+            </div>
+
+            <h4>Start here</h4>
+            <a href="#welcome">Welcome</a>
+            <a href="#who">Who uses WastePro</a>
+            <a href="#signin">Signing in</a>
+
+            <h4>For Waste Managers</h4>
+            <a href="#mgr-tour">Your workspace</a>
+            <a href="#mgr-dashboard">Dashboard</a>
+            <a href="#mgr-properties">Properties &amp; Billings</a>
+            <a href="#mgr-properties-tab" style="padding-left:24px; font-size:13px;">↳ Properties tab</a>
+            <a href="#mgr-row-actions" style="padding-left:24px; font-size:13px;">↳ Row actions &amp; dialogs</a>
+            <a href="#mgr-new-property" style="padding-left:24px; font-size:13px;">↳ Add a new property</a>
+            <a href="#mgr-billings-tab" style="padding-left:24px; font-size:13px;">↳ Billings tab</a>
+            <a href="#mgr-generate-bill" style="padding-left:24px; font-size:13px;">↳ Generate / Print Bill</a>
+            <a href="#mgr-payments">Payments</a>
+            <a href="#mgr-settings">Settings</a>
+            <a href="#mgr-access">User Access</a>
+            <a href="#mgr-roles">Role Management</a>
+
+            <h4>For Service Clients</h4>
+            <a href="#sc-tour">Your portal</a>
+            <a href="#sc-dashboard">Dashboard</a>
+            <a href="#sc-billing">My Billing</a>
+            <a href="#sc-payments">Payments</a>
+            <a href="#sc-notifications">Notifications</a>
+            <a href="#sc-profile">My Profile</a>
+
+            <h4>For New Operators</h4>
+            <a href="#onboarding">Onboarding flow</a>
+
+            <h4>Reference</h4>
+            <a href="#cookbook">Common tasks</a>
+            <a href="#faq">FAQ &amp; tips</a>
+            <a href="#glossary">Glossary</a>
+
+            <div class="toc-print">Press Ctrl + P to print or save as PDF.</div>
+        </aside>
+
+        <main>
+
+            <!-- HERO -->
+            <section class="hero">
+                <div class="eyebrow">User Manual</div>
+                <h1>WastePro: a friendly tour of your platform.</h1>
+                <p>Whether you run a waste management business or you are a property owner paying for the service, this
+                    guide walks you through every screen, button, and workflow you will use day to day.</p>
+            </section>
+
+            <!-- WELCOME -->
+            <section id="welcome">
+                <h2>Welcome</h2>
+                <p>WastePro is a web-based platform that helps waste operators manage properties, generate bills,
+                    collect payments, and stay in close contact with their subscribers. Subscribers (called <em>service
+                        clients</em>) get their own portal to view bills, make payments, and track their account.</p>
+                <p>You don't need to install anything. WastePro runs in any modern browser and works just as well on
+                    phones and tablets as on a laptop.</p>
+                <div class="tip"><strong>Heads up</strong>You can install WastePro to your home screen on mobile or as a
+                    desktop app. Look out for the install prompt the first time you visit.</div>
+            </section>
+
+            <!-- USER TYPES -->
+            <section id="who">
+                <h2>Who uses WastePro</h2>
+                <p>WastePro has three lanes. The screens, menus, and permissions you see depend on which lane you log in
+                    through.</p>
+
+                <div class="role-grid">
+                    <div class="role-card">
+                        <div class="icon"><span class="material-icons">business</span></div>
+                        <h4>Waste Manager / Operator Staff</h4>
+                        <p>Runs the operation. Manages properties, generates bills, collects payments, exports reports,
+                            and (for admins) controls who else can access the system.</p>
+                    </div>
+                    <div class="role-card">
+                        <div class="icon orange"><span class="material-icons">home</span></div>
+                        <h4>Service Client</h4>
+                        <p>The property owner or resident receiving the waste service. Views bills, sees payment
+                            history, gets notifications, and can pay through a virtual account.</p>
+                    </div>
+                    <div class="role-card">
+                        <div class="icon"><span class="material-icons">how_to_reg</span></div>
+                        <h4>New Operator (Onboarding)</h4>
+                        <p>A waste management company applying to join WastePro for the first time. Goes through a
+                            public registration and data-upload flow before receiving credentials.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SIGN IN -->
+            <section id="signin">
+                <h2>Signing in</h2>
+                <p>Open your browser and visit your operator's WastePro URL (for example,
+                    <code>wasteproutils.com</code>). Tap or click <span class="ui btn"><span
+                            class="material-icons">login</span>Access App</span> from the landing page, and you will
+                    land on the sign-in screen.
+                </p>
+                <p>The sign-in screen has two tabs at the top:</p>
+                <ul>
+                    <li><strong>Waste Manager</strong> &mdash; for operator staff. Sign in with your
+                        <strong>email</strong> and <strong>password</strong>.
+                    </li>
+                    <li><strong>Service Client</strong> &mdash; for property owners and residents. Sign in with your
+                        <strong>property code</strong> and <strong>phone number</strong>.
+                    </li>
+                </ul>
+
+                <h3>Step by step</h3>
+                <ol class="steps">
+                    <li>Pick the right tab for your role (Waste Manager or Service Client).</li>
+                    <li>Fill in the two fields. Use the <span class="ui"><span
+                                class="material-icons">visibility</span>eye</span> icon next to the password field to
+                        see what you typed.</li>
+                    <li>Tap <span class="ui btn"><span class="material-icons">login</span>Sign In to Dashboard</span>.
+                        WastePro will check your credentials and take you to the right home page.</li>
+                </ol>
+
+                <div class="warn"><strong>Forgot your password?</strong>Service Clients can sign in any time using their
+                    property code and phone number, no password needed. Waste Manager users should contact their
+                    operator's admin to reset access.</div>
+            </section>
+
+            <!-- ============================ -->
+            <!-- WASTE MANAGER SECTION       -->
+            <!-- ============================ -->
+            <section id="mgr-tour">
+                <h2>For Waste Managers · Your workspace</h2>
+                <p>After you sign in, you arrive at the Manager workspace. It has the same shape on every screen so you
+                    always know where you are.</p>
+
+                <div class="shell" aria-hidden="true">
+                    <div class="shell-header">
+                        <span class="menu"><span class="material-icons" style="font-size:18px;">menu</span></span>
+                        <span class="page-pill"><span class="material-icons"
+                                style="font-size:14px;vertical-align:middle;">location_on</span> Dashboard</span>
+                        <span class="actions">
+                            <span class="material-icons">notifications</span>
+                            <span class="material-icons">account_circle</span>
+                        </span>
+                    </div>
+                    <div class="shell-body">
+                        <div class="shell-side">
+                            <div style="font-weight:800; padding:6px 10px; margin-bottom:14px;">WastePro</div>
+                            <div class="item active"><span class="material-icons"
+                                    style="font-size:18px;">dashboard</span> Dashboard</div>
+                            <div class="item"><span class="material-icons" style="font-size:18px;">home_work</span>
+                                Properties &amp; Billings</div>
+                            <div class="item"><span class="material-icons" style="font-size:18px;">payments</span>
+                                Payments</div>
+                            <div class="item"><span class="material-icons" style="font-size:18px;">settings</span>
+                                Settings</div>
+                        </div>
+                        <div class="shell-main">
+                            <h5>Welcome to WastePro Dashboard</h5>
+                            <div class="shell-cards">
+                                <div class="shell-card">
+                                    <div class="num">2,754</div>
+                                    <div class="lbl">Subscribers</div>
+                                </div>
+                                <div class="shell-card">
+                                    <div class="num">84</div>
+                                    <div class="lbl">Streets</div>
+                                </div>
+                                <div class="shell-card">
+                                    <div class="num">2,712</div>
+                                    <div class="lbl">Properties</div>
+                                </div>
+                                <div class="shell-card">
+                                    <div class="num">47.31%</div>
+                                    <div class="lbl">Collection rate</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>The pieces of the screen</h3>
+                <ul>
+                    <li><strong>Top bar</strong> &mdash; the page name in a blue pill on the left, then a <span
+                            class="ui"><span class="material-icons">notifications</span>bell</span> for alerts and an
+                        <span class="ui"><span class="material-icons">account_circle</span>account</span> menu for
+                        profile and logout on the right.
+                    </li>
+                    <li><strong>Left sidebar</strong> &mdash; your main menu. Click the <span class="ui"><span
+                                class="material-icons">menu</span>menu</span> button in the top bar to collapse or open
+                        it. Active item highlights in orange.</li>
+                    <li><strong>Main area</strong> &mdash; the page you are working on.</li>
+                </ul>
+
+                <div class="tip"><strong>Sidebar items</strong>Properties &amp; Billings · Payments · Settings are
+                    visible to all staff. <strong>Dashboard</strong> is reserved for super-admins. Admins also see
+                    <strong>User Access</strong>, and super-admins additionally see <strong>Role Management</strong>.
+                </div>
+            </section>
+
+            <!-- DASHBOARD -->
+            <section id="mgr-dashboard">
+                <h2>Dashboard <small style="font-size:14px; color:var(--muted); font-weight:400;">· Super-admins
+                        only</small></h2>
+                <p>Your at-a-glance home. Because it surfaces system-wide financial metrics, the Dashboard is restricted
+                    to super-admins. Other staff land on Properties &amp; Billings as their default home page.</p>
+                <p>The top of the page greets you with a welcome card. Below that, four large
+                    metric cards summarise the health of your operation:</p>
+                <ul>
+                    <li><strong>Total Subscribers</strong> &mdash; everyone registered to receive service.</li>
+                    <li><strong>Streets Managed</strong> &mdash; the streets covered by your operation.</li>
+                    <li><strong>Properties</strong> &mdash; properties on file across all streets.</li>
+                    <li><strong>Collection Rate</strong> &mdash; the percentage of money billed that has actually come
+                        in.</li>
+                </ul>
+                <p>Beneath the metrics is the <strong>Financial Overview</strong> chart, which compares monthly billings
+                    against payments so you can see trends across the year. Use it to spot good months, slow months, and
+                    patterns.</p>
+                <div class="note"><strong>What to do here</strong>Use the dashboard as your morning check-in. If a
+                    number looks off, click into the relevant page (Properties &amp; Billings, Payments, etc.) to dig
+                    deeper.</div>
+            </section>
+
+            <!-- PROPERTIES & BILLINGS -->
+            <section id="mgr-properties">
+                <h2>Properties &amp; Billings</h2>
+                <p>This is the busiest page in WastePro. Almost every operator workflow either starts or ends here:
+                    registering properties, looking up subscribers, generating bills, finding defaulters, and adjusting
+                    balances. Take your time with this section &mdash; everything here is connected.</p>
+
+                <h3>The page header</h3>
+                <p>The top of the page shows the title <strong>Property Billing Management</strong> and a single
+                    context-aware action button on the right that changes label and icon depending on which tab is
+                    active:</p>
+                <ul>
+                    <li>On the <strong>Properties</strong> tab the button reads <span class="ui btn"><span
+                                class="material-icons">add_business</span>Add Property</span> and opens the New Property
+                        Subscription dialog.</li>
+                    <li>On the <strong>Billings</strong> tab the button reads <span class="ui btn"><span
+                                class="material-icons">print</span>Print Bill</span> and opens the Generate / Print Bill
+                        panel.</li>
+                </ul>
+
+                <h3>The two tabs</h3>
+                <p>Just below the header sit the two tabs. Each has a smart badge:</p>
+                <ul>
+                    <li><span class="ui"><span class="material-icons">home_work</span>Properties</span> &mdash; with an
+                        orange badge showing total properties (e.g. <strong>2,712</strong>).</li>
+                    <li><span class="ui"><span class="material-icons">receipt_long</span>Billings</span> &mdash; with a
+                        red badge showing total arrears in naira (e.g. <strong>₦64M</strong>).</li>
+                </ul>
+
+                <!-- ===================== -->
+                <!-- PROPERTIES TAB DEEP -->
+                <!-- ===================== -->
+                <h3 id="mgr-properties-tab">Inside the Properties tab</h3>
+                <p>This is your master list of every property in your operation. The card titled <strong>Properties
+                        Overview</strong> contains a search input on the right and a paginated table below.</p>
+
+                <h4>The search box</h4>
+                <p>Type any text into <span class="ui"><span class="material-icons">search</span>Search
+                        properties...</span> and the table filters live (with a 300ms debounce so it doesn't flicker as
+                    you type). It searches across property name, old code, street, and ID. The little <span
+                        class="ui"><span class="material-icons">close</span>×</span> at the end of the box clears the
+                    filter.</p>
+
+                <h4>The Properties table columns</h4>
+                <p>Each row tells a complete story about a property:</p>
+                <ul>
+                    <li><strong>Property ID</strong> &mdash; a blue-grey chip with a <span class="ui"><span
+                                class="material-icons">tag</span>tag</span> icon.</li>
+                    <li><strong>Property Name</strong> &mdash; bold text identifying the property (e.g. <em>Olu's
+                            Plaza</em>).</li>
+                    <li><strong>Old Code</strong> &mdash; a purple badge holding any legacy code carried over from
+                        spreadsheets or LAWMA records.</li>
+                    <li><strong>Street Number</strong> &mdash; the door / plot number with a <span class="ui"><span
+                                class="material-icons">home</span>home</span> icon.</li>
+                    <li><strong>Street Name</strong> &mdash; the street with a <span class="ui"><span
+                                class="material-icons">location_on</span>pin</span> icon.</li>
+                    <li><strong>Arrears</strong> &mdash; an outstanding-balance chip that colours itself based on the
+                        amount: green when settled, amber when small, red when significant.</li>
+                    <li><strong>Actions</strong> &mdash; three round buttons covered next.</li>
+                </ul>
+
+                <h4 id="mgr-row-actions">The three row-action buttons</h4>
+                <p>At the end of every row you'll find a trio of icon buttons. Each one opens a dedicated full-screen
+                    dialog:</p>
+
+                <div class="role-grid">
+                    <div class="role-card">
+                        <div class="icon"><span class="material-icons">visibility</span></div>
+                        <h4>View Details (blue eye)</h4>
+                        <p>Opens the <em>Property Details</em> dialog &mdash; the complete profile of the property, its
+                            custodian, its finances, and its billing line items.</p>
+                    </div>
+                    <div class="role-card">
+                        <div class="icon" style="background:#e8f7ee;color:#1e9e6a;"><span
+                                class="material-icons">payment</span></div>
+                        <h4>View Payments (green card)</h4>
+                        <p>Opens the <em>Payment History</em> dialog &mdash; every payment ever recorded against this
+                            property, with filters and CSV export.</p>
+                    </div>
+                    <div class="role-card">
+                        <div class="icon" style="background:#e6f0fb;color:#2563eb;"><span
+                                class="material-icons">receipt</span></div>
+                        <h4>View Monthly Billings (blue receipt)</h4>
+                        <p>Opens the <em>Billing History</em> dialog &mdash; every bill issued to this property, with
+                            summary cards and an enable/disable billing toggle.</p>
+                    </div>
+                </div>
+
+                <h4>What you can do from inside the Property Details dialog</h4>
+                <p>This dialog is more than a read-only profile &mdash; it's a working surface. It is divided into four
+                    sections:</p>
+
+                <ol>
+                    <li><strong>Property Information</strong> &mdash; ID, Name (click the <span class="ui"><span
+                                class="material-icons">edit</span>edit</span> icon next to the name to rename in place),
+                        Street Address, Ward, LGA, and State. Action icons in the section header let you jump to <span
+                            class="ui"><span class="material-icons">payments</span>View Payments</span>, <span
+                            class="ui"><span class="material-icons">receipt</span>View Billings</span>, or <span
+                            class="ui" style="background:#fde2e2;color:#a8202a;border-color:#f5b1b1;"><span
+                                class="material-icons" style="color:#c53030;">delete</span>Delete Property
+                            Subscription</span>.</li>
+                    <li><strong>Financial Information</strong> &mdash; Outstanding Balance (with an <span
+                            class="ui"><span class="material-icons">edit</span>edit</span> button that opens the Edit
+                        Arrears dialog) and Last Payment.</li>
+                    <li><strong>Custodian Information</strong> &mdash; the contact responsible for the property: name,
+                        email, phone (also editable in place), and the dedicated virtual account if one has been issued.
+                    </li>
+                    <li><strong>Billing Details</strong> &mdash; a table of property-type line items (e.g. 3 residential
+                        units at ₦5,000 each). To change them, click <span class="ui"><span
+                                class="material-icons">edit</span>edit</span> in the section header. You can then:
+                        <ul>
+                            <li>Click <span class="ui"><span class="material-icons">add</span>add</span> to insert a new
+                                row.</li>
+                            <li>Click the inline <span class="ui"><span class="material-icons">edit</span>edit</span> on
+                                a row's property type to swap it for another from the catalog.</li>
+                            <li>Hover a row to reveal a <span class="ui"
+                                    style="background:#fde2e2;color:#a8202a;border-color:#f5b1b1;"><span
+                                        class="material-icons" style="color:#c53030;">delete</span>delete</span> menu
+                                for that row.</li>
+                            <li>Click <span class="ui"
+                                    style="background:#ffebd6;color:#9a4a14;border-color:#f3c79b;"><span
+                                        class="material-icons" style="color:#d96b22;">save</span>save</span> when you're
+                                done. While you have unsaved edits a small orange "Unsaved Changes" badge appears next
+                                to the section title.</li>
+                            <li>Click <span class="ui"><span class="material-icons">close</span>cancel</span> to discard
+                                everything.</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <div class="warn"><strong>About inline edits</strong>Property name and custodian phone are edited via
+                    popovers &mdash; click the field, type, and press <span class="key">Enter</span>. The change saves
+                    immediately. Outstanding balance opens a dedicated dialog where you must enter both an amount and a
+                    reason before saving.</div>
+
+                <h4>What you can do from the Payment History dialog</h4>
+                <p>This dialog is full-screen. The header is a purple gradient with the property name. Inside you get:
+                </p>
+                <ul>
+                    <li><strong>Filters</strong> &mdash; <span class="ui"><span
+                                class="material-icons">event</span>Year</span> and <span class="ui"><span
+                                class="material-icons">calendar_today</span>Month</span> dropdowns, plus a <span
+                            class="ui"><span class="material-icons">refresh</span>Reset Filters</span> button.</li>
+                    <li><strong>Summary cards</strong> &mdash; Total Payments, Total Amount, Average Payment, and Last
+                        Payment date.</li>
+                    <li><strong>Payments table</strong> &mdash; columns for Payment Date, Amount (green chip), Payer
+                        Name, Month, Year, Comments, and an Actions column with a <span class="ui"
+                            style="background:#fde2e2;color:#a8202a;border-color:#f5b1b1;"><span class="material-icons"
+                                style="color:#c53030;">delete</span>delete</span> button.</li>
+                    <li><strong>Footer actions</strong> &mdash; <span class="ui"><span
+                                class="material-icons">download</span>Export to CSV</span> generates a CSV scoped to the
+                        property you're viewing.</li>
+                </ul>
+
+                <h4>What you can do from the Billing History dialog</h4>
+                <p>Also full-screen. Across the top there's a <strong>Billing Status</strong> card showing whether
+                    billing for this property is <em>Active</em> or <em>Disabled</em>, with a one-click toggle to
+                    switch:</p>
+                <ul>
+                    <li>Click <span class="ui" style="background:#fde2e2;color:#a8202a;border-color:#f5b1b1;"><span
+                                class="material-icons" style="color:#c53030;">block</span>Disable Billing</span> to stop
+                        new bills from being generated for this property.</li>
+                    <li>Click <span class="ui" style="background:#dff7e6;color:#16704e;border-color:#a8e0c1;"><span
+                                class="material-icons" style="color:#1e9e6a;">check_circle</span>Enable Billing</span>
+                        to turn it back on.</li>
+                </ul>
+                <p>Below the status card you get the same Year / Month filters, summary cards (Total Billings, Total
+                    Amount, Average Billing, Latest Billing), and a billings table with columns for <strong>Billing
+                        Period</strong>, <strong>Amount</strong>, <strong>Previous Arrears</strong>, <strong>Date
+                        Created</strong>, and a <strong>Status</strong> badge that flags duplicate bills.</p>
+
+                <div class="tip"><strong>Why duplicate-bill flags matter</strong>If a billing run accidentally fires
+                    twice for the same period, the second bill is flagged "Duplicate" so you can spot it. Use the row
+                    menu to remove duplicates (see Billing Details further down).</div>
+
+                <!-- ===================== -->
+                <!-- ADD NEW PROPERTY    -->
+                <!-- ===================== -->
+                <h3 id="mgr-new-property">Adding a new property</h3>
+                <p>Clicking <span class="ui btn"><span class="material-icons">add_business</span>Add Property</span> in
+                    the header opens the <strong>New Property Subscription</strong> dialog. The form is split into two
+                    columns.</p>
+
+                <h4>Left column · Property Information</h4>
+                <ul>
+                    <li><strong>Property Name *</strong> &mdash; how the property will be referred to.</li>
+                    <li><strong>Property Unit *</strong> &mdash; how many units make up the property (1 for a single
+                        home, several for a compound or apartment block).</li>
+                    <li><strong>Expected Monthly Cost</strong> &mdash; auto-calculated for you. WastePro multiplies the
+                        property type's unit price by the number of units. Read-only.</li>
+                    <li><strong>Old Code</strong> &mdash; an optional legacy code carried over from previous records.
+                    </li>
+                </ul>
+
+                <h4>Right column · Location &amp; Details</h4>
+                <ul>
+                    <li><strong>Street *</strong> &mdash; type to search. If the street isn't on file, an inline <span
+                            class="ui btn"><span class="material-icons">add</span>Add New Street</span> button is right
+                        there. The little + button next to the dropdown does the same thing.</li>
+                    <li><strong>Street Number</strong> &mdash; the door or plot number.</li>
+                    <li><strong>Property Type *</strong> &mdash; pick from the catalog. The dropdown shows the type name
+                        and unit price (<em>Residential &mdash; ₦5,000</em>). If the type is missing, click <span
+                            class="ui btn"><span class="material-icons">add</span>Add Property Type</span>.</li>
+                    <li><strong>Custodian *</strong> &mdash; the subscriber responsible for the property. Same pattern:
+                        type to search, or click <span class="ui btn"><span class="material-icons">add</span>Add New
+                            Subscriber</span> if they don't exist yet.</li>
+                    <li><strong>Property Owner</strong> checkbox &mdash; tick this if the custodian is also the owner.
+                    </li>
+                </ul>
+
+                <p>Once everything required is filled in, click <span class="ui btn"><span
+                            class="material-icons">save</span>Create Property</span>. The button stays disabled until
+                    the form is valid.</p>
+
+                <div class="note"><strong>About the inline "+" buttons</strong>The <strong>Add New Street</strong>,
+                    <strong>Add Property Type</strong>, and <strong>Add Subscriber</strong> side-buttons each open their
+                    own small dialog. When you save the new item, WastePro reopens the New Property Subscription form
+                    automatically and refreshes the relevant dropdown so the new entry is ready to pick &mdash; no page
+                    reload needed.
+                </div>
+
+                <!-- ===================== -->
+                <!-- BILLINGS TAB DEEP   -->
+                <!-- ===================== -->
+                <h3 id="mgr-billings-tab">Inside the Billings tab</h3>
+                <p>This tab is the operational hub for everything that happens after a bill is created. The card titled
+                    <strong>Billing Management</strong> has a <span class="ui"><span
+                            class="material-icons">calendar_month</span>Select Month</span> dropdown on the right that
+                    filters the entire view to a single billing period.
+                </p>
+
+                <h4>The three views inside Billings</h4>
+                <p>The main area can show one of three tables. You always start on the <strong>Billing
+                        Overview</strong>; the other two are reached by drilling in. A <span class="ui"><span
+                            class="material-icons">arrow_back</span>Back to Billing Overview</span> button appears when
+                    you've drilled down.</p>
+
+                <h4>1 · Billing Overview (per street)</h4>
+                <p>Rows are grouped by street, not by property, so you can see at a glance how each street is
+                    performing:</p>
+                <ul>
+                    <li><strong>Street Name</strong> &mdash; bold text with a pin icon, plus a small caption "Click to
+                        view billing details".</li>
+                    <li><strong>Total Billing</strong> &mdash; sum of bills for this street in the selected month, with
+                        a receipt icon.</li>
+                    <li><strong>Arrears</strong> &mdash; outstanding chip that turns red when significant.</li>
+                    <li><strong>Actions</strong> column &mdash; covered next.</li>
+                </ul>
+
+                <h4>2 · The street row menu</h4>
+                <p>Each street row has a unified action area. Hover the row to reveal coloured shortcut buttons; or
+                    click the <span class="ui"><span class="material-icons">more_vert</span>more</span> button at any
+                    time to open the menu. There are two actions:</p>
+                <ul>
+                    <li><span class="ui"><span class="material-icons">visibility</span>View Details</span> &mdash;
+                        switches the area to the <strong>Billing Details</strong> table for that street, listing every
+                        bill in the selected month.</li>
+                    <li><span class="ui" style="background:#ffebd6;color:#9a4a14;border-color:#f3c79b;"><span
+                                class="material-icons" style="color:#d96b22;">people</span>Get Defaulters</span> &mdash;
+                        switches to the <strong>Payment Defaulters</strong> table, listing properties on this street
+                        that haven't paid yet.</li>
+                </ul>
+
+                <p>Both items show a small spinner while loading. The drilled-down table includes a back link, table
+                    title, and short subtitle so you always know where you are.</p>
+
+                <h4>3 · Billing Details table</h4>
+                <p>When you've drilled into a street's billing details, each row is one bill with these columns:</p>
+                <ul>
+                    <li><strong>Property</strong> info (name, street number, custodian).</li>
+                    <li><strong>Total Billing</strong> with a receipt icon.</li>
+                    <li><strong>Arrears</strong> chip (red &gt; 0, green = 0).</li>
+                    <li>An <strong>Actions</strong> column with a <span class="ui"
+                            style="background:#fde2e2;color:#a8202a;border-color:#f5b1b1;"><span class="material-icons"
+                                style="color:#c53030;">delete</span>delete</span> button to remove a bad bill (most
+                        often used to clean up duplicates).</li>
+                </ul>
+
+                <h4>4 · Defaulters table</h4>
+                <p>Lists every property on the street that hasn't paid for the selected period. Use this list as your
+                    daily call sheet for collections. Reminder: switching back to the overview is one tap on <span
+                        class="ui"><span class="material-icons">arrow_back</span>Back to Billing Overview</span>.</p>
+
+                <!-- ===================== -->
+                <!-- GENERATE / PRINT    -->
+                <!-- ===================== -->
+                <h3 id="mgr-generate-bill">Generating and printing bills</h3>
+                <p>While on the Billings tab, clicking the header's <span class="ui btn"><span
+                            class="material-icons">print</span>Print Bill</span> button opens a beautiful purple-headed
+                    panel labelled <strong>Generate Bill</strong> (or <strong>Print Bill</strong>, depending on the
+                    toggle). This panel does the heavy lifting of bill creation and reprinting.</p>
+
+                <h4>The mode toggle</h4>
+                <p>At the top right of the panel sits a glassy two-option toggle:</p>
+                <ul>
+                    <li><span class="ui"><span class="material-icons">print</span>Print Bill</span> &mdash; reprint
+                        bills that already exist (for a property, a street, or the whole system) for a chosen month.
+                    </li>
+                    <li><span class="ui"><span class="material-icons">receipt</span>Generate Bill</span> &mdash; create
+                        new bills for a billing cycle. This is the action that actually runs a billing month.</li>
+                </ul>
+                <p>The form fields and the helper text under the form change to match the mode you're in.</p>
+
+                <h4>The four selectors</h4>
+                <p>Below the header are four required pickers laid out two by two:</p>
+                <ul>
+                    <li><strong>Street Selection</strong> &mdash; type to search. Selecting a street limits the property
+                        dropdown to properties on it.</li>
+                    <li><strong>Billing Month</strong> &mdash; defaults to the current month.</li>
+                    <li><strong>Property Subscription</strong> &mdash; pick a single property, or leave blank if you're
+                        billing more broadly.</li>
+                    <li><strong>Billing Year</strong> &mdash; defaults to the current year.</li>
+                </ul>
+
+                <h4>The two scope checkboxes</h4>
+                <p>Below the selectors are two cards that control how wide the operation runs:</p>
+                <ul>
+                    <li><strong>Process all properties on selected street</strong> &mdash; tick this and the Property
+                        dropdown is disabled. The action runs for every property on the chosen street.</li>
+                    <li><strong>Process all properties system-wide</strong> <span class="ui"
+                            style="background:#f3f4f6;color:#6b7280;border-color:#d1d5db;">Coming soon</span> &mdash;
+                        this option is visible in the form but is not active yet. For now, run the action either against
+                        a single property or street-by-street.</li>
+                </ul>
+
+                <h4>The action footer</h4>
+                <p>At the bottom of the panel a friendly helper line tells you what is about to happen, like <em>"Ready
+                        to generate bills for all properties on selected street"</em>. Beside it sits the action button,
+                    whose label and icon also depend on the mode:</p>
+                <ul>
+                    <li><span class="ui btn"><span class="material-icons">receipt</span>Generate Bills</span> when the
+                        toggle is on Generate.</li>
+                    <li><span class="ui btn"><span class="material-icons">print</span>Print Bills</span> when the toggle
+                        is on Print.</li>
+                </ul>
+
+                <h4>What actually happens when you submit</h4>
+                <ol class="steps">
+                    <li>WastePro validates the form (street, month, year are required).</li>
+                    <li>For <strong>Generate Bill</strong>: the system creates new bills based on each property's
+                        billing details and updates outstanding balances. Duplicate-flag detection runs automatically.
+                        The dashboard's collection rate refreshes shortly after.</li>
+                    <li>For <strong>Print Bill</strong>: the system fetches the relevant existing bills, then takes you
+                        to a dedicated print-ready page (<code>/print/{Month Year}</code>) styled for an A4 printout.
+                        From there, press <span class="key">Ctrl</span>+<span class="key">P</span> (or <span
+                            class="key">⌘</span>+<span class="key">P</span> on Mac) to send to a printer or save as PDF.
+                    </li>
+                </ol>
+
+                <div class="note"><strong>Automatic monthly billing</strong>Bills are generated automatically by the
+                    system around the 25th or 26th of every month. You don't normally need to run Generate Bill
+                    yourself for the regular monthly cycle &mdash; use it for one-off corrections, re-runs after a
+                    property update, or to bring a newly added street current.</div>
+
+                <h3>Quick reference: who clicks what, where</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>I want to...</th>
+                            <th>Where</th>
+                            <th>What I click</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Add a brand-new property</td>
+                            <td>Properties tab header</td>
+                            <td><span class="ui btn"><span class="material-icons">add_business</span>Add Property</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>See everything about one property</td>
+                            <td>Properties row</td>
+                            <td><span class="ui"><span class="material-icons">visibility</span>View Details</span>
+                                (blue)</td>
+                        </tr>
+                        <tr>
+                            <td>See a property's payment history</td>
+                            <td>Properties row</td>
+                            <td><span class="ui"><span class="material-icons">payment</span>View Payments</span> (green)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>See a property's bill history</td>
+                            <td>Properties row</td>
+                            <td><span class="ui"><span class="material-icons">receipt</span>View Monthly Billings</span>
+                                (blue)</td>
+                        </tr>
+                        <tr>
+                            <td>Edit outstanding balance for a property</td>
+                            <td>Property Details &rarr; Financial</td>
+                            <td><span class="ui"><span class="material-icons">edit</span>edit</span> next to Outstanding
+                                Balance</td>
+                        </tr>
+                        <tr>
+                            <td>Disable / enable billing for a property</td>
+                            <td>Billing History dialog</td>
+                            <td>Toggle button at top</td>
+                        </tr>
+                        <tr>
+                            <td>Delete a duplicate bill</td>
+                            <td>Billings tab &rarr; Billing Details</td>
+                            <td><span class="ui" style="background:#fde2e2;color:#a8202a;border-color:#f5b1b1;"><span
+                                        class="material-icons" style="color:#c53030;">delete</span>delete</span> in row
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Find non-payers on a street</td>
+                            <td>Billings tab</td>
+                            <td>Row menu &rarr; <strong>Get Defaulters</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Run billing for a new month</td>
+                            <td>Billings tab header</td>
+                            <td><span class="ui btn"><span class="material-icons">print</span>Print Bill</span> &rarr;
+                                toggle to <strong>Generate</strong> &rarr; submit</td>
+                        </tr>
+                        <tr>
+                            <td>Reprint bills for delivery</td>
+                            <td>Billings tab header</td>
+                            <td><span class="ui btn"><span class="material-icons">print</span>Print Bill</span> &rarr;
+                                keep toggle on <strong>Print</strong> &rarr; submit</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- PAYMENTS -->
+            <section id="mgr-payments">
+                <h2>Payments</h2>
+                <p>The Payments page is your collection log. The header has two action buttons on the right:</p>
+                <ul>
+                    <li><span class="ui btn"><span class="material-icons">file_download</span>Export CSV</span> &mdash;
+                        download a daily payments file, useful for accounting or reconciliation.</li>
+                    <li><span class="ui btn"><span class="material-icons">add_card</span>Post New Payment</span> &mdash;
+                        record a payment that came in by cash, transfer, or any other channel.</li>
+                </ul>
+
+                <h3>Filtering payments</h3>
+                <p>Below the header is a Payment Filters card with four selectors:</p>
+                <ol>
+                    <li><strong>Month</strong> &mdash; pick the calendar month.</li>
+                    <li><strong>Year</strong> &mdash; pick the year.</li>
+                    <li><strong>Street</strong> &mdash; narrow to a specific street (start typing to search).</li>
+                    <li><strong>Property</strong> &mdash; narrow further to a single property.</li>
+                </ol>
+                <p>Each filter is optional. Combine any of them to focus the table below on exactly what you want to
+                    see.</p>
+
+                <h3>Posting a payment</h3>
+                <ol class="steps">
+                    <li>Click <span class="ui btn"><span class="material-icons">add_card</span>Post New Payment</span>.
+                    </li>
+                    <li>Pick the property and the bill the payment is for.</li>
+                    <li>Enter the amount, payment date, and any notes.</li>
+                    <li>Save. The payment shows up in the table and is reflected in the dashboard's collection rate.
+                    </li>
+                </ol>
+
+                <div class="note"><strong>Why this matters</strong>Every payment you post counts toward your collection
+                    rate metric. Keep this log clean and current.</div>
+            </section>
+
+            <!-- SETTINGS -->
+            <section id="mgr-settings">
+                <h2>Settings</h2>
+                <p>Settings is where you configure how the system behaves. The page has up to two tabs depending on
+                    your role:</p>
+                <ul>
+                    <li><span class="ui"><span class="material-icons">home_work</span>Property Types</span> &mdash; the
+                        list of property types and their pricing. Visible to all staff with settings access.</li>
+                    <li><span class="ui"><span class="material-icons">security</span>Access Control</span> &mdash; the
+                        RBAC console for managing roles and staff. <strong>Visible only to super-admins.</strong></li>
+                </ul>
+
+                <h3>Managing property types</h3>
+                <p>Property types determine how much a property is billed (for example, <em>Residential</em>,
+                    <em>Commercial</em>, <em>Industrial</em>). The Property Types tab has:
+                </p>
+                <ul>
+                    <li>A search box to find a type quickly. Press <span class="key">Ctrl</span>+<span
+                            class="key">F</span> to focus it, or <span class="key">Esc</span> to clear it.</li>
+                    <li>A <span class="ui btn"><span class="material-icons">add</span>Add</span> button to define a new
+                        type.</li>
+                    <li>A <span class="ui"><span class="material-icons">refresh</span>Refresh</span> button to reload
+                        the latest data.</li>
+                </ul>
+                <p>To add a type, click <span class="ui btn"><span class="material-icons">add</span>Add</span>, give it
+                    a name and a price, and save.</p>
+
+                <h3>Access control <small style="font-size:14px; color:var(--muted); font-weight:400;">· Super-admins
+                        only</small></h3>
+                <p>The Access Control tab is your live RBAC console. It only shows up for super-admins to keep regular
+                    staff from changing their own roles. From here you can:</p>
+                <ul>
+                    <li>Toggle the entire RBAC system on or off with the <strong>Enable RBAC System</strong> switch.
+                    </li>
+                    <li>Initialise the role and permission catalog the first time you turn RBAC on.</li>
+                    <li>See the <strong>System Status</strong> card with role and permission counts.</li>
+                    <li>View the <strong>User Management</strong> card listing every staff user, their roles, and
+                        edit/remove actions.</li>
+                    <li>Click <span class="ui btn"><span class="material-icons">person_add</span>Add Staff User</span>
+                        to invite a new teammate to your operator workspace. Service clients are intentionally excluded
+                        from this list because they don't have operator-app access.</li>
+                </ul>
+                <p>For deeper role design (creating brand-new roles, editing permission sets), use <strong>Role
+                        Management</strong> (super-admin only).</p>
+            </section>
+
+            <!-- USER ACCESS -->
+            <section id="mgr-access">
+                <h2>User Access Management <small style="font-size:14px; color:var(--muted); font-weight:400;">· Admins
+                        only</small></h2>
+                <p>This page is your control room for who can do what. The left side shows <strong>Your Access</strong>
+                    &mdash; your roles and permissions in one card. The right side shows the <strong>Staff
+                        Users</strong>
+                    table &mdash; every operator-app user on your team.</p>
+
+                <div class="note"><strong>Service clients aren't listed here</strong>Service clients (the property
+                    owners and residents who use the WastePro client portal) don't have operator-app access at all,
+                    so they're intentionally excluded from this page. Manage them from <strong>Properties &amp;
+                        Billings</strong> instead.</div>
+
+                <h3>Editing a user's roles</h3>
+                <ol class="steps">
+                    <li>Find the user in the Staff Users table (use search if needed).</li>
+                    <li>Click the <span class="ui"><span class="material-icons">edit</span>edit</span> icon at the end
+                        of the row.</li>
+                    <li>Toggle roles on or off in the dialog that appears.</li>
+                    <li>Save. The change applies immediately the next time the user reloads.</li>
+                </ol>
+
+                <h3>Adding a new staff user</h3>
+                <p>To invite a teammate to your operator workspace, head to <strong>Settings &rarr; Access
+                        Control</strong> and click <span class="ui btn"><span
+                            class="material-icons">person_add</span>Add Staff User</span> on the User Management card.
+                    Fill in:</p>
+                <ul>
+                    <li><strong>First Name</strong> and <strong>Last Name</strong>.</li>
+                    <li><strong>Email Address</strong> &mdash; this is what they'll sign in with.</li>
+                    <li><strong>Phone Number</strong> with country code.</li>
+                </ul>
+                <p>The new user is created without any roles. Once they show up in the Staff Users table, click the
+                    <span class="ui"><span class="material-icons">edit</span>edit</span> icon on their row to grant the
+                    roles they need.
+                </p>
+
+                <div class="warn"><strong>Be careful</strong>Removing roles can lock a user out of pages they were
+                    using. Confirm with them first if it's not a routine change.</div>
+            </section>
+
+            <!-- ROLE MANAGEMENT -->
+            <section id="mgr-roles">
+                <h2>Role Management <small style="font-size:14px; color:var(--muted); font-weight:400;">· Super-admins
+                        only</small></h2>
+                <p>If User Access Management is about <em>who has which role</em>, Role Management is about <em>what
+                        each role can do</em>. The page splits into two cards side by side.</p>
+
+                <h3>Creating a role</h3>
+                <ol class="steps">
+                    <li>On the left, give the role a <strong>name</strong> (e.g. <em>Field Officer</em>) and a short
+                        <strong>description</strong>.
+                    </li>
+                    <li>Tick the <strong>permissions</strong> the role should have. Each permission has a description so
+                        you know exactly what it grants.</li>
+                    <li>Click <span class="ui btn"><span class="material-icons">add</span>Create Role</span>.</li>
+                </ol>
+
+                <h3>Editing or deleting roles</h3>
+                <p>The right card lists existing roles. Each one has an <span class="ui"><span
+                            class="material-icons">edit</span>edit</span> and a <span class="ui"
+                        style="background:#fde2e2;color:#a8202a;border-color:#f5b1b1;"><span class="material-icons"
+                            style="color:#c53030;">delete</span>delete</span> button. Edit opens a dialog where you can
+                    change the name, description, or permissions. Delete removes the role entirely &mdash; do this only
+                    when no users are assigned to it.</p>
+            </section>
+
+            <!-- ============================ -->
+            <!-- SERVICE CLIENT SECTION      -->
+            <!-- ============================ -->
+            <section id="sc-tour">
+                <h2>For Service Clients · Your portal</h2>
+                <p>When you sign in as a service client, you land in your own portal. It has a slim dark sidebar on the
+                    left with your menu, and your content fills the right side.</p>
+
+                <div class="shell sc" aria-hidden="true">
+                    <div class="shell-body">
+                        <div class="shell-side">
+                            <div style="font-weight:800; padding:6px 10px; margin-bottom:14px;">WastePro</div>
+                            <div class="item active"><span class="material-icons"
+                                    style="font-size:18px;">dashboard</span> Dashboard</div>
+                            <div class="item"><span class="material-icons" style="font-size:18px;">receipt</span> My
+                                Billing</div>
+                            <div class="item"><span class="material-icons" style="font-size:18px;">credit_card</span>
+                                Payments</div>
+                            <div class="item"><span class="material-icons" style="font-size:18px;">notifications</span>
+                                Notifications</div>
+                            <div class="item"><span class="material-icons" style="font-size:18px;">person</span> My
+                                Profile</div>
+                        </div>
+                        <div class="shell-main">
+                            <h5>Dashboard</h5>
+                            <div class="shell-cards">
+                                <div class="shell-card">
+                                    <div class="num">₦12,500</div>
+                                    <div class="lbl">Outstanding</div>
+                                </div>
+                                <div class="shell-card">
+                                    <div class="num">₦7,335</div>
+                                    <div class="lbl">Avg monthly</div>
+                                </div>
+                                <div class="shell-card">
+                                    <div class="num">₦88,020</div>
+                                    <div class="lbl">Paid this year</div>
+                                </div>
+                                <div class="shell-card">
+                                    <div class="num">A+</div>
+                                    <div class="lbl">Performance</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p>On phones the sidebar tucks away. Tap the <span class="ui"><span
+                            class="material-icons">menu</span>menu</span> button in the top-left corner to slide it
+                    open.</p>
+            </section>
+
+            <!-- SC DASHBOARD -->
+            <section id="sc-dashboard">
+                <h2>Dashboard</h2>
+                <p>Your home page shows your account at a glance:</p>
+                <ul>
+                    <li><strong>Current outstanding balance</strong> in a large green badge at the top right.</li>
+                    <li>A <strong>year selector</strong> to change which year the page is showing.</li>
+                    <li>A bar chart of your <strong>monthly payments</strong> for the selected year.</li>
+                    <li>Three metric cards: <strong>Average Monthly Payment</strong>, <strong>Total Paid This
+                            Year</strong>, and your <strong>Payment Performance</strong> rating.</li>
+                </ul>
+                <div class="tip"><strong>Tip</strong>Your performance rating reflects how often you pay on time. Keep it
+                    healthy and you may qualify for service perks down the line.</div>
+            </section>
+
+            <!-- SC BILLING -->
+            <section id="sc-billing">
+                <h2>My Billing</h2>
+                <p>Everything about your bills lives here.</p>
+
+                <h3>The summary cards</h3>
+                <p>Four cards across the top tell you the big picture:</p>
+                <ul>
+                    <li><strong>Total Bills</strong> &mdash; how many bills have ever been issued to you.</li>
+                    <li><strong>Paid Bills</strong> &mdash; how many you have cleared.</li>
+                    <li><strong>Unpaid Bills</strong> &mdash; how many are still open.</li>
+                    <li><strong>Current Arrears</strong> &mdash; what you owe right now.</li>
+                </ul>
+
+                <h3>Filtering and viewing bills</h3>
+                <p>Use the <strong>Year</strong> and <strong>Status</strong> dropdowns to focus on what you need. Click
+                    <span class="ui"><span class="material-icons">refresh</span>Reset Filters</span> to clear them.
+                </p>
+                <p>Below the filters you'll see your <strong>property details</strong> &mdash; name, address, units,
+                    your subscriber info &mdash; followed by the bills table itself.</p>
+            </section>
+
+            <!-- SC PAYMENTS -->
+            <section id="sc-payments">
+                <h2>Payments</h2>
+                <p>Two things happen on this page: you see your dedicated <strong>virtual account</strong>, and you see
+                    your full <strong>payment history</strong>.</p>
+
+                <h3>Your virtual account</h3>
+                <p>The top card shows three things:</p>
+                <ul>
+                    <li><strong>Account number</strong> &mdash; with a one-tap <span class="ui"><span
+                                class="material-icons">content_copy</span>copy</span> button.</li>
+                    <li><strong>Account name</strong>.</li>
+                    <li><strong>Bank name</strong>.</li>
+                </ul>
+                <p>Send any payment to this account from your usual banking app. WastePro automatically detects it,
+                    applies it to your bill, and updates your records.</p>
+
+                <div class="note"><strong>Why a virtual account?</strong>It saves you from typing reference codes or
+                    uploading proof of payment. Pay any amount, any time, from any bank, and your bill updates by
+                    itself.</div>
+
+                <h3>Payment history</h3>
+                <p>Below your virtual account you'll find a paginated list of every payment, with the amount, date, type
+                    (manual or virtual account), and status (paid, pending, failed). Filter by year using the dropdown.
+                </p>
+            </section>
+
+            <!-- SC NOTIFICATIONS -->
+            <section id="sc-notifications">
+                <h2>Notifications</h2>
+                <p>This is where you get bill reminders, payment confirmations, and operator announcements.</p>
+                <p>Three filter tabs sit at the top:</p>
+                <ul>
+                    <li><strong>All</strong> &mdash; everything.</li>
+                    <li><strong>Unread</strong> &mdash; only the messages you haven't opened.</li>
+                    <li><strong>Alerts</strong> &mdash; important updates like overdue notices.</li>
+                </ul>
+                <p>Each notification shows a title, a short description, the time it arrived, and (sometimes) an action
+                    button. You can:</p>
+                <ul>
+                    <li>Click the action button to jump to a relevant page.</li>
+                    <li>Click <strong>Mark as read</strong> to clear the unread badge.</li>
+                    <li>Click the <span class="ui" style="background:#fde2e2;color:#a8202a;border-color:#f5b1b1;"><span
+                                class="material-icons" style="color:#c53030;">delete</span>delete</span> icon to remove
+                        a notification.</li>
+                    <li>Or click <span class="ui"><span class="material-icons">done_all</span>Mark all as read</span> at
+                        the top right to clear everything.</li>
+                </ul>
+            </section>
+
+            <!-- SC PROFILE -->
+            <section id="sc-profile">
+                <h2>My Profile</h2>
+                <p>Your profile page has three blocks stacked vertically.</p>
+
+                <h4>Profile information</h4>
+                <p>Your photo, name, email, phone, and address. Tap <span class="ui"><span
+                            class="material-icons">photo_camera</span>Change Photo</span> to update the picture.</p>
+
+                <h4>Account information</h4>
+                <p>Your customer ID, account status, service plan, and the date you joined. Reference these when you
+                    contact support.</p>
+
+                <h4>Settings</h4>
+                <p>Quick actions to <strong>Edit Profile</strong>, <strong>Change Password</strong>, manage
+                    <strong>Notification Preferences</strong>, or <strong>Logout</strong>.
+                </p>
+            </section>
+
+            <!-- ONBOARDING -->
+            <section id="onboarding">
+                <h2>For New Operators · Onboarding</h2>
+                <p>If you are a waste management company joining WastePro for the first time, you start at the public
+                    onboarding page. You don't need an account yet &mdash; you'll create one as part of this flow.</p>
+
+                <h3>The two paths</h3>
+                <ul>
+                    <li><strong>New Waste Operator</strong> &mdash; if you've never registered before. Click <span
+                            class="ui btn"><span class="material-icons">business</span>Register New Company</span> and
+                        fill out your company details.</li>
+                    <li><strong>Existing Operator</strong> &mdash; if you started before but didn't finish. Type your
+                        registered email and click <span class="ui btn"><span class="material-icons">search</span>Check
+                            Registration</span> to pick up where you left off.</li>
+                </ul>
+
+                <h3>What happens next</h3>
+                <ol class="steps">
+                    <li><strong>Register</strong> your company &mdash; name, contact, area of operation.</li>
+                    <li><strong>Upload your data</strong> &mdash; lists of properties, streets, subscribers in CSV
+                        format.</li>
+                    <li><strong>Review the summary</strong> &mdash; we show you what was imported and flag anything that
+                        needs fixing.</li>
+                    <li><strong>Receive your credentials</strong> &mdash; once everything is verified, your operator
+                        admin account is activated and you can sign in like any other Waste Manager.</li>
+                </ol>
+
+                <div class="tip"><strong>Tip</strong>Use UTF-8 CSV files with a header row. Our team can help format
+                    your existing spreadsheet if you're not sure.</div>
+            </section>
+
+            <!-- COMMON TASKS -->
+            <section id="cookbook">
+                <h2>Common tasks</h2>
+                <p>Quick recipes for the things you'll do most often.</p>
+
+                <h3>Add a new street</h3>
+                <ol>
+                    <li>Open <strong>Settings</strong> (or the relevant area in Properties &amp; Billings).</li>
+                    <li>Click the add button to open the <strong>Add Street</strong> dialog.</li>
+                    <li>Type the street name and pick its LGA.</li>
+                    <li>Save. The street is now available everywhere.</li>
+                </ol>
+
+                <h3>Add a new property</h3>
+                <ol>
+                    <li>Go to <strong>Properties &amp; Billings</strong> &rarr; <strong>Properties</strong> tab.</li>
+                    <li>Click <span class="ui btn"><span class="material-icons">add_business</span>Add Property</span>.
+                    </li>
+                    <li>In the <strong>New Property Subscription</strong> dialog, fill in the property name, choose its
+                        street and type, then add subscriber details.</li>
+                    <li>Save.</li>
+                </ol>
+
+                <h3>Add a subscriber</h3>
+                <ol>
+                    <li>Open the <strong>Add Subscriber</strong> dialog (linked from the property details view, or
+                        directly from a New Property Subscription form).</li>
+                    <li>Fill in personal information &mdash; first name, last name, phone, email.</li>
+                    <li>Save. The subscriber gets a virtual account automatically.</li>
+                </ol>
+
+                <h3>Generate bills for a billing cycle</h3>
+                <ol>
+                    <li>Go to <strong>Properties &amp; Billings</strong> &rarr; <strong>Billings</strong> tab.</li>
+                    <li>Click <span class="ui btn"><span class="material-icons">print</span>Print Bill</span>.</li>
+                    <li>In the panel, switch the toggle to <strong>Generate Bill</strong>.</li>
+                    <li>Select street, billing period, and any other filters.</li>
+                    <li>Submit. Bills are created and a printable summary appears.</li>
+                </ol>
+
+                <h3>Adjust an outstanding balance</h3>
+                <ol>
+                    <li>Open the property's billing details.</li>
+                    <li>Find the bill and click the <strong>Edit Arrears</strong> action.</li>
+                    <li>Enter the new amount and a reason for the adjustment.</li>
+                    <li>Save. The change is logged.</li>
+                </ol>
+
+                <h3>Export daily payments</h3>
+                <ol>
+                    <li>Open <strong>Payments</strong>.</li>
+                    <li>Optionally filter by month, year, street, or property.</li>
+                    <li>Click <span class="ui btn"><span class="material-icons">file_download</span>Export CSV</span>.
+                    </li>
+                    <li>Pick the date range in the dialog and download.</li>
+                </ol>
+            </section>
+
+            <!-- FAQ -->
+            <section id="faq">
+                <h2>FAQ &amp; tips</h2>
+
+                <details>
+                    <summary>I forgot my password. What now?</summary>
+                    <p>If you're a Service Client, you don't need a password &mdash; just sign in with your property
+                        code and phone number. If you're a Waste Manager, ask your operator's admin to reset your access
+                        from <strong>User Access Management</strong>.</p>
+                </details>
+
+                <details>
+                    <summary>Why don't I see all the menu items?</summary>
+                    <p>WastePro shows only the items your role allows. If you think you should see something extra (like
+                        Role Management or User Access), ask a super-admin to grant the right role.</p>
+                </details>
+
+                <details>
+                    <summary>Can I use WastePro on my phone?</summary>
+                    <p>Yes. The whole platform is mobile-friendly. The Service Client portal in particular is designed
+                        for phones first &mdash; the sidebar slides in from the left when you tap the menu icon.</p>
+                </details>
+
+                <details>
+                    <summary>Can I install WastePro like an app?</summary>
+                    <p>Yes. WastePro is a Progressive Web App. The first time you visit, your browser may show an
+                        install prompt. You can also use Chrome's "Install WastePro" option from the address bar.</p>
+                </details>
+
+                <details>
+                    <summary>How does virtual-account payment work?</summary>
+                    <p>Each Service Client gets a unique account number tied to their subscription. You can transfer to
+                        it from any bank or fintech app. WastePro receives the payment, matches it to your account, and
+                        updates your bill automatically &mdash; no need to send a screenshot or reference code.</p>
+                </details>
+
+                <details>
+                    <summary>The Collection Rate looks low. What can I do?</summary>
+                    <p>The two biggest levers are: (1) make sure every subscriber is on a virtual account so payments
+                        come in automatically; (2) use Notifications and reminders to nudge defaulters. The Payments
+                        page filters help you spot which streets and properties are lagging.</p>
+                </details>
+
+                <details>
+                    <summary>I clicked something and got an "Unauthorised" page.</summary>
+                    <p>That means your role doesn't have permission for that action. Either ask an admin to add the
+                        missing role, or sign in with an account that already has it.</p>
+                </details>
+
+                <details>
+                    <summary>How do I print a bill?</summary>
+                    <p>From <strong>Properties &amp; Billings</strong> &rarr; <strong>Billings</strong> tab, click <span
+                            class="ui btn"><span class="material-icons">print</span>Print Bill</span>, leave the toggle
+                        on <strong>Print Bill</strong>, choose the street and period, and submit. WastePro produces a
+                        print-ready page you can send to the printer with <span class="key">Ctrl</span>+<span
+                            class="key">P</span>.</p>
+                </details>
+            </section>
+
+            <!-- GLOSSARY -->
+            <section id="glossary">
+                <h2>Glossary</h2>
+                <ul>
+                    <li><strong>Operator</strong> &mdash; the waste management company running its business on WastePro.
+                    </li>
+                    <li><strong>Service Client / Subscriber</strong> &mdash; a property owner or resident receiving the
+                        service.</li>
+                    <li><strong>Property</strong> &mdash; an individual address being serviced.</li>
+                    <li><strong>Property Type</strong> &mdash; a billing category (Residential, Commercial, etc.) with a
+                        price attached.</li>
+                    <li><strong>LGA</strong> &mdash; Local Government Area; the largest geographic unit in WastePro's
+                        hierarchy.</li>
+                    <li><strong>Ward / Street</strong> &mdash; the geographic divisions inside an LGA used for billing
+                        and reporting.</li>
+                    <li><strong>Bill</strong> &mdash; an invoice issued to a subscriber for a billing period.</li>
+                    <li><strong>Arrears</strong> &mdash; outstanding amount on a bill.</li>
+                    <li><strong>Collection Rate</strong> &mdash; the percentage of billed amounts actually paid.</li>
+                    <li><strong>Virtual Account</strong> &mdash; a dedicated bank account number assigned to each
+                        subscriber for automated payments.</li>
+                    <li><strong>Role</strong> &mdash; a named set of permissions (e.g. Admin, Field Officer).</li>
+                    <li><strong>Permission</strong> &mdash; a specific action (e.g. <code>billing:read</code>) granted
+                        by a role.</li>
+                </ul>
+            </section>
+
+            <footer>
+                <p><strong>Need a hand?</strong> Email <a href="mailto:dev@boundlesedge.com">dev@boundlesedge.com</a> or
+                    contact your operator's admin.</p>
+                <p>WastePro is a BoundlessEdge product. Visit <a href="https://wasteproutils.com">wasteproutils.com</a>
+                    &middot; <a href="https://boundlesedge.com">boundlesedge.com</a>.</p>
+            </footer>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>

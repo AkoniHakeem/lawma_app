@@ -137,6 +137,17 @@
       <div class="sidebar-footer">
         <q-separator class="q-mb-md" color="blue-grey-7" />
 
+        <!-- Identity Panel -->
+        <div v-if="currentUser" class="identity-panel q-mx-md q-mb-md">
+          <q-avatar size="34px" color="orange-7" text-color="white" class="identity-avatar">
+            {{ initials }}
+          </q-avatar>
+          <div class="identity-text">
+            <div class="identity-name">{{ fullName }}</div>
+            <div class="identity-role">{{ roleLabel }}</div>
+          </div>
+        </div>
+
         <!-- Logout Button -->
         <q-item
           clickable
@@ -175,23 +186,24 @@ import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import LawmaAppBadge from 'src/components/LawmaAppBadge.vue';
 import useAuthStore from 'src/stores/auth-store';
-import { storeToRefs } from 'pinia';
+import { useRbacStore } from 'src/stores/rbac-store';
 
 // consts
 const leftDrawerOpen = ref(true);
 const router = useRouter();
 const pageTitle = ref('Dashboard');
 const authStore = useAuthStore();
+const rbacStore = useRbacStore();
 
-// refs
-const { token } = storeToRefs(authStore);
-
-// Navigation items
-const navigationItems = ref([
+// Navigation items — Dashboard is only visible to super-admins because it
+// surfaces system-wide financial metrics. Everyone else lands on
+// Properties & Billings as their home page.
+const allNavigationItems = [
   {
     path: '/dashboard',
     label: 'Dashboard',
     icon: 'dashboard',
+    superAdminOnly: true,
   },
   {
     path: '/properties-billings',
@@ -208,7 +220,48 @@ const navigationItems = ref([
     label: 'Settings',
     icon: 'settings',
   },
-]);
+];
+
+const navigationItems = computed(() =>
+  allNavigationItems.filter((item) => {
+    if (!item.superAdminOnly) return true;
+    // Until the user's roles are loaded, hide super-admin-only items.
+    // The route guard is the source of truth — this just keeps the
+    // sidebar visually accurate after the load resolves.
+    return rbacStore.isSuperAdmin;
+  })
+);
+
+// Identity panel data
+const currentUser = computed(() => rbacStore.currentUser);
+const fullName = computed(() => {
+  const u = currentUser.value;
+  if (!u) return '';
+  return `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim() || 'Staff User';
+});
+const initials = computed(() => {
+  const u = currentUser.value;
+  if (!u) return '·';
+  const first = u.firstName?.charAt(0) ?? '';
+  const last = u.lastName?.charAt(0) ?? '';
+  return (first + last).toUpperCase() || '·';
+});
+const roleLabel = computed(() => {
+  const roles = rbacStore.userRoles;
+  if (!roles?.length) return 'No role assigned';
+  // Prefer the most authoritative role first
+  const priority = ['super_admin', 'admin'];
+  const sorted = [...roles].sort((a, b) => {
+    const aIdx = priority.indexOf(a.name);
+    const bIdx = priority.indexOf(b.name);
+    return (aIdx === -1 ? 99 : aIdx) - (bIdx === -1 ? 99 : bIdx);
+  });
+  const primary = sorted[0];
+  const extra = sorted.length - 1;
+  return extra > 0
+    ? `${primary.displayName} +${extra}`
+    : primary.displayName;
+});
 
 // Sidebar styling
 const sidebarStyle = computed(() => ({
@@ -268,8 +321,17 @@ useMeta(() => {
   };
 });
 
-onMounted(() => {
-  console.log('Here is tht token value on mount', token);
+onMounted(async () => {
+  // Make sure the user's roles and identity are loaded so the sidebar can
+  // gate items correctly and the identity panel can render. Skip if the
+  // store already has data from a previous navigation.
+  if (!rbacStore.currentUser) {
+    try {
+      await rbacStore.loadUserAccess();
+    } catch (err) {
+      console.warn('Failed to load user access for layout:', err);
+    }
+  }
 });
 </script>
 
@@ -442,6 +504,47 @@ onMounted(() => {
   right: 0;
   background: rgba(38, 50, 56, 0.8);
   backdrop-filter: blur(10px);
+}
+
+.identity-panel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.identity-avatar {
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.identity-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.identity-name {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.identity-role {
+  color: rgba(164, 212, 175, 0.85);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .logout-btn {

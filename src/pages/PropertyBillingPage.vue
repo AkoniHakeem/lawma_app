@@ -1700,9 +1700,16 @@ watch(showPaymentHistoryModal, (newValue) => {
 // Reopen main dialog when secondary modal is closed (for better UX)
 watch(showSecondaryDialog, (newValue) => {
   if (!newValue && currentTab.value === NamedTabsEnum.PROPERTIES) {
-    // Reload custodians if AddSubscriber modal was just closed
+    // Reload the relevant dropdown so the newly created entry shows up
+    // immediately in the New Property Subscription form.
     if (secondaryModalValue.value === NamedSecondaryModal.ADD_SUBSCRIBER) {
       newPropertySubscriptionRef.value?.reloadCustodians();
+    } else if (
+      secondaryModalValue.value === NamedSecondaryModal.ADD_PROPERTY_TYPE
+    ) {
+      newPropertySubscriptionRef.value?.reloadPropertyTypes();
+    } else if (secondaryModalValue.value === NamedSecondaryModal.ADD_STREET) {
+      newPropertySubscriptionRef.value?.reloadStreets();
     }
     // Small delay to ensure smooth transition
     setTimeout(() => {

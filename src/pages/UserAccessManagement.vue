@@ -110,93 +110,49 @@
       <div class="col-12 col-md-8">
         <q-card>
           <q-card-section>
-            <div class="text-h6">Entity Users</div>
+            <div class="text-h6">Staff Users</div>
+            <p class="text-caption text-grey-6 q-mb-none">
+              Operator staff with access to the WastePro app. Service clients
+              are managed separately and don't appear here.
+            </p>
           </q-card-section>
 
-          <q-tabs v-model="activeTab" class="text-grey-7">
-            <q-tab name="staff" label="Staff Users" />
-            <q-tab name="customers" label="Customer Users" />
-          </q-tabs>
+          <q-card-section>
+            <q-table
+              :rows="rbacStore.entityUsers?.entityUsers || []"
+              :columns="userColumns"
+              row-key="id"
+              flat
+              :loading="rbacStore.loading"
+            >
+              <template v-slot:body-cell-roles="props">
+                <q-td :props="props">
+                  <q-chip
+                    v-for="role in props.row.roles"
+                    :key="role.id"
+                    size="sm"
+                    color="primary"
+                    text-color="white"
+                    class="q-mr-xs"
+                  >
+                    {{ role.displayName }}
+                  </q-chip>
+                </q-td>
+              </template>
 
-          <q-tab-panels v-model="activeTab" animated>
-            <!-- Staff Users -->
-            <q-tab-panel name="staff">
-              <q-table
-                :rows="rbacStore.entityUsers?.entityUsers || []"
-                :columns="userColumns"
-                row-key="id"
-                flat
-                :loading="rbacStore.loading"
-              >
-                <template v-slot:body-cell-roles="props">
-                  <q-td :props="props">
-                    <q-chip
-                      v-for="role in props.row.roles"
-                      :key="role.id"
-                      size="sm"
-                      color="primary"
-                      text-color="white"
-                      class="q-mr-xs"
-                    >
-                      {{ role.displayName }}
-                    </q-chip>
-                  </q-td>
-                </template>
-
-                <template v-slot:body-cell-actions="props">
-                  <q-td :props="props">
-                    <q-btn
-                      v-if="rbacStore.canManageUsers"
-                      flat
-                      icon="edit"
-                      size="sm"
-                      @click="editUserRoles(props.row, 'entity_user_profile')"
-                    />
-                  </q-td>
-                </template>
-              </q-table>
-            </q-tab-panel>
-
-            <!-- Customer Users -->
-            <q-tab-panel name="customers">
-              <q-table
-                :rows="rbacStore.entityUsers?.subscriberUsers || []"
-                :columns="userColumns"
-                row-key="id"
-                flat
-                :loading="rbacStore.loading"
-              >
-                <template v-slot:body-cell-roles="props">
-                  <q-td :props="props">
-                    <q-chip
-                      v-for="role in props.row.roles"
-                      :key="role.id"
-                      size="sm"
-                      color="secondary"
-                      text-color="white"
-                      class="q-mr-xs"
-                    >
-                      {{ role.displayName }}
-                    </q-chip>
-                  </q-td>
-                </template>
-
-                <template v-slot:body-cell-actions="props">
-                  <q-td :props="props">
-                    <q-btn
-                      v-if="rbacStore.canManageUsers"
-                      flat
-                      icon="edit"
-                      size="sm"
-                      @click="
-                        editUserRoles(props.row, 'entity_subscriber_profile')
-                      "
-                    />
-                  </q-td>
-                </template>
-              </q-table>
-            </q-tab-panel>
-          </q-tab-panels>
+              <template v-slot:body-cell-actions="props">
+                <q-td :props="props">
+                  <q-btn
+                    v-if="rbacStore.canManageUsers"
+                    flat
+                    icon="edit"
+                    size="sm"
+                    @click="editUserRoles(props.row, 'entity_user_profile')"
+                  />
+                </q-td>
+              </template>
+            </q-table>
+          </q-card-section>
         </q-card>
       </div>
     </div>
@@ -233,7 +189,6 @@ import EditUserRolesDialog from './EditUserRolesDialog.vue';
 const rbacStore = useRbacStore();
 
 // State
-const activeTab = ref('staff');
 const showCreateRoleDialog = ref(false);
 const showEditUserDialog = ref(false);
 const selectedUser = ref<EntityUser | null>(null);

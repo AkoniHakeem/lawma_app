@@ -228,6 +228,7 @@ import { SigninEventHandler } from 'src/lib/eventHandlers/Signin.handler';
 import SigninModel from 'src/models/Signin.model';
 import { asyncComputed } from '@vueuse/core';
 import useAuthStore from 'src/stores/auth-store';
+import { useRbacStore } from 'src/stores/rbac-store';
 import { storeToRefs } from 'pinia';
 import { watch } from 'vue';
 import { useServicedClientSigninViewModel } from 'src/viewmodels/ServicedClientSignin.viewmodel';
@@ -236,6 +237,7 @@ import { useQuasar } from 'quasar';
 
 const router = useRouter();
 const store = useAuthStore();
+const rbacStore = useRbacStore();
 const { token } = storeToRefs(store);
 const showPassword = ref(false);
 const newSigninModel = reactive(new SigninModel());
@@ -266,11 +268,12 @@ function validateField(name: string) {
 }
 async function onSubmit() {
   if (!newSigninModel.errors?.length) {
-    await SigninEventHandler.signin(newSigninModel, {
-      onSuccess: async () => {
-        await router.replace('/dashboard');
-      },
-    });
+    // Note: we deliberately don't redirect from here. The auth-token
+    // watcher below picks up the new token and sends the user to the
+    // right landing page. That keeps the redirect logic in a single
+    // place and avoids a race where this redirect fires before the
+    // route guard knows the user's roles.
+    await SigninEventHandler.signin(newSigninModel);
   }
 }
 function onReset() {
@@ -359,15 +362,44 @@ async function onClientLogin() {
   });
 }
 
-watch(token as Ref<string>, (newValue) => {
-  if (newValue) {
-    const url = process.env.URL;
-    if (url) {
-      window.location.href = url;
-    } else {
-      router.push('/');
-    }
+watch(token as Ref<string>, async (newValue) => {
+  if (!newValue) return;
+
+  const url = process.env.URL;
+  if (url) {
+    window.location.href = url;
+    return;
   }
+
+  // Make sure the user's roles and permissions are loaded before we
+  // pick a landing page, otherwise the route guard will reject the
+  // redirect and bounce them to /unauthorized.
+  try {
+    await rbacStore.loadUserAccess();
+  } catch (err) {
+    console.warn('Failed to load user access during sign-in redirect:', err);
+  }
+
+  // Pick a landing page based on what the user can actually access:
+  //   super-admin   → /dashboard
+  //   billing/properties access → /properties-billings
+  //   payments-only access → /payments
+  //   anything else → /settings (read-only safe landing)
+  let target = '/properties-billings';
+  if (rbacStore.isSuperAdmin) {
+    target = '/dashboard';
+  } else if (
+    rbacStore.hasPermission('properties:read') ||
+    rbacStore.hasPermission('billing:read')
+  ) {
+    target = '/properties-billings';
+  } else if (rbacStore.hasPermission('payments:read')) {
+    target = '/payments';
+  } else {
+    target = '/settings';
+  }
+
+  router.push(target);
 });
 onMounted(() => {
   resetForm();
